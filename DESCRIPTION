@@ -1,6 +1,6 @@
 Package: washr
-Title: Data Package Development Tools for Water Sanitation and Hygiene Data
-Version: 0.0.1
+Title: Publication Toolkit for Water, Sanitation and Hygiene (WASH) Data
+Version: 1.0.0
 Authors@R: c(
     person("Mian", "Zhong", , "mzhong@ethz.ch", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0009-4546-7214")),
@@ -12,8 +12,8 @@ Authors@R: c(
            comment = c(ORCID = "0000-0003-2196-5015")),
     person("Global Health Engineering, ETH Zurich", role = "cph")
   )
-Description: A set of automation tools to set up an openwashdata R data package in a consistent structure. It helps to reduce manual entries on tidy data exporting, data dictionary documentation, README and 'pkgdown' website writing, and citation file generation.
-License: MIT + file LICENSE
+Description: A toolkit to set up an openwashdata R data package in a consistent structure. Automates tasks like tidy data export, data dictionary documentation, README and website creation, and citation management.
+License: Hippocratic License 3.0 (HL3) + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
@@ -27,7 +27,7 @@ Imports:
     utils (>= 4.3.3)
 Language: en-GB
 Config/Needs/website: rmarkdown
-Date: 2024-10-22
+Date: 2024-10-29
 URL: https://openwashdata-dev.github.io/washr/
 BugReports: https://github.com/openwashdata-dev/washr/issues
 Suggests: 
