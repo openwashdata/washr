@@ -5,9 +5,9 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/openwashdata-dev/washr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/openwashdata-dev/washr/actions/workflows/R-CMD-check.yaml)
-[![Hippocratic License
-HL3-CORE](https://img.shields.io/static/v1?label=Hippocratic%20License&message=HL3-CORE&labelColor=5e2751&color=bc8c3d)](https://firstdonoharm.dev/version/3/0/core.html)
+[![R-CMD-check](https://github.com/openwashdata/washr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/openwashdata/washr/actions/workflows/R-CMD-check.yaml)
+[![License: GPL
+v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 <!-- badges: end -->
 
@@ -29,17 +29,16 @@ To get the latest version, you can install the development version from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("openwashdata-dev/washr")
+devtools::install_github("openwashdata/washr")
 ```
 
 ## How to use washr
 
 To learn more about `washr`, check out the ‘Get Started’ page. This,
-along with the ‘Reference’ page, will give you a good overview of
-`washr`’s current capabilities and limitations.
+along with the ‘Reference’ page, will give you a good overview of the
+toolkit.
 
 If you decide to use `washr` for publishing your data (which we hope you
-will!), take a look at our detailed manual. It’s regularly updated and
-walks you through the entire process step-by-step. The manual is your
-best bet for the most up-to-date information, as we’re constantly
-improving it.
+will!), take a look at our [detailed
+guide](https://global-health-engineering.github.io/ghedatapublishing/).
+It’s regularly updated and walks you through the entire process.
