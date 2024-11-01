@@ -15,86 +15,22 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(washr)
-library(devtools)
-```
+The `washr` package offers an easy-to-use toolkit to publish your WASH data. This guide provides simple steps to get the package up and running on your machine.
 
-This vignette demonstrates the `washr` data package development workflow with a toy dataset titled `fssample`. The `fssample` data is an (imaginary) 5-day sample collection of faecal sludge.
-
-> You are taking 20 samples of 1 liter faecal sludge from pit latrines and septic tanks at households and public toilets (5 samples each). For each sample, you note the number of daily users of the sanitation system.[^1]
-
-[^1]: Your sample collection starts on 1st November 2022. On day 5, you analyse the data in the laboratory for totals solids (TS) in g/L. In your spreadsheet, note the exact date of each collected sample.
-
-    This is you data collection plan:
-
-    - Day 1: 5 samples at households using pit latrines 
-    - Day 2: 5 samples at households using septic tanks 
-    - Day 3: 5 samples at public toilets that are pit latrines 
-    - Day 4: 5 samples at public toilets that are septic tanks 
-    - Day 5: Analyses of all 20 samples for total solids (TS) in g/L on a lab scale with accuracy of 0.01 g 
-    
-    Make up the results for the total solids (TS) analyses (e.g. 12.48 g/L).
-
-# 1. Create and process dataset
-
-After initializing an R package named with `fssample` with `devtools`, you can start to set up the raw data in the package by executing:
-
-```{r setup_rawdata}
-setup_rawdata()
-```
-
-Under the `fssample` directory, there is now a new directory `data-raw` with an R script `data-processing.R` inside it. Go to `data-processing.R` and refer to our template code to import, clean, and export the dataset. For instance, you may want to change the data type of the column "location" to be factor or reformat the column "date" into `YYYY-MM-DD`.
-
-After executing the last a few lines in `data-processing.R`, namely,
-
-```{r export_data}
-usethis::use_data(fssample, overwrite = TRUE)
-fs::dir_create(here::here("inst", "extdata"))
-readr::write_csv(fssample,
-                 here::here("inst", "extdata", paste0("fssample", ".csv")))
-openxlsx::write.xlsx(fssample,
-                     here::here("inst", "extdata", paste0("fssample", ".xlsx")))
-```
-
-A directory `data/` that contains the exported data in `.rds` format was created in the root directory. 
-
-# 2. Document dataset
-
-The next step is to provide human and machine-readable documentation for the dataset and the package itself. 
-
-For documenting the package, you work with the `DESCRIPTION` file by running:
-
-```{r update_dict}
-update_description()
-```
-
-Next comes the dataset documentation. You first create a dictionary for the dataset in CSV file format.
+To install the latest stable version of `washr` from CRAN, use the following command in your R console:
 
 ```{r}
-setup_dictionary()
+install.packages("washr")
 ```
 
-Go to `data-raw/dictionary.csv`, open the CSV file, and fill in the empty column `description` of the dictionary. Once the dictionary is complete, you document the dataset by turning the content of the CSV file into roxygen comments by executing:
+If you’d like to try out the latest features and improvements, you can install the development version of `washr` from GitHub. Make sure you have the `remotes` package installed:
 
 ```{r}
-setup_roxygen()
+# Install washr from GitHub
+remotes::install_github("openwashdata/washr")
 ```
 
-Go to `R/` and fill in the title and description for the dataset.
+After installing `washr`, you can start using its functions in your WASH data publication workflow! For a detailed guide on how to get set up and an overview of the package features, visit the full guide [here](https://global-health-engineering.github.io/ghedatapublishing/).
 
-# Communicate dataset
 
-The R dataset and documentation are complete. It's time to communicate with the public using human-readable and visually appealing tools. We currently achieve this with the following two components.
-
--   README
--   pkgdown website
-
-```{r}
-setup_readme()
-# Go to README.Rmd and complete this R Markdown file
-build_readme() # Generate README.md from README.Rmd
-setup_website()
-```
-
-Now, it's time to work on polishing the README and website. Once you are satisfied with them, don't forget to re-run `build_readme()` and `build_site()` again to update.
+Happy coding with `washr`!

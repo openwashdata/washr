@@ -32,7 +32,7 @@ devtools::create(temppkg, open=FALSE)
 }
 \dontrun{
 setup_dictionary()
-# Go to data-raw/dictionary.csv and complete column description.
+# Once the dictionary is created, go to data-raw/dictionary.csv and complete the column description.
 setup_roxygen()
 }
 \dontshow{
