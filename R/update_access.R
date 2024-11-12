@@ -19,8 +19,8 @@ data <- data.frame(
   fileName = c(paste0(file_name, ".csv"), paste0(file_name, ".xlsx")),
   name = rep(file_name, 2),
   contentUrl = c(
-    "https://raw.githubusercontent.com/openwashdata/worldhdi/main/inst/extdata/worldhdi.csv",
-    "https://raw.githubusercontent.com/openwashdata/worldhdi/main/inst/extdata/worldhdi.xlsx"
+    paste0("https://raw.githubusercontent.com/openwashdata/", file_name,"/main/inst/extdata/",file_name,".csv"),
+    paste0("https://raw.githubusercontent.com/openwashdata/", file_name,"/main/inst/extdata/",file_name,".xlsx")
   ),
   encodingFormat = c("csv", "ooxml"),
   stringsAsFactors = FALSE
