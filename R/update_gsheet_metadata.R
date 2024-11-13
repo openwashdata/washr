@@ -1,0 +1,71 @@
+library(googledrive)
+library(googlesheets4)
+library(tidyverse)
+library(readr)
+
+update_gsheet_metadata <- function(github_profile = "") {
+
+  if (github_profile == "") {
+    usethis::ui_stop("Please provide the github profile name for the maintainer.")
+  }
+
+  dictionary_path <- "data-raw/dictionary.csv"
+
+  if (!file.exists(dictionary_path)) {
+    usethis::ui_stop("Dictionary file not found. Please run 'setup_dictionary' to create the dictionary file.")
+  }
+
+  dictionary <- read_csv(dictionary_path, show_col_types = FALSE)
+  dataset <- dictionary |> distinct(file_name)
+  # remove extension from file_name
+  file_name <- tools::file_path_sans_ext(dataset$file_name)
+
+  maintainer <- github_profile
+
+  id = ""
+
+  source <- ""
+
+  difficulty <- ""
+
+  status <- "in-progress"
+
+  description <- read.dcf("DESCRIPTION")[,"Description"]
+
+  biblio_metadata <- read_csv("data/metadata/biblio.csv", show_col_types = FALSE)
+
+  location <- biblio_metadata$geographicDescription[1]
+
+  date_published <-  ""
+
+  link_github <-  paste0("<https://github.com/openwashdata/", file_name, ">")
+
+  link_website <- paste0("<https://openwashdata.github.io/", file_name, ">")
+
+  doi = ""
+
+  # Create a dataframe with the metadata
+  data <- data.frame(
+    id = id,
+    file_name = file_name,
+    maintainer = maintainer,
+    source = source,
+    difficulty = difficulty,
+    status = status,
+    description = description,
+    location = location,
+    date_published = date_published,
+    link_github = link_github,
+    link_website = link_website,
+    doi = doi
+  )
+
+  # Update these in the google sheet
+
+  workbook = gs4_get("https://docs.google.com/spreadsheets/d/1vtw16vpvJbioDirGTQcy0Ubz01Cz7lcwFVvbxsNPSVM/edit?gid=1694829481#gid=1694829481")
+
+  sheet_append(data, ss=workbook, sheet="Test")
+
+  cat("Successfully appended data. Please fill in the missing columns manually.")
+}
+
