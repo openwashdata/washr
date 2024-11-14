@@ -15,8 +15,6 @@
 #' }
 update_attributes <- function(){
 
-
-
   correct_wd <- is_pkg()
   if (correct_wd){
 

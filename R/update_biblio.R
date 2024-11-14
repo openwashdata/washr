@@ -33,21 +33,16 @@ update_biblio <- function() {
   license <- description[,"License"]
   funder <- "https://ethrat.ch/en/eth-domain/open-research-data/"
 
-  bibilo_data <- data.frame(
-    title = character(),
-    description = character(),
-    license = character(),
-    funder = character(),
-    stringsAsFactors = FALSE
-  )
+  bibilo_data <- readr::read_csv(biblio_path, show_col_types = FALSE)
 
-  # Update the selected fields
-  biblio_data$title <- title
-  biblio_data$description <- pkg_description
-  biblio_data$license <- license
-  biblio_data$funder <- funder
+  # Update the selected fields in the first row
+  biblio_data[1, "title"] = title
+  biblio_data[1, "description"] = pkg_description
+  biblio_data[1, "license"] = license
+  biblio_data[1, "funder"] = funder
+
 
   # Write back to biblio.csv
-  write.csv(biblio_data, biblio_path, row.names = FALSE)
+  readr::write_csv(biblio_data, biblio_path, row.names = FALSE)
   print("Biblio metadata updated! Please complete remaining fields")
 }

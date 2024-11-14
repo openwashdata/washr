@@ -14,6 +14,7 @@
 #' }
 update_access <- function(){
 
+library(tidyverse)
 
 extdata_path <- "https://github.com/openwashdata/worldhdi/raw/main/inst/extdata/"
 
@@ -39,7 +40,7 @@ data <- data.frame(
   stringsAsFactors = FALSE
 )
 
-write_csv(data, "data/metadata/access.csv")
+readr::write_csv(data, "data/metadata/access.csv")
 cat ("Access metadata updated!")
 
 }
