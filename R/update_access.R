@@ -1,4 +1,5 @@
 library(tidyverse)
+library(readr)
 
 
 #' Updates the access metadata file with links to the downloadable data files

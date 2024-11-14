@@ -1,4 +1,5 @@
 library(tidyverse)
+library(readr)
 
 #' Update metadata attributes file
 #'

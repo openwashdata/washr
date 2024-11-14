@@ -13,8 +13,6 @@
 #' }
 update_biblio <- function() {
 
-
-
   # Check if the DESCRIPTION file exists
   if (!file.exists("DESCRIPTION")) {
     stop("DESCRIPTION file not found. Please create and complete a DESCRIPTION first.")
@@ -37,6 +35,11 @@ update_biblio <- function() {
 
   # Read the existing biblio.csv file
   biblio_data <- read.csv(biblio_path, stringsAsFactors = FALSE)
+
+  # Check if biblio_data is empty; if so, create a new row
+  if (nrow(biblio_data) == 0) {
+    biblio_data <- data.frame(title = NA, description = NA, license = NA, funder = NA, stringsAsFactors = FALSE)
+  }
 
   # Update the selected fields
   biblio_data$title <- title
