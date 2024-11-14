@@ -21,7 +21,7 @@ update_biblio <- function() {
   # Check if the biblio.csv file exists
   biblio_path <- "data/metadata/biblio.csv"
   if (!file.exists(biblio_path)) {
-    stop("biblio.csv file not found at 'data/metadata/'. Please ensure the file exists.")
+    stop("biblio.csv file not found at 'data/metadata/'. Please run add_metadata first.")
   }
 
   # Read the DESCRIPTION file
@@ -33,13 +33,13 @@ update_biblio <- function() {
   license <- description[,"License"]
   funder <- "https://ethrat.ch/en/eth-domain/open-research-data/"
 
-  # Read the existing biblio.csv file
-  biblio_data <- read.csv(biblio_path, stringsAsFactors = FALSE)
-
-  # Check if biblio_data is empty; if so, create a new row
-  if (nrow(biblio_data) == 0) {
-    biblio_data <- data.frame(title = NA, description = NA, license = NA, funder = NA, stringsAsFactors = FALSE)
-  }
+  bibilo_data <- data.frame(
+    title = character(),
+    description = character(),
+    license = character(),
+    funder = character(),
+    stringsAsFactors = FALSE
+  )
 
   # Update the selected fields
   biblio_data$title <- title
@@ -49,5 +49,5 @@ update_biblio <- function() {
 
   # Write back to biblio.csv
   write.csv(biblio_data, biblio_path, row.names = FALSE)
-  print("Biblio metadata updated!")
+  print("Biblio metadata updated! Please complete remaining fields")
 }

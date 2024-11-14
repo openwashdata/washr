@@ -1,6 +1,3 @@
-library(tidyverse)
-library(readr)
-
 #' Update metadata attributes file
 #'
 #' @description Updates the attributes file in the metadata folder with data from the dictionary
@@ -27,8 +24,8 @@ update_attributes <- function(){
       usethis::ui_stop("Dictionary file not detected. Please run setup_rawdata first and ensure dictionary is up to date")
     }
     else {
-      dictionary <- read_csv("data-raw/dictionary.csv", show_col_types = FALSE)
-      dictionary |>  write_csv("data/metadata/attributes.csv")
+      dictionary <- readr::read_csv("data-raw/dictionary.csv", show_col_types = FALSE)
+      dictionary |>  readr::write_csv("data/metadata/attributes.csv")
       cat("Attributes metadata updated!")
     }
   }

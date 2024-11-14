@@ -1,7 +1,3 @@
-library(tidyverse)
-library(readr)
-
-
 #' Updates the access metadata file with links to the downloadable data files
 #'
 #' @description This function updates the access metadata file with the links to the downloadable data files
@@ -19,13 +15,11 @@ library(readr)
 update_access <- function(){
 
 
-
-
 extdata_path <- "https://github.com/openwashdata/worldhdi/raw/main/inst/extdata/"
 
 dictionary_path <- "data-raw/dictionary.csv"
 
-dictionary <- read_csv(dictionary_path, show_col_types = FALSE)
+dictionary <- readr::read_csv(dictionary_path, show_col_types = FALSE)
 
 dataset <- dictionary |> distinct(file_name)
 
@@ -45,7 +39,7 @@ data <- data.frame(
   stringsAsFactors = FALSE
 )
 
-write.csv(data, "data/metadata/access.csv")
+write_csv(data, "data/metadata/access.csv")
 cat ("Access metadata updated!")
 
 }
