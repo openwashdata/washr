@@ -3,7 +3,25 @@ library(googlesheets4)
 library(tidyverse)
 library(readr)
 
+#' Updates metadata google sheet automatically
+#'
+#' @description This function updates the metadata google sheet with the values from
+#' available metadata. Github username is required to update the maintainer field.
+#'
+#' @param github_profile
+#'
+#' @returns NULL. Errors if metadata does not exist
+#'
+#' @export
+#'
+#'
+#' @examples
+#' \dontrun{
+#' update_gsheet_metadata("githubusername")
+#' }
 update_gsheet_metadata <- function(github_profile = "") {
+
+
 
   if (github_profile == "") {
     usethis::ui_stop("Please provide the github profile name for the maintainer.")

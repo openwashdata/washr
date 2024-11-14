@@ -1,7 +1,23 @@
+#' Function to update the biblio metadata file
+#'
+#' @description This function updates the biblio metadata file with the values from the DESCRIPTION file.
+#' along with some standard templated values for funder, license, etc.
+#'
+#' @returns NULL. Error if DESCRIPTION does not exist.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun {
+#' update_biblio()
+#' }
 update_biblio <- function() {
+
+
+
   # Check if the DESCRIPTION file exists
   if (!file.exists("DESCRIPTION")) {
-    stop("DESCRIPTION file not found. Please run the description function first.")
+    stop("DESCRIPTION file not found. Please create and complete a DESCRIPTION first.")
   }
 
   # Check if the biblio.csv file exists

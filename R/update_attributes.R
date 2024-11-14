@@ -1,6 +1,24 @@
 library(tidyverse)
 
+#' Update metadata attributes file
+#'
+#' @description Updates the attributes file in the metadata folder with data from the dictionary
+#' file in the data-raw folder. This file is esentially a copy of the dictionary file. If the
+#' dictionary file does not exist, the user is asked to create it first. Always overwrites existing
+#' attributes file with the latest dictionary file.
+#'
+#' @returns NULL. Error if dictionary file is not found.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' update_attributes()
+#' }
 update_attributes <- function(){
+
+
+
   correct_wd <- is_pkg()
   if (correct_wd){
 
