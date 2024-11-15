@@ -14,7 +14,7 @@
 #' }
 update_access <- function(){
 
-library(tidyverse)
+library(tidyverse, quietly = TRUE)
 
 extdata_path <- "https://github.com/openwashdata/worldhdi/raw/main/inst/extdata/"
 

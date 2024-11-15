@@ -43,6 +43,6 @@ update_biblio <- function() {
 
 
   # Write back to biblio.csv
-  readr::write_csv(biblio_data, biblio_path, row.names = FALSE)
+  readr::write_csv(biblio_data, biblio_path)
   print("Biblio metadata updated! Please complete remaining fields")
 }
