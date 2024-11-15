@@ -7,7 +7,7 @@
 update_gsheet_metadata(github_profile = "")
 }
 \arguments{
-\item{github_profile}{}
+\item{github_profile}{Github username of the maintainer}
 }
 \value{
 NULL. Errors if metadata does not exist

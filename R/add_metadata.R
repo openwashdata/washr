@@ -1,5 +1,3 @@
-library(tidyverse)
-
 #' Adds metadata files and creates the metadata folder
 #'
 #' @description
@@ -18,7 +16,6 @@ library(tidyverse)
 #' add_metadata()
 #' }
 add_metadata <- function(){
-
 
   # If metadata folder doesn't exist
   if(!dir.exists("data/metadata")){

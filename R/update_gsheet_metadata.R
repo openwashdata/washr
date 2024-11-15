@@ -1,14 +1,9 @@
-library(googledrive)
-library(googlesheets4)
-library(tidyverse)
-library(readr)
-
 #' Updates metadata google sheet automatically
 #'
 #' @description This function updates the metadata google sheet with the values from
 #' available metadata. Github username is required to update the maintainer field.
 #'
-#' @param github_profile
+#' @param github_profile Github username of the maintainer
 #'
 #' @returns NULL. Errors if metadata does not exist
 #'
@@ -21,8 +16,6 @@ library(readr)
 #' }
 update_gsheet_metadata <- function(github_profile = "") {
 
-
-
   if (github_profile == "") {
     usethis::ui_stop("Please provide the github profile name for the maintainer.")
   }
@@ -33,8 +26,8 @@ update_gsheet_metadata <- function(github_profile = "") {
     usethis::ui_stop("Dictionary file not found. Please run 'setup_dictionary' to create the dictionary file.")
   }
 
-  dictionary <- read_csv(dictionary_path, show_col_types = FALSE)
-  dataset <- dictionary |> distinct(file_name)
+  dictionary <- readr::read_csv(dictionary_path, show_col_types = FALSE)
+  dataset <- dictionary |> dplyr::distinct(file_name)
   # remove extension from file_name
   file_name <- tools::file_path_sans_ext(dataset$file_name)
 
@@ -50,7 +43,7 @@ update_gsheet_metadata <- function(github_profile = "") {
 
   description <- read.dcf("DESCRIPTION")[,"Description"]
 
-  biblio_metadata <- read_csv("data/metadata/biblio.csv", show_col_types = FALSE)
+  biblio_metadata <- readr::read_csv("data/metadata/biblio.csv", show_col_types = FALSE)
 
   location <- biblio_metadata$geographicDescription[1]
 
@@ -80,9 +73,9 @@ update_gsheet_metadata <- function(github_profile = "") {
 
   # Update these in the google sheet
 
-  workbook = gs4_get("https://docs.google.com/spreadsheets/d/1vtw16vpvJbioDirGTQcy0Ubz01Cz7lcwFVvbxsNPSVM/edit?gid=1694829481#gid=1694829481")
+  workbook = googlesheets4::gs4_get("https://docs.google.com/spreadsheets/d/1vtw16vpvJbioDirGTQcy0Ubz01Cz7lcwFVvbxsNPSVM/edit?gid=1694829481#gid=1694829481")
 
-  sheet_append(data, ss=workbook, sheet="Test")
+  googlesheets4::sheet_append(data, ss=workbook, sheet="Test")
 
   cat("Successfully appended data. Please fill in the missing columns manually.")
 }

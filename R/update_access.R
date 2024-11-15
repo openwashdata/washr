@@ -12,9 +12,8 @@
 #' \dontrun{
 #' update_access()
 #' }
+#'
 update_access <- function(){
-
-library(tidyverse, quietly = TRUE)
 
 extdata_path <- "https://github.com/openwashdata/worldhdi/raw/main/inst/extdata/"
 
@@ -22,10 +21,10 @@ dictionary_path <- "data-raw/dictionary.csv"
 
 dictionary <- readr::read_csv(dictionary_path, show_col_types = FALSE)
 
-dataset <- dictionary |> distinct(file_name)
+dataset <- dictionary |> dplyr::distinct(file_name)
 
 # Remove file extension
-dataset <- dataset |> mutate(file_name = str_remove(file_name, ".rda"))
+dataset <- dataset |> dplyr::mutate(file_name = stringr::str_remove(file_name, ".rda"))
 
 file_name <- dataset$file_name
 

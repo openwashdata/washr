@@ -7,14 +7,14 @@
 update_biblio()
 }
 \value{
-NULL. Error if DESCRIPTION does not exist.
+NULL. Throws an error if DESCRIPTION does not exist.
 }
 \description{
-This function updates the biblio metadata file with the values from the DESCRIPTION file.
+This function updates the biblio metadata file with the values from the DESCRIPTION file,
 along with some standard templated values for funder, license, etc.
 }
 \examples{
-\dontrun {
+\dontrun{
 update_biblio()
 }
 }
