@@ -14,8 +14,17 @@
 add_creator <- function (name= "", email="", affiliation = "Openwashdata") {
 
 
+  # Ensure data type consistency
 
-  creators <- readr::read_csv("data/metadata/creators.csv", show_col_types = FALSE)
+  if (!file.exists("data/metadata/creators.csv")) {
+    usethis::ui_stop("creators.csv file not found. Please run `add_metadata()` first.")
+  }
+  creators <- readr::read_csv("data/metadata/creators.csv", col_types = readr::cols(
+    id = readr::col_double(),
+    name = readr::col_character(),
+    affiliation = readr::col_character(),
+    email = readr::col_character()
+  ))
 
   if (name == ""){
     usethis::ui_stop("Name cannot be blank!")
