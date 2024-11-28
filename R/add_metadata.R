@@ -34,4 +34,26 @@ add_metadata <- function(){
       cat("Failed! Folder already exists.")
   }
   }
+
+  # Add metadata folder to .Rbuildignore
+
+  rbuildignore_path <- ".Rbuildignore"
+  new_pattern <- "^data/metadata$"
+
+  # Check if the .Rbuildignore file exists
+  if (file.exists(rbuildignore_path)) {
+    # Check for existing pattern
+    lines <- readLines(rbuildignore_path)
+    if (!(new_pattern %in% lines)) {
+      # Add the pattern if it doesn't already exist
+      writeLines(c(lines, new_pattern), rbuildignore_path)
+      message("Pattern added to .Rbuildignore.")
+    } else {
+      message("Pattern already exists in .Rbuildignore.")
+    }
+  } else {
+    # Notify the user to check for the missing file
+    message(".Rbuildignore file does not exist. Please create it manually and re-run this script.")
+  }
+
 }
