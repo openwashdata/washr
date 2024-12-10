@@ -21,7 +21,8 @@ add_metadata <- function(){
   if(!dir.exists("data/metadata")){
     cat("No metadata folder detected")
     dataspice::create_spice()
-    cat("/n Metadata files created in data/metadata")
+    cat("\n")
+    cat("Metadata files created in data/metadata")
   }
   else {
     cat("Metadata folder already exsits. Overwrite?")
@@ -47,13 +48,16 @@ add_metadata <- function(){
     if (!(new_pattern %in% lines)) {
       # Add the pattern if it doesn't already exist
       writeLines(c(lines, new_pattern), rbuildignore_path)
-      message("Pattern added to .Rbuildignore.")
+      cat("\n")
+      cat("Pattern added to .Rbuildignore.")
     } else {
-      message("Pattern already exists in .Rbuildignore.")
+      cat("\n")
+      cat("Pattern already exists in .Rbuildignore.")
     }
   } else {
     # Notify the user to check for the missing file
-    message(".Rbuildignore file does not exist. Please follow all previous steps in the washR workflow and re-run this script.")
+    cat("\n")
+    cat(".Rbuildignore file does not exist. Please follow all previous steps in the washR workflow and re-run this script.")
   }
 
 }
