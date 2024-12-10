@@ -53,7 +53,11 @@ update_gsheet_metadata <- function(github_profile = "") {
 
   link_website <- paste0("<https://openwashdata.github.io/", file_name, ">")
 
-  doi = ""
+  doi <- utils::readCitationFile("inst/CITATION")$doi
+
+  temporal_coverage = paste(biblio_metadata$startDate[1], biblio_metadata$endDate[1], sep = "-")
+
+  keywords <- biblio_metadata$keywords[1]
 
   # Create a dataframe with the metadata
   data <- data.frame(
@@ -68,14 +72,16 @@ update_gsheet_metadata <- function(github_profile = "") {
     date_published = date_published,
     link_github = link_github,
     link_website = link_website,
-    doi = doi
+    doi = doi,
+    temporal_coverage = temporal_coverage,
+    keywords = keywords
   )
 
   # Update these in the google sheet
 
   workbook = googlesheets4::gs4_get("https://docs.google.com/spreadsheets/d/1vtw16vpvJbioDirGTQcy0Ubz01Cz7lcwFVvbxsNPSVM/edit?gid=1694829481#gid=1694829481")
 
-  googlesheets4::sheet_append(data, ss=workbook, sheet="Test")
+  googlesheets4::sheet_append(data, ss=workbook, sheet="Sheet1")
 
   cat("Successfully appended data. Please fill in the missing columns manually.")
 }
