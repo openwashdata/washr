@@ -55,7 +55,7 @@ setup_roxygen <- function() {
   } else {
     for (d in tidy_datasets){
       # Update output_file_path to have the same name as df_name with .R extension
-      df_name <- strsplit(basename(file.path(d)), ".rda")[[1]]
+      df_name <- strsplit(basename(file.path(d)), ".rda", fixed = TRUE)[[1]]
       output_file_path <- file.path(output_file_dir, paste0(df_name, ".R"))
       generate_roxygen_docs(input_file_path = input_file_path,
                             output_file_path = output_file_path,
