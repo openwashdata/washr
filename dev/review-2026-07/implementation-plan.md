@@ -43,7 +43,7 @@ update_gsheet_metadata() (absent from the guide, hardcodes a private org sheet; 
 Issue G0 (washr #61) - RESOLVED 2026-07-12: cwalder@ethz.ch is no longer active. Premortem R2 is the live state: CRAN confirmation and check emails currently go to a dead mailbox. Consequences, tracked in #61:
 - The maintainer change rides the 1.0.2 submission (new cre with monitored address, Colin stays aut, explicit cran-comments.md paragraph; a personal-address confirmation from Colin to CRAN smooths it).
 - The "New maintainer" NOTE routes 1.0.2 to human review; the reviewer-bait cleanups in #65/#66 are mandatory, and a reviewer demand to reduce blanket dontrun (otherwise scheduled for #76) gets pulled forward rather than fought.
-- Before September: check the CRAN check-results page for washr from a browser for outstanding deadline notices; archival risk exists today because check emails are unreceived. (Unverifiable from the review environment; cran.r-project.org blocked by proxy.)
+- CRAN check status verified 2026-07-12 (maintainer, from the check-results page): all flavors OK for 1.0.1, no WARNINGs/NOTEs/Flags, no deadline notice. No archival risk today; the dead mailbox matters only at submission time. Nothing remains to do before the September start.
 - Fallback unchanged: if CRAN correspondence stalls, distribute via GitHub release + r-universe so pkgreview#41 is unblocked.
 
 ## Milestone 1: v1.0.2 "CRAN patch, released bugs only" (target: branch ready in 2 weeks, on CRAN within ~6 weeks)
