@@ -73,6 +73,8 @@
 
 <div class="frame"><b>The frame:</b> it is January 2027, six months from now. The plan has failed. 1.0.2 never deleted the downstream workarounds, or 1.1.0 never shipped, or something shipped and made things worse. We looked back and worked out why.</div>
 
+<div class="frame" style="background:linear-gradient(135deg,#0d1f16,#0e1a24);border-color:#1e4d3d"><b>Rescope note (revision 2, same day):</b> the already-published packages will be fixed separately by the team, so R8's plan items (fleet fixture, fleet pilot, fleet kill criterion) moved out of this plan; R8 stands as recorded. And the ghedatapublishing guide turned out to prescribe the metadata suite as its FAIR step, so the 1.1.0 resolution is consolidate-and-badge-experimental rather than defer. Current plan: implementation-plan.md (revision 2).</div>
+
 <div class="grid2">
   <div class="panel">
     <span class="tag red">Most likely failure</span>
@@ -107,7 +109,7 @@
 <ol class="revised">
   <li><b>Gate 0, this week [R2]:</b> verify cwalder@ethz.ch is monitored before any code is written; if not, prepare the maintainer change to ride the 1.0.2 submission. Confirm who receives CRAN check emails.</li>
   <li><b>Fail-first tests on a real R toolchain [R5]:</b> before coding fixes, reproduce all five bugs with current CRAN cffr/desc/usethis and record actual behavior. Every regression test must demonstrably fail on unfixed 1.0.1 code. Add full-file snapshot tests for DESCRIPTION and CITATION.cff, not just the touched fields.</li>
-  <li><b>Fleet fixture and pilot [R8]:</b> add a test fixture copied from a real published package as shipped (1.0.1-generated, hand-patched). After CRAN acceptance, re-run the fixed functions on one older package and write a re-run playbook before pkgreview changes anything.</li>
+  <li><b>Fleet fixture and pilot [R8]:</b> descoped in revision 2; the already-published packages are fixed separately by the team, outside this plan.</li>
   <li><b>Forward-merge gate [R1]:</b> the release/1.0.2 to main merge PR (fixes plus tests) must be green before the CRAN submission is sent, not after.</li>
   <li><b>Version-conditioned caveats, not deletion [R6]:</b> pkgreview skills check <code>packageVersion("washr")</code> at runtime; 1.0.1 caveats stay active below 1.0.2. Full removal only after two consecutive clean downstream releases.</li>
   <li><b>Decision before code in M2 [R4, R7]:</b> issue #47 is closed by a one-page design decision with a named owner (Lars) and a 4-week deadline, not by milestone assignment. M2's success criterion is reworded: implementing the decision, with an explicit ship/defer point. Shipping 1.1.0 as a cleanup-only minor without the suite counts as success. The Google Sheet sync is deleted, not flag-gated.</li>
@@ -127,7 +129,7 @@
 <ul class="check">
   <li>Maintainer email verified reachable, or maintainer change prepared in Authors@R and explained in cran-comments.md.</li>
   <li>Each regression test proven to fail on the unpatched 1.0.1 branch point (fail-first evidence in each PR).</li>
-  <li>Real-fleet fixture test green: fixed functions run on a copy of a published package's actual files with only intended diffs, DOI agreement with Zenodo preserved.</li>
+  <li>Descoped in revision 2: real-fleet fixture testing moved out of this plan (published packages handled separately).</li>
   <li>R CMD check --as-cran clean on the exact tagged commit with current CRAN dependencies; dontshow tempdir landmines removed; Date fresh; NEWS entry present.</li>
   <li>Forward-merge PR to main open and green before submission.</li>
   <li>pkgreview change ready but gated on packageVersion, verified against fixtures/pkgreviewtest; caveats not yet deleted.</li>

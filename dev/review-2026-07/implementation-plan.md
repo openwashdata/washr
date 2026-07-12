@@ -1,95 +1,104 @@
 # washr implementation plan: issues and milestones
 
-Date: 2026-07-12
+Date: 2026-07-12 (revision 2, same day)
 Target: sub-version release cycle (1.0.2 patch, then 1.1.0 minor, then 1.2.0 minor). No 2.0.0.
-This is the premortem-revised plan. Mitigations from the premortem are marked [PM-Rn].
+Premortem mitigations are marked [PM-Rn].
+
+Revision 2 changes (triage after reading the ghedatapublishing guide):
+- Published data packages are OUT OF SCOPE: the team fixes the existing fleet separately. The fleet fixture test, fleet pilot, and the fleet kill criterion are removed from this plan. Premortem finding R8 remains recorded in the premortem documents; its mitigation is owned outside this plan.
+- Correction to the review: the metadata suite is NOT consumer-free. The ghedatapublishing guide (https://github.com/Global-Health-Engineering/ghedatapublishing) prescribes add_metadata(), update_metadata(), add_creator(), and generate_jsonld() as its FAIR Documentation step. Consequence: the suite is consolidated and fixed, not deleted, and the guide must be updated in lockstep with any renaming (none of these exports has ever been on CRAN, so there is no CRAN deprecation constraint, only guide/package sync).
+- Function taxonomy adopted (see below): stable core of seven, experimental FAIR layer with lifecycle badges, internalized plumbing, one removal.
+- Issue triage adopted: #57/#58/#59/#60 fix now; #47 resolved as auto-populate and consolidate; #13/#20/#56 to 1.2.0 with #56 as the flagship; #24 folded into the setup_readme template work; #40 folded into the 1.1.0 ergonomics sweep.
+
+## Function taxonomy
+
+Stable core (the guide's chronology; exported forever, hardened first):
+setup_rawdata(), setup_dictionary(), setup_roxygen(), update_description(), setup_readme(), setup_website(), update_citation().
+
+Experimental FAIR layer (exported with lifecycle "experimental" badges; API may change):
+update_metadata() consolidated and auto-populated (absorbs add_metadata() and add_creator()), generate_jsonld() after its schema fixes.
+
+Internalized (unexported in 1.1.0; never released on CRAN so no deprecation cycle, guide updated in lockstep):
+update_access(), update_attributes(), update_biblio(), fill_dictionary(), generate_roxygen_docs(), add_creator() (creators derive from Authors@R, which the guide populates via usethis::use_author()).
+
+Removed from the package:
+update_gsheet_metadata() (absent from the guide, hardcodes a private org sheet; moves to org tooling alongside the #56 Zenodo direction).
 
 ## Gate 0 (before any other work) [PM-R2]
 
-Issue 0.1: Verify the CRAN maintainer channel.
-Confirm cwalder@ethz.ch is monitored and Colin is available to confirm a CRAN submission. If not, prepare the maintainer change (new cre in Authors@R, explanation in cran-comments.md) so it rides the 1.0.2 submission. Also confirm who receives CRAN check emails today.
+Issue G0: Verify the CRAN maintainer channel.
+Confirm cwalder@ethz.ch is monitored and the maintainer of record can confirm a CRAN submission. If not, prepare the maintainer change (new cre in Authors@R, explanation in cran-comments.md) so it rides the 1.0.2 submission. Confirm who receives CRAN check emails today.
 Acceptance: a named person committed to confirming the submission email within 48 hours of submission.
-Kill criterion: if this cannot be resolved within 2 weeks, pause the CRAN plan and publish fixes via GitHub release + r-universe for downstream while the maintainer change is sorted out.
+Kill criterion: if unresolved within 2 weeks, pause the CRAN track and distribute fixes via GitHub release + r-universe for downstream while the maintainer change runs in parallel.
 
 ## Milestone 1: v1.0.2 "CRAN patch, released bugs only" (target: branch ready in 2 weeks, on CRAN within ~6 weeks)
 
-Scope rule: fixes for defects present in CRAN 1.0.1 only. Zero new API. Diff kept surgical against the accepted 1.0.1 tarball [discussion consensus].
+Scope rule: fixes for defects present in CRAN 1.0.1 only. Zero new API. Diff kept surgical against the accepted 1.0.1 tarball.
 
-Issue 1.1: Extend CI triggers.
-Add push/pull_request triggers for dev and release/** plus workflow_dispatch to R-CMD-check.yaml (and dev to pkgdown.yaml, deploy still gated to main). First commit on the release branch [PM: prerequisite for everything].
+Work items (existing issues #57, #58, #59, #60 plus new issues):
 
-Issue 1.2: Cut release/1.0.2 from 11a29c4; retro-tag v1.0.0 (4875bfc) and v1.0.1 (11a29c4).
+1.1 CI triggers [new issue]. Add push/pull_request triggers for dev and release/** plus workflow_dispatch to R-CMD-check.yaml (and dev to pkgdown.yaml, deploy still gated to main). First commit on the release branch [PM: prerequisite].
 
-Issue 1.3: Empirically pin current dependency behavior before coding [PM-R5].
-On a machine with current CRAN cffr/desc/usethis: reproduce all five bugs from 1.0.1, record actual behavior (does current cffr still write .bk1? how does desc_set reflow DESCRIPTION?). Every regression test must be demonstrated to FAIL on the unfixed 1.0.1 code before the fix lands (fail-first proof in the PR description).
+1.2 Fix #57: update_citation(doi = NULL) default with early validation.
 
-Issue 1.4: Fix #57: update_citation(doi = NULL) default with early validation. Regression test.
+1.3 Fix #58 and badge idempotency: no badge when doi is NULL; replace an existing DOI badge instead of appending; clear error when the badges-end marker is missing; README unchanged on error.
 
-Issue 1.5: Fix #58 and badge idempotency: no badge when doi is NULL; replace an existing DOI badge instead of appending; clear error when the badges-end marker is missing. Regression tests including README unchanged on error.
+1.4 Fix #60: no inst/CITATION.bk1 litter, mechanism chosen after empirically pinning current cffr behavior [PM-R5].
 
-Issue 1.6: Fix #60: no inst/CITATION.bk1 litter (mechanism chosen from the evidence in 1.3). Regression test runs update_citation twice.
+1.5 Fix #59 plus URL preservation [companion new issue]: update_description() read-merge-write for Config/Needs/website AND the URL field; existence check honors the file argument.
 
-Issue 1.7: Fix #59 and URL preservation: update_description() read-merge-write for Config/Needs/website and the URL field; full-file DESCRIPTION snapshot test to catch reflow side effects [PM-R5]. Replace the vacuous existing test with behavioral assertions (Language, URL, BugReports, Date).
+1.6 Fix setup_readme() data loss [new issue]: never delete an existing README.Rmd without explicit confirmation; error non-interactively; add force argument.
 
-Issue 1.8: Fix setup_readme() data loss: never delete an existing README.Rmd without explicit confirmation; add force argument; error non-interactively. Regression test: decline path preserves content byte-identical. (New bug: file as washr issue.)
+1.7 Regression-test harness [new issue] [PM-R5]: reproduce all five released bugs on a real R toolchain with current CRAN cffr/desc/usethis before coding; every fix merges with a regression test demonstrated to fail on unfixed 1.0.1 code (fail-first evidence in the PR); full-file snapshot tests for DESCRIPTION and CITATION.cff; replace the vacuous update_description test with behavioral assertions.
 
-Issue 1.9: Real-fleet fixture tests [PM-R8].
-Add a fixture copied from a real published package as shipped (fslogisticskampala: its 1.0.1-generated, hand-patched DESCRIPTION, CITATION.cff, README.Rmd). Run the fixed update_citation/update_description against it and snapshot the diff. Acceptance: the diff contains only intended changes; DOI in CITATION.cff still matches the minted Zenodo DOI.
-
-Issue 1.10: Release chores.
-NEWS.md 1.0.2 section; refresh Date; remove the dontshow devtools::create(tempdir()) example landmines; fix the phantom update_dictionary() example in fill_dictionary; delete stale CRAN-SUBMISSION; roxygen for the fixed functions describes the fixed behavior.
-
-Issue 1.11: Forward-merge gate [PM-R1].
-Open the release/1.0.2 -> main merge PR (fixes plus all seven-plus tests) and get it green BEFORE the CRAN submission is sent. Submission is blocked until main contains the regression tests.
-
-Issue 1.12: Submit to CRAN, confirm within 48h, tag v1.0.2 on acceptance.
-
-Issue 1.13: Fleet pilot and re-run playbook [PM-R8].
-After CRAN acceptance: re-run the fixed functions on ONE older published package, diff everything, document a re-run playbook (what to re-run, what to never touch, how DOIs are preserved). Only after the pilot passes does pkgreview modify its skills.
+1.8 Release engineering [new issue]: cut release/1.0.2 from 11a29c4; retro-tag v1.0.0 (4875bfc) and v1.0.1 (11a29c4); NEWS 1.0.2 section; refresh Date; remove the dontshow devtools::create(tempdir()) example landmines; fix the phantom update_dictionary() example in fill_dictionary; delete stale CRAN-SUBMISSION; forward-merge PR to main green BEFORE the CRAN submission is sent [PM-R1]; submit, confirm within 48h, tag v1.0.2 on acceptance.
 
 Cross-repo (openwashdata/pkgreview, tracked there as #23) [PM-R6]:
-Do not delete the 1.0.1 caveats. Version-condition them: skills check packageVersion("washr") at runtime; caveat steps apply when < 1.0.2, are skipped when >= 1.0.2. Bump the review-standard VERSION per pkgreview rules; verify against fixtures/pkgreviewtest. Caveats are removed entirely only after two consecutive clean downstream releases on >= 1.0.2.
+Do not delete the 1.0.1 caveats; version-condition them on packageVersion("washr") >= 1.0.2. Bump the review-standard VERSION per pkgreview rules; verify against fixtures/pkgreviewtest. Remove caveats entirely only after two consecutive clean downstream releases on >= 1.0.2.
 
-## Milestone 2: v1.1.0 "API consolidation" (target: decision in 4 weeks, release ~3 months; decision-gated, not date-gated)
+## Milestone 2: v1.1.0 "harden the core, consolidate the FAIR layer" (target: design decision in 4 weeks, release ~3 months; decision-gated, not date-gated)
 
-Reframed success criterion [PM-R7]: NOT "suite on CRAN". Success = the #47 design decision is implemented and the release ships only what meets the test bar. An explicit ship/defer decision point sits at the end. If the suite is not ready, 1.1.0 ships as a cleanup minor (Imports cut, Depends fix, idempotency sweep) and the suite moves to 1.2.0 or dies. That outcome counts as success, not failure.
+Reframed success criterion [PM-R7]: NOT "suite on CRAN". Success = the #47 design decision is implemented and the release ships only what meets the test bar, with the FAIR layer explicitly lifecycle-badged experimental. If the FAIR consolidation is not ready at the ship/defer point, 1.1.0 ships as core-hardening plus dependency cleanup only, and the FAIR layer follows in 1.2.0. That outcome counts as success.
 
-Issue 2.1: Metadata design decision (blocks all suite code) [PM-R4].
-One page, one named owner (Lars), 4-week deadline: what is the canonical metadata source (DESCRIPTION + dictionary.csv proposed); what do the generated artifacts exist for (website catalog? Zenodo? JSON-LD discovery?); what happens to the packages that already ran add_metadata(). Zenodo automation (#56) explicitly out of scope for 1.1.0. Issue #47 is closed by this document, not by milestone assignment.
-Kill criterion: no agreed decision in 4 weeks means the suite is out of 1.1.0.
+2.1 Metadata design decision (blocks all FAIR-layer code) [PM-R4]. One page, one named owner (Lars), 4-week deadline. Direction is pre-agreed by this triage: canonical sources are DESCRIPTION (authors via Authors@R) + dictionary.csv (variables) + CITATION.cff/DOI; update_metadata() auto-populates everything derivable and reports remaining blank fields; the guide keeps its FAIR step as one call. The decision doc settles field mappings and what the generated artifacts are for. Zenodo automation (#56) explicitly out of scope for 1.1.0. Closes #47 by document, not by milestone assignment.
+Kill criterion: no agreed decision in 4 weeks means the FAIR layer is out of 1.1.0.
 
-Issue 2.2: Implement setup_metadata()/update_metadata() per the decision: auto-populated, non-interactive (no readline; overwrite arguments; usethis-style prompts only when interactive), idempotent (read-merge-write, stable output across re-runs).
+2.2 Consolidate the FAIR layer: update_metadata() creates the metadata skeleton itself (absorbing add_metadata()), auto-populates from the canonical sources, derives creators from Authors@R (absorbing add_creator()), is non-interactive (no readline; overwrite argument) and idempotent (read-merge-write, stable output across re-runs), and ends by listing exactly which fields remain blank and where. lifecycle experimental badge.
 
-Issue 2.3: Delete the Google Sheet sync from the package (not flag-gated: deleted) [PM-R7]. Move to org tooling alongside the #56 Zenodo direction; drop googlesheets4 from Imports.
+2.3 Remove update_gsheet_metadata() from the package; move to org tooling (relates #56 direction). googlesheets4 and its auth stack leave Imports with it.
 
-Issue 2.4: Fix or obsolete the remaining suite defects: update_access repo-URL derivation from Package/URL, encodingFormat recycling, generate_jsonld (@context schema.org, version/license/date from DESCRIPTION, dir.create, stable output), update_attributes schema, add_metadata overwrite no-op. Any function not redesigned gets unexported rather than shipped.
+2.4 Fix generate_jsonld(): real schema.org @context; version, license, and date from DESCRIPTION instead of hardcoded values; create inst/extdata before writing; stable output across re-runs; correct multi-dataset representation. lifecycle experimental badge.
 
-Issue 2.5: Trim the export surface: update_access/update_attributes/update_biblio internal; decide fill_dictionary and generate_roxygen_docs. Nothing exports that is slated for deprecation.
+2.5 Trim the export surface: internalize update_access(), update_attributes(), update_biblio(), fill_dictionary(), generate_roxygen_docs(), add_creator(). Fix or obsolete the internal-layer bugs while at it: update_access repo-URL derivation from Package/URL and dead worldhdi line, encodingFormat recycling for multi-dataset packages, update_attributes schema mismatch. Nothing stays exported that is slated for deletion.
 
-Issue 2.6: Dependency cut: Imports 16 -> ~8. Drop lubridate, tibble, stringr, dplyr (trivial replacements); evict devtools (pkgdown::build_site + rmarkdown::render); googlesheets4/dataspice leave with 2.3/2.2; standardize on one CSV IO. Add Depends: R (>= 4.1.0) or remove native pipes; drop the utils (>= 4.3.3) constraint.
+2.6 Dependency cut: Imports 16 to ~8. Drop lubridate, tibble, stringr, dplyr (trivial replacements); evict devtools (pkgdown::build_site + rmarkdown::render); googlesheets4 leaves with 2.3, dataspice with 2.2; standardize on one CSV IO. Add Depends: R (>= 4.1.0) or remove native pipes; drop the utils (>= 4.3.3) constraint.
 
-Issue 2.7: Test bar [tests reviewer nonnegotiable]: behavioral test per export; mocking infra (prompt wrapper, injectable targets); fixtures including a real-fleet fixture; fail-first proof for every bugfix test; coverage workflow added.
+2.7 Idempotency and ergonomics sweep for the stable core: every function that rewrites user files follows read-merge-write and is safe to re-run. Includes: setup_website() idempotent so the guide's "answer No to the prompt" instruction becomes unnecessary; setup_website() .gitignore crash fix; inst/templates/_pkgdown.yml url field fixed to the Pages URL (shrinks pkgreview template divergence); setup_roxygen() re-run preserves user content below @format and errors clearly when @format is missing (closes the actionable half of #40); setup_dictionary() type detection for multi-class columns.
 
-Issue 2.8: Docs: end-to-end vignette teaching the full workflow order (written only after 2.1); README toolkit overview + CRAN badge; @family tags; fix _pkgdown.yml org URL; fix inst/templates/_pkgdown.yml url field (shrinks pkgreview template divergence); NEWS.
+2.8 setup_readme() improvements: add the has_example argument the guide already documents; template includes an example-plot section (absorbs the intent of #24, which can then be closed).
 
-Issue 2.9: Idempotency sweep: every function that rewrites user files (setup_readme, badge insertion, desc writers, roxygen regeneration) follows read-merge-write and is safe to re-run [code reviewer systemic rule].
+2.9 Test bar: behavioral test per export (existence-only and bare expect_error do not count); mocking infra (prompt wrapper, injectable targets); fail-first proof for every bugfix test; coverage workflow added.
 
-Issue 2.10: Ship/defer decision, then CRAN 1.1.0, tag, forward-merge gate as in 1.11.
+2.10 Docs: end-to-end vignette mirroring the ghedatapublishing chronology (written only after 2.1); README toolkit overview + CRAN badge; @family tags; _pkgdown.yml site url fixed from openwashdata-dev to openwashdata; NEWS discipline (1.0.2.9000 dev versioning immediately after the patch).
 
-## Milestone 3: v1.2.0 "features" (backlog, schedule after 1.1.0 ships)
+2.11 Guide sync (cross-repo, Global-Health-Engineering/ghedatapublishing): update the guide in lockstep with 2.2/2.5/2.8 (function consolidation, has_example, prompt removal); fix the guide's washr link (currently points to the openwashdata-dev fork); add "guide matches released washr" as a standing release checklist item so drift is caught at release time.
 
-- #13 update_dictionary() preserving existing descriptions
-- #40 setup_roxygen() re-run ergonomics (plus the crash when @format is missing)
-- #20 labelled data support
-- #24 plot/table templates
-- #56 Zenodo API automation (org tooling first, package integration only if it earns it)
-- Messaging standardization (cli, invisible returns)
+2.12 Ship/defer decision, then CRAN 1.1.0, tag, forward-merge gate as in 1.8.
+
+## Milestone 3: v1.2.0 "workflow automation" (backlog, schedule after 1.1.0 ships)
+
+- #56 (flagship): update_zenodo() using the Zenodo REST API (user token) to set upload type Dataset, related identifiers, and notes from package metadata, collapsing the guide's most manual chapter to one call. Org-agnostic, token-based; the org-specific parts stay in org tooling.
+- #13: update_dictionary() preserving hand-written descriptions across data iterations (also strengthens update_metadata auto-population).
+- #20: labelled data support (codebook to labels, human-readable codebook page).
+- Workflow status function (check_publication_readiness()): encodes the guide's chronology as a diagnostic (tidy data present, dictionary filled, roxygen done, DESCRIPTION complete, citation current) so guide step N failures say what step N-1 is missing.
+- Messaging standardization (cli, invisible returns).
+- #24: close when 2.8 ships, superseded by the README template example section.
 
 ## Standing kill criteria and watch signals
 
 1. CRAN submission unconfirmed after 2 weeks or maintainer unreachable: switch distribution to GitHub release + r-universe for downstream, pursue maintainer change in parallel [PM-R2, PM-R3].
-2. 1.0.2 merged but not submitted within 2 weeks of branch-ready: the bandwidth failure is happening; cut scope to Issues 1.4-1.7 + 1.10-1.12 only and submit [PM-R3].
+2. 1.0.2 merged but not submitted within 2 weeks of branch-ready: the bandwidth failure is happening; cut scope to the bug fixes (#57-#60, setup_readme, URL wipe) plus release engineering and submit [PM-R3].
 3. git log main..release/1.0.2 non-empty two weeks after the v1.0.2 tag: stop all M2 work until the forward-merge lands [PM-R1].
 4. Empty DOI badges or CITATION.bk1 in any downstream release PR after pkgreview flips: old washr still resolving somewhere; re-enable the version-conditioned caveats [PM-R6].
-5. #47 design thread references the website catalog, FAIR ambitions or #56 instead of function signatures for two consecutive weeks: scope is inflating; the owner decides with what exists [PM-R4].
-6. Any suite function surviving into 1.1.0 behind a "temporary" flag: it ships in 1.2.0 or dies; flags are not a compromise [PM-R7].
+5. #47 design thread references the website catalog, FAIR ambitions or #56 instead of field mappings and function signatures for two consecutive weeks: scope is inflating; the owner decides with what exists [PM-R4].
+6. Any FAIR-layer function surviving into 1.1.0 behind a "temporary" flag that the design decision said to remove: it ships in 1.2.0 or dies; flags are not a compromise [PM-R7].

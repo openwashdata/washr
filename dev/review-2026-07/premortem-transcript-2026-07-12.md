@@ -92,6 +92,10 @@ THE FAILURE STORY. v1.0.2 ships clean, all seven tests green, workarounds delete
 
 EARLY WARNING SIGNS. (1) No test in the M1 branch feeds update_* a file emitted by 1.0.1 or a hand-patched real package. (2) No issue, checklist item or milestone anywhere naming the existing published packages or a re-run/re-release plan for them.
 
+## Rescope addendum (revision 2, same day)
+
+Two inputs arrived after the premortem ran. (1) The already-published data packages will be fixed separately by the team, so R8's mitigation (fleet fixture, fleet pilot, fleet kill criterion) is owned outside this plan; R8 stands as recorded but its plan items were removed from implementation-plan.md. (2) The ghedatapublishing guide prescribes the metadata suite as its FAIR step, correcting the review's "zero downstream consumers" premise for R4/R7: the 1.1.0 resolution is consolidate-and-badge-experimental rather than optionally defer, with the guide updated in lockstep. The remaining synthesis is unchanged.
+
 ## Synthesis
 
 See premortem-report-2026-07-12.html (same directory) for the full synthesis: most likely failure (R3 bandwidth, base-rate from the repo's own history), most dangerous failure (R5 + R8 combined: unverified fixes meeting the untested installed base after the safety net is deleted), likelihood-impact placement, the hidden assumption ("merging correct code equals delivering the fix"), the revised plan, kill criteria, and the pre-launch checklist. The revised implementation plan incorporating all premortem mitigations is in implementation-plan.md.
