@@ -40,10 +40,11 @@ update_gsheet_metadata() (absent from the guide, hardcodes a private org sheet; 
 
 ## Gate 0 (before any other work) [PM-R2]
 
-Issue G0: Verify the CRAN maintainer channel.
-Confirm cwalder@ethz.ch is monitored and the maintainer of record can confirm a CRAN submission. If not, prepare the maintainer change (new cre in Authors@R, explanation in cran-comments.md) so it rides the 1.0.2 submission. Confirm who receives CRAN check emails today.
-Acceptance: a named person committed to confirming the submission email within 48 hours of submission.
-Kill criterion: if unresolved within 2 weeks, pause the CRAN track and distribute fixes via GitHub release + r-universe for downstream while the maintainer change runs in parallel.
+Issue G0 (washr #61) - RESOLVED 2026-07-12: cwalder@ethz.ch is no longer active. Premortem R2 is the live state: CRAN confirmation and check emails currently go to a dead mailbox. Consequences, tracked in #61:
+- The maintainer change rides the 1.0.2 submission (new cre with monitored address, Colin stays aut, explicit cran-comments.md paragraph; a personal-address confirmation from Colin to CRAN smooths it).
+- The "New maintainer" NOTE routes 1.0.2 to human review; the reviewer-bait cleanups in #65/#66 are mandatory, and a reviewer demand to reduce blanket dontrun (otherwise scheduled for #76) gets pulled forward rather than fought.
+- Before September: check the CRAN check-results page for washr from a browser for outstanding deadline notices; archival risk exists today because check emails are unreceived. (Unverifiable from the review environment; cran.r-project.org blocked by proxy.)
+- Fallback unchanged: if CRAN correspondence stalls, distribute via GitHub release + r-universe so pkgreview#41 is unblocked.
 
 ## Milestone 1: v1.0.2 "CRAN patch, released bugs only" (target: branch ready in 2 weeks, on CRAN within ~6 weeks)
 
