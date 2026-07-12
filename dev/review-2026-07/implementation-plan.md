@@ -91,6 +91,7 @@ Kill criterion: no agreed decision in 4 weeks means the FAIR layer is out of 1.1
 - #13: update_dictionary() preserving hand-written descriptions across data iterations (also strengthens update_metadata auto-population).
 - #20: labelled data support (codebook to labels, human-readable codebook page).
 - Workflow status function (check_publication_readiness()): encodes the guide's chronology as a diagnostic (tidy data present, dictionary filled, roxygen done, DESCRIPTION complete, citation current) so guide step N failures say what step N-1 is missing.
+- setup_repo(): thin wrapper over usethis::create_package() + use_git() + use_github(organisation = ...) so the guide's repository chapter loses its raw terminal git commands (the most beginner-hostile step in the guide). Nice-to-have, not core; the guide's manual path remains documented as fallback.
 - Messaging standardization (cli, invisible returns).
 - #24: close when 2.8 ships, superseded by the README template example section.
 
