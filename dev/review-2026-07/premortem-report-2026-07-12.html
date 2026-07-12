@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Premortem: washr release plan</title>
+<style>
+  :root{
+    --bg:#0a0e1a; --panel:#111827; --panel2:#0f1524; --line:#233047;
+    --text:#e5e9f2; --dim:#9aa7bd; --faint:#6b788a;
+    --red:#f4626e; --orange:#f5a35c; --yellow:#e8c95a; --green:#59c98f;
+    --blue:#5ba7f7; --purple:#a78bfa; --teal:#4fd1c5; --pink:#f472b6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:32px 20px 60px}
+  .wrap{max-width:1060px;margin:0 auto}
+  h1{font-size:26px;line-height:1.25;margin-bottom:6px}
+  h2{font-size:19px;margin:38px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  h3{font-size:15px;margin-bottom:6px}
+  p{margin-bottom:10px}
+  .sub{color:var(--dim);font-size:14px;margin-bottom:26px}
+  .frame{background:linear-gradient(135deg,#1a1030,#101a30);border:1px solid #33406a;border-radius:12px;padding:18px 20px;margin-bottom:30px;font-size:15px}
+  .frame b{color:#c4b5fd}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 9px;border-radius:99px;margin-bottom:10px}
+  .tag.red{background:rgba(244,98,110,.15);color:var(--red)}
+  .tag.orange{background:rgba(245,163,92,.15);color:var(--orange)}
+  .matrix{display:grid;grid-template-columns:110px 1fr 1fr;grid-template-rows:auto 1fr 1fr;gap:8px;margin:14px 0 4px}
+  .mx-cell{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;min-height:96px;font-size:13.5px}
+  .mx-hd{display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:none;border:none;min-height:0;padding:4px}
+  .mx-side{writing-mode:vertical-rl;transform:rotate(180deg);display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:none;border:none;min-height:0}
+  .mx-cell.hot{border-color:#5a2733;background:linear-gradient(160deg,#22101a,#160d18)}
+  .mx-cell b{display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px;color:var(--dim)}
+  .mx-cell.hot b{color:var(--red)}
+  .chip{display:inline-block;background:rgba(91,167,247,.12);border:1px solid rgba(91,167,247,.3);color:#a8cdfb;border-radius:8px;padding:2px 8px;margin:2px 3px 2px 0;font-size:12.5px}
+  .chip.r{background:rgba(244,98,110,.10);border-color:rgba(244,98,110,.35);color:#f8a6ad}
+  .assume{background:linear-gradient(135deg,#241a08,#1a1408);border:1px solid #4d3d1a;border-radius:12px;padding:18px 20px;margin-top:16px}
+  .assume h3{color:var(--yellow)}
+  ol.revised{margin:6px 0 0 20px}
+  ol.revised li{margin-bottom:9px}
+  ul.kill{list-style:none;margin-top:6px}
+  ul.kill li{padding:10px 12px;border-left:3px solid var(--red);background:var(--panel2);border-radius:0 8px 8px 0;margin-bottom:8px;font-size:14px}
+  ul.check{list-style:none;margin-top:6px}
+  ul.check li{padding:9px 12px 9px 34px;position:relative;background:var(--panel2);border:1px solid var(--line);border-radius:8px;margin-bottom:8px;font-size:14px}
+  ul.check li:before{content:"";position:absolute;left:12px;top:14px;width:12px;height:12px;border:2px solid var(--green);border-radius:3px}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:860px){.cards{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;border-top:3px solid var(--blue)}
+  .card h3{font-size:15.5px;margin-bottom:2px}
+  .card .meta{font-size:12px;color:var(--dim);margin-bottom:10px}
+  .card p{font-size:13.8px;color:#c9d2e3}
+  .card .lbl{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin:12px 0 3px}
+  .sev{display:inline-flex;gap:3px;vertical-align:middle;margin-left:8px}
+  .sev i{width:8px;height:8px;border-radius:50%;background:#2a3854;display:inline-block}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:99px;margin-left:6px;vertical-align:middle}
+  .overview{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+  @media(max-width:860px){.overview{grid-template-columns:repeat(2,1fr)}}
+  .ov{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12.5px;color:var(--dim)}
+  .ov b{display:block;color:var(--text);font-size:13px;margin-bottom:3px}
+  footer{margin-top:44px;color:var(--faint);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px}
+  .verdict{background:linear-gradient(135deg,#08201a,#0a1a24);border:1px solid #1e4d3d;border-radius:12px;padding:18px 20px;margin-top:16px}
+  .verdict h3{color:var(--green)}
+  code{background:#1a2336;border-radius:4px;padding:1px 5px;font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Premortem: the washr release plan</h1>
+<div class="sub">openwashdata/washr &middot; plan: v1.0.2 CRAN patch, then v1.1.0 metadata-suite reshape, then v1.2.0 backlog &middot; 7 failure investigators + 1 adversarial counter-check &middot; 2026-07-12</div>
+
+<div class="frame"><b>The frame:</b> it is January 2027, six months from now. The plan has failed. 1.0.2 never deleted the downstream workarounds, or 1.1.0 never shipped, or something shipped and made things worse. We looked back and worked out why.</div>
+
+<div class="grid2">
+  <div class="panel">
+    <span class="tag red">Most likely failure</span>
+    <h3>R3: Nobody had the bandwidth</h3>
+    <p>The repo's own history is the base rate: every contributor since 2024 appears as a one-burst student and exits; a CRAN push already stalled once mid-2024 and needed a three-month rescue; the metadata suite itself sat unmerged for six months; nobody has ever shipped a second CRAN release. The plan is sized in engineer-weeks for an institution that produces work in unstaffed bursts. The likely tipping point: fixes merged, but the CRAN submission (the step needing sustained human attention) slides past semester start and never happens.</p>
+  </div>
+  <div class="panel">
+    <span class="tag orange">Most dangerous failure</span>
+    <h3>R5 + R8: Unverified fixes meet the untested fleet</h3>
+    <p>The fixes were designed by static analysis in an environment with no R interpreter, against dependency behavior remembered from Nov 2024. If they ship unverified, tests can pass vacuously while behavior differs, and the first victim is the installed base: ~20 published data packages whose files were generated by buggy 1.0.1 plus hand-patches. Re-running "fixed" functions there can clobber hand-corrections and regenerate CITATIONs that disagree with immutable Zenodo DOIs, after the pkgreview safety-net workarounds were already deleted. Failure by successful release.</p>
+  </div>
+</div>
+
+<h2>Likelihood x impact</h2>
+<div class="matrix">
+  <div class="mx-cell mx-hd"></div><div class="mx-cell mx-hd">Lower damage</div><div class="mx-cell mx-hd">High damage</div>
+  <div class="mx-cell mx-side">High probability</div>
+  <div class="mx-cell"><b>Manage</b><span class="chip">R4 redesign never converges (delays 1.1.0, patch value survives)</span></div>
+  <div class="mx-cell hot"><b>Priority: mitigate now</b><span class="chip r">R3 bandwidth stall</span><span class="chip r">R2 CRAN gatekeeping / dead maintainer email</span><span class="chip r">R8 no fleet migration story</span></div>
+  <div class="mx-cell mx-side">Lower probability</div>
+  <div class="mx-cell"><b>Watch</b><span class="chip">R6 washr/pkgreview desync</span></div>
+  <div class="mx-cell"><b>Insure</b><span class="chip r">R5 unverified fixes</span><span class="chip r">R1 fork drift / regression in 1.1.0</span><span class="chip r">R7 milestone pressure ships the suite</span></div>
+</div>
+
+<div class="assume">
+  <h3>The hidden assumption</h3>
+  <p><b>"Merging correct code equals delivering the fix."</b> Every part of the original plan stops at the repo boundary. But delivery actually runs through four unverified channels: a CRAN maintainer email that may be dead (R2), dependency behavior that was never executed (R5), whichever washr version a downstream session actually resolves (R6), and a fleet of already-published packages that no fix reaches without a migration step nobody scoped (R8). The plan verified the code and assumed the channels.</p>
+</div>
+
+<h2>The revised plan (changes mapped to failure modes)</h2>
+<div class="panel">
+<ol class="revised">
+  <li><b>Gate 0, this week [R2]:</b> verify cwalder@ethz.ch is monitored before any code is written; if not, prepare the maintainer change to ride the 1.0.2 submission. Confirm who receives CRAN check emails.</li>
+  <li><b>Fail-first tests on a real R toolchain [R5]:</b> before coding fixes, reproduce all five bugs with current CRAN cffr/desc/usethis and record actual behavior. Every regression test must demonstrably fail on unfixed 1.0.1 code. Add full-file snapshot tests for DESCRIPTION and CITATION.cff, not just the touched fields.</li>
+  <li><b>Fleet fixture and pilot [R8]:</b> add a test fixture copied from a real published package as shipped (1.0.1-generated, hand-patched). After CRAN acceptance, re-run the fixed functions on one older package and write a re-run playbook before pkgreview changes anything.</li>
+  <li><b>Forward-merge gate [R1]:</b> the release/1.0.2 to main merge PR (fixes plus tests) must be green before the CRAN submission is sent, not after.</li>
+  <li><b>Version-conditioned caveats, not deletion [R6]:</b> pkgreview skills check <code>packageVersion("washr")</code> at runtime; 1.0.1 caveats stay active below 1.0.2. Full removal only after two consecutive clean downstream releases.</li>
+  <li><b>Decision before code in M2 [R4, R7]:</b> issue #47 is closed by a one-page design decision with a named owner (Lars) and a 4-week deadline, not by milestone assignment. M2's success criterion is reworded: implementing the decision, with an explicit ship/defer point. Shipping 1.1.0 as a cleanup-only minor without the suite counts as success. The Google Sheet sync is deleted, not flag-gated.</li>
+  <li><b>Burst-compatible sizing [R3]:</b> every M1 issue is one-session-sized and independently shippable; if the timeline slips, scope cuts to the four bug fixes plus submission, nothing else.</li>
+</ol>
+</div>
+
+<h2>Kill criteria</h2>
+<ul class="kill">
+  <li>If the CRAN submission is not confirmable within 2 weeks (maintainer unreachable), stop the CRAN track: distribute via GitHub release + r-universe for downstream and run the maintainer change in parallel.</li>
+  <li>If 1.0.2 is merged but unsubmitted 2 weeks after branch-ready, the bandwidth failure is happening: cut scope to bugfixes + submission only, drop everything else from M1.</li>
+  <li>If the #47 design decision is not written and agreed within 4 weeks of 1.0.2 shipping, the metadata suite is out of 1.1.0; 1.1.0 ships as a dependency-cleanup minor.</li>
+  <li>If <code>git log main..release/1.0.2</code> is non-empty two weeks after the v1.0.2 tag, freeze M2 work until the forward-merge lands.</li>
+</ul>
+
+<h2>Pre-launch checklist (v1.0.2)</h2>
+<ul class="check">
+  <li>Maintainer email verified reachable, or maintainer change prepared in Authors@R and explained in cran-comments.md.</li>
+  <li>Each regression test proven to fail on the unpatched 1.0.1 branch point (fail-first evidence in each PR).</li>
+  <li>Real-fleet fixture test green: fixed functions run on a copy of a published package's actual files with only intended diffs, DOI agreement with Zenodo preserved.</li>
+  <li>R CMD check --as-cran clean on the exact tagged commit with current CRAN dependencies; dontshow tempdir landmines removed; Date fresh; NEWS entry present.</li>
+  <li>Forward-merge PR to main open and green before submission.</li>
+  <li>pkgreview change ready but gated on packageVersion, verified against fixtures/pkgreviewtest; caveats not yet deleted.</li>
+</ul>
+
+<div class="verdict">
+  <h3>Verdict on "should I update the CRAN package?"</h3>
+  <p>Yes, but only the surgical 1.0.2 patch, and only after Gate 0 (maintainer channel verified) and the fail-first test evidence exist. The four reported bugs plus the setup_readme data-loss bug are all in the CRAN 1.0.1 tarball, downstream consumes washr from CRAN, so a CRAN patch is the only action that deletes the pkgreview workarounds. Do not let the unreleased metadata suite anywhere near this submission.</p>
+</div>
+
+<h2>The eight failure modes</h2>
+<div class="cards">
+
+<div class="card" style="border-top-color:var(--red)">
+  <h3>R3: Bandwidth stall <span class="pill" style="background:rgba(244,98,110,.15);color:var(--red)">likely + severe</span></h3>
+  <div class="meta">Investigator 3 &middot; institutional</div>
+  <p>M1 rides the anger of the July 8 bug-filing burst; fixes merge by August. Then CRAN submission (email round-trips, resubmissions) collides with semester start and fieldwork. "Merged, will submit next week" becomes January. The repo has seen this twice before: the 2024 cran-branch rescue and the metadata suite's six unmerged months.</p>
+  <div class="lbl">Assumption</div><p>A plan sized in engineer-weeks executed by an institution that works in unstaffed student bursts.</p>
+  <div class="lbl">Early warnings</div><p>Fixes merged, no submission within 2 weeks. No commits from anyone but Lars in month one.</p>
+</div>
+
+<div class="card" style="border-top-color:var(--orange)">
+  <h3>R2: CRAN gatekeeping <span class="pill" style="background:rgba(245,163,92,.15);color:var(--orange)">likely + severe</span></h3>
+  <div class="meta">Investigator 2 &middot; process</div>
+  <p>The confirmation link goes to cwalder@ethz.ch; the contract ended in spring; the mailbox bounces silently. Maintainer change takes weeks; the "New maintainer" NOTE routes to human review; the reviewer re-reviews the whole 20-month-old package (blanket dontrun, missing value tags, tempdir writes). A check-deadline email to the dead inbox archives the package mid-plan.</p>
+  <div class="lbl">Assumption</div><p>CRAN evaluates the diff, delivered to a monitored maintainer, rather than re-reviewing a stale package via a dead address.</p>
+  <div class="lbl">Early warnings</div><p>Test email bounces. Submission pending confirmation beyond 48 hours.</p>
+</div>
+
+<div class="card" style="border-top-color:var(--pink)">
+  <h3>R8: The fleet is the product <span class="pill" style="background:rgba(244,114,182,.15);color:var(--pink)">counter-check find</span></h3>
+  <div class="meta">Adversarial counter-check &middot; blind spot</div>
+  <p>All seven other modes are tool-repo-centric. The value of washr is ~20 published packages whose files were generated by buggy 1.0.1 plus hand-patches. The fixed functions were only ever tested on pristine fixtures. First re-run on an old package "corrects" a CITATION against an immutable Zenodo DOI and clobbers 2025 hand-fixes; the team's rational response, "never run update functions on existing packages", kills the update path and with it the rationale for 1.1.0.</p>
+  <div class="lbl">Assumption</div><p>Fixing the tool fixes the ecosystem; nobody scoped what happens when fixed code touches the installed base.</p>
+  <div class="lbl">Early warnings</div><p>No test feeds update_* a 1.0.1-emitted or hand-patched file. No issue names the existing packages.</p>
+</div>
+
+<div class="card" style="border-top-color:var(--yellow)">
+  <h3>R5: Unverified fixes <span class="pill" style="background:rgba(232,201,90,.15);color:var(--yellow)">less likely + severe</span></h3>
+  <div class="meta">Investigator 5 &middot; technical</div>
+  <p>Fixes coded to imagined Nov 2024 cffr/desc behavior; 2026 cffr differs; the .bk1 regression test passes vacuously; desc_set reflows the whole DESCRIPTION. pkgreview deleted its caveats on schedule, so release day produces a CITATION.cff missing its identifier block and 40 lines of formatting noise in the checklist diff. Two maintainers quietly pin washr 1.0.1. Worse than before the patch.</p>
+  <div class="lbl">Assumption</div><p>Dependency behavior recalled from a snapshot still holds, and tests asserting imagined behavior would fail if it did not.</p>
+  <div class="lbl">Early warnings</div><p>A regression test that passes before the fix is applied. No full-file snapshot diffs in CI.</p>
+</div>
+
+<div class="card" style="border-top-color:var(--blue)">
+  <h3>R1: Fork drift <span class="pill" style="background:rgba(91,167,247,.15);color:var(--blue)">less likely + severe</span></h3>
+  <div class="meta">Investigator 1 &middot; process</div>
+  <p>The forward-merge of release/1.0.2 into main conflicts with suite code and gets deferred ("we'll redo it in the 1.1.0 rewrite"). M2 re-implements the fixes from memory; the seven regression tests never reach main; 1.1.0 ships and re-breaks #58/#59, publicly announced as fixed, with workarounds gone (version-conditioned on >= 1.0.2, which 1.1.0 satisfies).</p>
+  <div class="lbl">Assumption</div><p>The merge-back was optional cleanup rather than the release's final gate.</p>
+  <div class="lbl">Early warnings</div><p>main..release/1.0.2 non-empty two weeks post-tag. M2 edits update_citation.R while main lacks the regression tests.</p>
+</div>
+
+<div class="card" style="border-top-color:var(--purple)">
+  <h3>R7: Milestone pressure ships the suite <span class="pill" style="background:rgba(167,139,250,.15);color:var(--purple)">less likely + severe</span></h3>
+  <div class="meta">Investigator 7 &middot; incentive</div>
+  <p>"1.1.0 on CRAN" as the success criterion converts #47 from an open question into a delivery commitment. Auto-population covers the easy fields, readline returns "as fallback", the sheet-sync survives behind sync = FALSE, tests are written to pass. CRAN publication freezes the half-baked API; 2027 is spent on deprecation cycles toward the 2.0.0 the plan existed to avoid. Every milestone closed on time.</p>
+  <div class="lbl">Assumption</div><p>Putting "on CRAN" in the milestone measures quality when it actually measures shipping.</p>
+  <div class="lbl">Early warnings</div><p>#47 closed by milestone assignment, not a written decision. Sheet-sync demoted to a flag instead of deleted.</p>
+</div>
+
+<div class="card" style="border-top-color:var(--teal)">
+  <h3>R4: Redesign never converges <span class="pill" style="background:rgba(79,209,197,.15);color:var(--teal)">likely + moderate</span></h3>
+  <div class="meta">Investigator 4 &middot; governance</div>
+  <p>setup_metadata() needs a canonical source of truth and there are four live candidates (Authors@R, creators.csv, the org Google Sheet, Zenodo/DataCite via #56, with #47 and #56 assigned to different owners). Every draft PR reopens the architecture question; FAIR ambitions widen the spec each meeting; by October there are three competing field mappings and no empowered owner. 1.1.0 never ships; the buggy suite keeps accreting users on main.</p>
+  <div class="lbl">Assumption</div><p>"Auto-populate from DESCRIPTION + dictionary" is an implementation detail, not an unowned governance decision between four live systems.</p>
+  <div class="lbl">Early warnings</div><p>Design thread cites the website catalog, FAIR or #56 instead of signatures within two weeks. New packages still running old add_metadata().</p>
+</div>
+
+<div class="card" style="border-top-color:var(--green)">
+  <h3>R6: Downstream desync <span class="pill" style="background:rgba(89,201,143,.15);color:var(--green)">moderate + moderate</span></h3>
+  <div class="meta">Investigator 6 &middot; ecosystem</div>
+  <p>pkgreview strips its caveats the week 1.0.2 lands; three weeks later a review session runs on a September CI image resolving washr 1.0.1 (binary lag, cached renv.lock; nothing pins or checks the version). Old bugs fire with no workaround text left. Meanwhile an in-flight review stamped on the old standard deletes the now-correct DOI badge on a machine that did get 1.0.2. Two packages break in opposite directions in one week.</p>
+  <div class="lbl">Assumption</div><p>The CRAN release and caveat deletion take effect atomically everywhere, with no version guard anywhere.</p>
+  <div class="lbl">Early warnings</div><p>CITATION.bk1 or empty badges in post-cleanup PRs. Stamped in-flight reviews open across the VERSION bump.</p>
+</div>
+
+</div>
+
+<h2>Run overview</h2>
+<div class="overview">
+  <div class="ov"><b>5 reviewers</b>code, CRAN, tests/CI, docs, API/downstream; then a cross-review discussion round</div>
+  <div class="ov"><b>Unanimous vote</b>surgical 1.0.2 off the 1.0.1 commit; suite reshaped for 1.1.0</div>
+  <div class="ov"><b>7 + 1 investigators</b>seven failure deep dives plus an adversarial counter-check</div>
+  <div class="ov"><b>1 genuine blind spot</b>the counter-check surfaced R8, the fleet migration gap, now in the plan</div>
+</div>
+
+<footer>
+Premortem of the openwashdata/washr release plan (v1.0.2 patch, v1.1.0 suite reshape, v1.2.0 backlog) &middot; horizon January 2027 &middot; generated 2026-07-12 &middot; companion files: review-findings.md, implementation-plan.md, premortem-transcript-2026-07-12.md
+</footer>
+
+</div>
+</body>
+</html>
