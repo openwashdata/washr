@@ -1,8 +1,17 @@
 # washr implementation plan: issues and milestones
 
-Date: 2026-07-12 (revision 2, same day)
+Date: 2026-07-12 (revision 4, same day)
 Target: sub-version release cycle (1.0.2 patch, then 1.1.0 minor, then 1.2.0 minor). No 2.0.0.
 Premortem mitigations are marked [PM-Rn].
+
+IMPLEMENTATION START: September 2026 (maintainer decision). All suggested due dates anchor to that start. Cross-repo sequence (coherence finding D1): washr v1.0.2 release branch first, pkgreview review-standard v1.1.0 during the CRAN wait, caveat retirement (pkgreview#41) folded into pkgreview's release if 1.0.2 is on CRAN by then.
+
+Revision 4 changes (cross-repo coherence fixes, see cross-repo-coherence.md):
+- pkgreview#41 filed as the caveat-retirement owner (successor to closed pkgreview#23); washr #66 re-pointed to it.
+- washr #86 filed: scaffold the R-CMD-check workflow so washr packages pass the pkgreview required floor by construction (v1.1.0).
+- washr #63 gains the license-clobber task; #73 gains CITATION.cff keyword preservation and full _pkgdown.yml template adoption; #67's scope gains the keywords field mapping.
+- Ownership splits recorded on the issues: Zenodo (washr#56 package side, pkgreview#12 skill side), mechanical checks (washr#82 engine, pkgreview#13 consumer), teaching artifacts (vignette #76 condensed, pkgreview#30 guidebook floor/intake, reworked guide #85 full narrative).
+- Engine decision propagated to pkgreview#20/#30; pkgreview#37 reworded (update_dictionary() does not exist yet; round-trip criterion added to washr#13).
 
 Revision 2 changes (triage after reading the ghedatapublishing guide):
 - Published data packages are OUT OF SCOPE: the team fixes the existing fleet separately. The fleet fixture test, fleet pilot, and the fleet kill criterion are removed from this plan. Premortem finding R8 remains recorded in the premortem documents; its mitigation is owned outside this plan.
