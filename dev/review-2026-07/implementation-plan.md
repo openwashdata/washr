@@ -10,6 +10,11 @@ Revision 2 changes (triage after reading the ghedatapublishing guide):
 - Function taxonomy adopted (see below): stable core of seven, experimental FAIR layer with lifecycle badges, internalized plumbing, one removal.
 - Issue triage adopted: #57/#58/#59/#60 fix now; #47 resolved as auto-populate and consolidate; #13/#20/#56 to 1.2.0 with #56 as the flagship; #24 folded into the setup_readme template work; #40 folded into the 1.1.0 ergonomics sweep.
 
+Revision 3 changes (engine decision, 2026-07-12):
+- Engine decision (Lars): washr is the engine. It gets parameterized long-term so its use case extends beyond openwashdata, no matter the package name. Templates are not lost: they become whisker-style defaults filled from an org config layer (DESCRIPTION-derived facts plus a small override file/options), with openwashdata as the shipped default.
+- fairenough consequence: fairenough's genuinely novel pieces are ported into washr as backlog items (validation gates as check_publication_readiness(); AI dictionary descriptions as an optional, key-free-by-default assist behind Suggests). No new engine features land in fairenough; its long-term disposition (thin AI wrapper vs archive) is a team call outside this plan.
+- Guide rework tracked as its own issue: move ghedatapublishing to the openwashdata org, rename tool-neutrally, rework against the 1.1.0 washr, with a redirect for the old Pages URL.
+
 ## Function taxonomy
 
 Stable core (the guide's chronology; exported forever, hardened first):
@@ -90,9 +95,12 @@ Kill criterion: no agreed decision in 4 weeks means the FAIR layer is out of 1.1
 - #56 (flagship): update_zenodo() using the Zenodo REST API (user token) to set upload type Dataset, related identifiers, and notes from package metadata, collapsing the guide's most manual chapter to one call. Org-agnostic, token-based; the org-specific parts stay in org tooling.
 - #13: update_dictionary() preserving hand-written descriptions across data iterations (also strengthens update_metadata auto-population).
 - #20: labelled data support (codebook to labels, human-readable codebook page).
-- Workflow status function (check_publication_readiness()): encodes the guide's chronology as a diagnostic (tidy data present, dictionary filled, roxygen done, DESCRIPTION complete, citation current) so guide step N failures say what step N-1 is missing.
+- Parameterization: org config layer so washr works beyond openwashdata (engine decision). Whisker-style templates as overridable defaults; org facts from DESCRIPTION plus config; no hardcoded openwashdata anywhere outside default values.
+- check_publication_readiness(): workflow status gates encoding the guide's chronology; port fairenough's validate_*_completed() design.
+- Optional AI-assisted dictionary descriptions: port fairenough's gendict() as an opt-in assist (Suggests: ellmer), never a prerequisite; the key-free path stays primary.
 - setup_repo(): thin wrapper over usethis::create_package() + use_git() + use_github(organisation = ...) so the guide's repository chapter loses its raw terminal git commands (the most beginner-hostile step in the guide). Nice-to-have, not core; the guide's manual path remains documented as fallback.
 - Messaging standardization (cli, invisible returns).
+- Guide rework (cross-repo): move ghedatapublishing to the openwashdata org, rename tool-neutrally, rework against the shipped 1.1.0 API; old Pages URL gets a redirect stub; academy inbound links updated.
 - #24: close when 2.8 ships, superseded by the README template example section.
 
 ## Standing kill criteria and watch signals
