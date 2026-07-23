@@ -18,19 +18,14 @@ create_local_thing <- function(dir = tempfile(pattern = pattern),
                                thing = c("package", "project")) {
   thing <- match.arg(thing)
   if (dir.exists(dir)) {
-    ui_abort("Target {.arg dir} {.path {pth(dir)}} already exists.")
+    stop("Target dir ", dir, " already exists.")
   }
 
-  old_project <- usethis:::proj_get_() # this could be `NULL`, i.e. no active project
+  # could be `NULL`, i.e. no active project
+  old_project <- tryCatch(usethis::proj_get(), error = function(e) NULL)
   old_wd <- getwd()          # not necessarily same as `old_project`
 
-  withr::defer(
-    {
-      print("Deleting temporary project: {.path {dir}}")
-      unlink(dir, recursive = TRUE)
-    },
-    envir = env
-  )
+  withr::defer(unlink(dir, recursive = TRUE), envir = env)
 
   switch(
       thing,
@@ -46,19 +41,13 @@ create_local_thing <- function(dir = tempfile(pattern = pattern),
         open = FALSE,
         check_name = FALSE
       ),
-      project = create_project(dir, rstudio = rstudio, open = FALSE)
+      project = usethis::create_project(dir, rstudio = rstudio, open = FALSE)
     )
 
   withr::defer(usethis::proj_set(old_project, force = TRUE), envir = env)
   usethis::proj_set(dir)
 
-  withr::defer(
-    {
-      print("Restoring original working directory: {.path {old_wd}}")
-      setwd(old_wd)
-    },
-    envir = env
-  )
+  withr::defer(setwd(old_wd), envir = env)
   setwd(usethis::proj_get())
 
   invisible(usethis::proj_get())
