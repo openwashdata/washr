@@ -19,14 +19,8 @@ based on its README.md file. The website provides a structured and visually appe
 of the package's documentation.
 }
 \examples{
-\dontshow{
-.old_wd <- setwd(tempdir())
-}
 \dontrun{
 # Set up the pkgdown website including a vignette page
  setup_website(has_example = TRUE)
-}
-\dontshow{
-setwd(.old_wd)
 }
 }

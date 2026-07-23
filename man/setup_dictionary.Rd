@@ -17,18 +17,10 @@ variable types, and descriptions. If tidy data exists, the dictionary is populat
 relevant information; otherwise, it creates an empty dictionary CSV file.
 }
 \examples{
-\dontshow{
-temppkg <- tempdir()
-devtools::create(temppkg, open=FALSE)
-.old_wd <- setwd(temppkg)
-}
 \dontrun{
 setup_rawdata()
 # Go to data_processing.R, clean the raw data and export tidy data
 setup_dictionary()
-}
-\dontshow{
-setwd(.old_wd)
 }
 
 }
