@@ -4,7 +4,11 @@
 \alias{setup_readme}
 \title{Generate the README RMarkdown file}
 \usage{
-setup_readme()
+setup_readme(force = FALSE)
+}
+\arguments{
+\item{force}{Logical. If FALSE (the default), the function stops when a
+README.Rmd already exists. Set to TRUE to overwrite the existing file.}
 }
 \value{
 NULL. This function creates a README.Rmd under the package directory.

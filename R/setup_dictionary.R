@@ -12,18 +12,10 @@
 #' @returns NULL. Error if raw data is not found or not in a package directory.
 #'
 #' @examples
-#' \dontshow{
-#' temppkg <- tempdir()
-#' devtools::create(temppkg, open=FALSE)
-#' .old_wd <- setwd(temppkg)
-#' }
 #' \dontrun{
 #' setup_rawdata()
 #' # Go to data_processing.R, clean the raw data and export tidy data
 #' setup_dictionary()
-#' }
-#' \dontshow{
-#' setwd(.old_wd)
 #' }
 #'
 setup_dictionary <- function() {
@@ -58,14 +50,8 @@ setup_dictionary <- function() {
 #' @export
 #'
 #' @examples
-#' \dontshow{
-#' .old_wd <- setwd(tempdir())
-#' }
 #' \dontrun{
-#' update_dictionary(dict_path = "data-raw/my-dictionary.csv", data = "data/")
-#' }
-#' \dontshow{
-#' setwd(.old_wd)
+#' fill_dictionary(dict_path = "data-raw/dictionary.csv", data_dir = "data/")
 #' }
 #'
 fill_dictionary <- function(dict_path, data_dir){

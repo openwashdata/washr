@@ -1,17 +1,22 @@
-## Version 1.0.0
+## Version 1.0.2
 
-Initial submission to CRAN.
+This is a patch release containing bug fixes only, with no new API.
 
-## Resubmission (V1.0.1)
+### Maintainer change
 
-This is a resubmission. Following the suggestions of the reviewer I have:
+The previous maintainer, Colin Walder, has left ETH Zurich and his email
+address is no longer active. The new maintainer, Lars Schöbitz
+(lschoebitz@ethz.ch), is a package co-author and works at the same
+institution (Global Health Engineering, ETH Zurich), which holds the
+copyright. Colin Walder remains a package author.
 
-* Moved CODE_OF_CONDUCT.md to inst/*.
-* Deleted the line "+ file LICENSE" and the corresponding file.
-* Removed a potentially misleading term/word ("openwashdata") in DESCRIPTION.
+### Changes
+
+- Six bug fixes to `update_citation()`, `update_description()`, and
+  `setup_readme()`, each with a regression test (see NEWS.md).
+- Removed example blocks that wrote to the temporary directory at check
+  time, and fixed an example that referenced a nonexistent function.
 
 ### R CMD check results
 
-0 errors | 0 warnings | 1 note
-
-devtools::check() returns one note: unable to verify current time.
+0 errors | 0 warnings | 0 notes

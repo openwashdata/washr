@@ -4,28 +4,26 @@
 \alias{update_citation}
 \title{Update the citation file for the dataset.}
 \usage{
-update_citation(doi)
+update_citation(doi = NULL)
 }
 \arguments{
-\item{doi}{DOI(Digital Object Identifier), e.g., 10.5281/zenodo.11185699}
+\item{doi}{DOI (Digital Object Identifier), e.g., 10.5281/zenodo.11185699.
+Defaults to NULL for the pre-release call, in which case no DOI is
+recorded and no badge is added.}
 }
 \value{
 NULL. A citation .cff file is written under the root directory.
 }
 \description{
-Create a citation *.cff file for the released dataset from a given DOI(Digital
-Object Identifier). It adds the DOI badge to the README RMarkdown file and
-re-build the README.md and pkgdown website if exists.
+Create a citation *.cff file for the dataset from a given DOI (Digital
+Object Identifier). When a DOI is supplied, it adds the DOI badge to the
+README RMarkdown file and re-builds the README.md and pkgdown website if
+they exist. Before a release exists, call it without arguments to generate
+the citation files without a DOI or badge.
 }
 \examples{
-\dontshow{
-.old_wd <- setwd(tempdir())
-}
 \dontrun{
   update_citation(doi = "10.5281/zenodo.11185699")
-}
-\dontshow{
-setwd(.old_wd)
 }
 
 }

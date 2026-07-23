@@ -20,6 +20,9 @@ NULL. Update fields directly in DESCRIPTION file.
 \description{
 This function updates the DESCRIPTION file of an R package to comply with openwashdata standards.
 It ensures that fields such as \code{License}, \code{Language}, \code{Date}, \code{URL}, and others are correctly specified.
+Existing \code{URL} and \code{Config/Needs/website} entries are preserved and merged
+with the openwashdata defaults. A CC BY 4.0 license is only set when the
+package does not have a license yet; an existing license is left untouched.
 }
 \examples{
 \dontrun{

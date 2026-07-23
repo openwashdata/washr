@@ -13,15 +13,9 @@
 #' @export
 #'
 #' @examples
-#' \dontshow{
-#' .old_wd <- setwd(tempdir())
-#' }
 #' \dontrun{
 #' # Set up the pkgdown website including a vignette page
 #'  setup_website(has_example = TRUE)
-#' }
-#' \dontshow{
-#' setwd(.old_wd)
 #' }
 setup_website <- function(has_example=FALSE){
   # Check on README file
