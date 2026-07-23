@@ -27,6 +27,6 @@ column to be written.
 
 ``` r
 if (FALSE) { # \dontrun{
-update_dictionary(dict_path = "data-raw/my-dictionary.csv", data = "data/")
+fill_dictionary(dict_path = "data-raw/dictionary.csv", data_dir = "data/")
 } # }
 ```

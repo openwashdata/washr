@@ -8,8 +8,15 @@ your data packages.
 ## Usage
 
 ``` r
-setup_readme()
+setup_readme(force = FALSE)
 ```
+
+## Arguments
+
+- force:
+
+  Logical. If FALSE (the default), the function stops when a README.Rmd
+  already exists. Set to TRUE to overwrite the existing file.
 
 ## Value
 

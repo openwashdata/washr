@@ -8,6 +8,7 @@ To install the latest stable version of `washr` from CRAN, use the
 following command in your R console:
 
 ``` r
+
 install.packages("washr")
 ```
 
@@ -16,6 +17,7 @@ install the development version of `washr` from GitHub. Make sure you
 have the `remotes` package installed:
 
 ``` r
+
 # Install washr from GitHub
 remotes::install_github("openwashdata/washr")
 ```
