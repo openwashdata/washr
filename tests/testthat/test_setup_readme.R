@@ -13,3 +13,24 @@ test_that("setup_readme runs when there is data objects", {
   usethis::use_data(d1)
   expect_no_error(setup_readme())
 })
+
+test_that("setup_readme refuses to overwrite an existing README.Rmd (#64)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  d1 <- data.frame(id = 1:3, name = c("A", "B", "C"))
+  usethis::use_data(d1)
+  writeLines(c("# HAND-WRITTEN README", "do not lose this"), "README.Rmd")
+  before <- readLines("README.Rmd")
+  expect_error(setup_readme(), "force")
+  expect_identical(readLines("README.Rmd"), before)
+})
+
+test_that("setup_readme(force = TRUE) overwrites an existing README.Rmd", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  d1 <- data.frame(id = 1:3, name = c("A", "B", "C"))
+  usethis::use_data(d1)
+  writeLines("# OLD README", "README.Rmd")
+  expect_no_error(setup_readme(force = TRUE))
+  expect_false(identical(readLines("README.Rmd"), "# OLD README"))
+})

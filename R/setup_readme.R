@@ -5,6 +5,9 @@
 #' retrieved from the `data/` directory. It helps in creating consistent and informative README documentation
 #' for your data packages.
 #'
+#' @param force Logical. If FALSE (the default), the function stops when a
+#' README.Rmd already exists. Set to TRUE to overwrite the existing file.
+#'
 #' @returns NULL. This function creates a README.Rmd under the package directory.
 #'
 #' @export
@@ -16,9 +19,16 @@
 #' # Complete and save the dictionary CSV file with variable descriptions
 #' setup_readme()
 #' }
-setup_readme <- function(){
+setup_readme <- function(force = FALSE){
   # Get metadata
   readmermd_path <- file.path("README.Rmd")
+  if (file.exists(readmermd_path)) {
+    if (!force) {
+      usethis::ui_stop("README.Rmd already exists.
+                        Call setup_readme(force = TRUE) to overwrite it.")
+    }
+    file.remove(readmermd_path)
+  }
   pkgname <- desc::desc_get("Package")
   dataname <- strsplit(basename(list.files("data")[1]), ".rda")[[1]]
   if (is.na(dataname)) {
@@ -35,4 +45,3 @@ setup_readme <- function(){
                         package = "washr")
   usethis::ui_todo("Finish the writing of README and run devtools::build_readme() in console.")
 }
-
