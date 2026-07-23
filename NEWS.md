@@ -1,3 +1,5 @@
+# washr (development version)
+
 # washr 1.0.2
 
 Patch release: bug fixes only, no new API. New maintainer: Lars Schöbitz.
