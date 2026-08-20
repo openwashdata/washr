@@ -1,6 +1,6 @@
 # Metadata design decision: canonical sources and field mappings
 
-Owner: Lars Schöbitz. Started 2026-08-19, decision due 2026-09-16 (#67). Resolves #47. Governs #68, #69, #70, #71, #87. Draft for review; this becomes binding when agreed on #67.
+Owner: Lars Schöbitz. Started 2026-08-19, agreed 2026-08-20, ahead of the 2026-09-16 due date (#67). Resolves #47. Governs #68, #69, #70, #71, #87. Binding.
 
 ## Decision
 
@@ -11,6 +11,8 @@ Three canonical sources hold every metadata fact. Everything else is generated f
 3. **CITATION.cff**: citation string and DOI. Itself generated from DESCRIPTION by `update_citation()`; the DOI is the only fact entered there and only via the `doi` argument.
 
 `update_metadata()` auto-populates every derivable field in the four dataspice files plus the JSON-LD, and reports the fields that remain blank. The hand-typed creator registry goes away: creators derive from Authors@R.
+
+The staging layer keeps dataspice's file format and drops the dataspice package. `update_metadata()` scaffolds and writes the four CSVs itself, and dataspice leaves Imports. Retiring the CSVs entirely and generating the JSON-LD straight from the canonical sources stays open as a v1.2.0 question, to revisit once the consolidated `update_metadata()` has seen use.
 
 ## Field mappings
 
@@ -33,7 +35,7 @@ Three canonical sources hold every metadata fact. Everything else is generated f
 
 ## Keywords: one canonical home
 
-Keywords live in DESCRIPTION as `X-schema.org-keywords` (comma-separated). From there they flow to CITATION.cff (cffr parses this field natively; satisfies the advisory keywords in openwashdata/pkgreview#35), to biblio.csv, and to the JSON-LD keywords array. No other file accepts hand-entered keywords. Preservation mechanics across regeneration are #73's scope.
+Keywords live in DESCRIPTION as `X-schema.org-keywords` (comma-separated). From there they flow to CITATION.cff (verified 2026-08-20: cffr 1.4.1 reads the field into the CFF keywords array; satisfies the advisory keywords in openwashdata/pkgreview#35), to biblio.csv, and to the JSON-LD keywords array. No other file accepts hand-entered keywords. Preservation mechanics across regeneration are #73's scope.
 
 ## Artifacts and what each is for
 
@@ -41,15 +43,16 @@ Keywords live in DESCRIPTION as `X-schema.org-keywords` (comma-separated). From 
 - **CITATION.cff and inst/CITATION**: citation for humans, GitHub, Zenodo, and R's `citation()`.
 - **JSON-LD (schema.org/Dataset)**: search-engine discoverability. It has value only when embedded in a crawlable page, so it belongs to the pkgdown site pipeline, not the tarball: generated next to its sources and embedded in the site (implementation in #70 and #87), no longer written to `inst/extdata/`.
 
-dataspice conformance means the four CSVs use dataspice's exact column schemas with one row per unit (file-distribution for access, variable for attributes), so dataspice tooling stays usable. It does not mean using dataspice's interactive editors.
+dataspice conformance means the four CSVs use dataspice's exact column schemas with one row per unit (file-distribution for access, variable for attributes), so dataspice tooling stays usable for anyone who wants it. It does not mean using dataspice's interactive editors, and it does not keep the dataspice package as a dependency; conformance is to the file format only.
 
 ## Consequences
 
-- **#68**: `update_metadata()` becomes the one call: scaffolds missing files without prompting, populates all mappings above, regenerates the JSON-LD, reports blanks (geographic, temporal, unitText). Idempotent.
+- **#68**: `update_metadata()` becomes the one call: scaffolds missing files without prompting, populates all mappings above, regenerates the JSON-LD, reports blanks (geographic, temporal, unitText). Idempotent. It writes the dataspice-format files itself, without the dataspice package.
 - **#69**: `update_gsheet_metadata()` is removed; the Google Sheet is not a canonical source.
 - **#70**: `generate_jsonld()` is rewritten: `@context` https://schema.org, name/description/license/version/datePublished from DESCRIPTION (no `lubridate::today()`), creator array from Authors@R, contactPoint from the maintainer, distribution rows from access.csv with MIME types.
 - **#71**: `update_metadata()` stays exported alongside `update_citation()`; the helpers (`update_biblio()`, `update_access()`, `update_attributes()`, `add_metadata()`, `add_creator()`, `generate_jsonld()`) go internal or are absorbed.
 - **#87**: the dataspice CSVs stay as the staging layer under `data/metadata/`; the JSON-LD leaves `inst/extdata/`.
+- **#72**: the metadata decisions remove three Imports (dataspice here, googlesheets4 via #69, lubridate via #70), taking Imports from 16 to 13 before the core cuts.
 - **#47**: closed by this document; `add_metadata()` is consolidated and auto-populated, not deleted in isolation.
 
 ## Out of scope
