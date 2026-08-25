@@ -1,5 +1,11 @@
 # washr (development version)
 
+- New `use_brand()` installs the openwashdata brand (`_brand.yml` and the
+  logo files it references) from the central openwashdata/brand repository
+  into the active package, refreshes an existing copy idempotently, and
+  wires an existing `_pkgdown.yml` to the brand through bslib so the
+  package site renders with the brand fonts and colors (#109).
+
 # washr 1.0.2
 
 Patch release: bug fixes only, no new API. New maintainer: Lars Schöbitz.

@@ -35,7 +35,8 @@ Imports:
     tools,
     usethis (>= 2.2.3),
     utils (>= 4.3.3),
-    stringr
+    stringr,
+    yaml
 Suggests: 
     knitr,
     remotes,
