@@ -40,7 +40,9 @@ next \code{\link[pkgdown:build_site]{pkgdown::build_site()}} renders the site wi
 and colors. The wiring rewrites \verb{_pkgdown.yml} through the yaml
 package, which does not preserve comments in that file. When no
 \verb{_pkgdown.yml} exists, the wiring is skipped with a hint to run
-\code{\link[=setup_website]{setup_website()}} first.
+\code{\link[=setup_website]{setup_website()}} first. Building the wired site requires the
+brand.yml package (bslib asks for it at build time); it is listed in
+Suggests and installed on demand.
 }
 \examples{
 \dontrun{

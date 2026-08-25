@@ -18,7 +18,9 @@
 #' and colors. The wiring rewrites `_pkgdown.yml` through the yaml
 #' package, which does not preserve comments in that file. When no
 #' `_pkgdown.yml` exists, the wiring is skipped with a hint to run
-#' [setup_website()] first.
+#' [setup_website()] first. Building the wired site requires the
+#' brand.yml package (bslib asks for it at build time); it is listed in
+#' Suggests and installed on demand.
 #'
 #' @param ref Character. Git reference (branch or tag) of
 #'   openwashdata/brand to copy from. Defaults to `"main"`.

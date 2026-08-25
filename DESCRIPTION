@@ -37,7 +37,8 @@ Imports:
     utils (>= 4.3.3),
     stringr,
     yaml
-Suggests: 
+Suggests:
+    brand.yml,
     knitr,
     remotes,
     rmarkdown,
