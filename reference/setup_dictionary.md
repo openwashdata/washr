@@ -26,6 +26,7 @@ Next:
 once the descriptions in `data-raw/dictionary.csv` are written.
 
 Other setup functions:
+[`setup_ci()`](https://openwashdata.github.io/washr/reference/setup_ci.md),
 [`setup_rawdata()`](https://openwashdata.github.io/washr/reference/setup_rawdata.md),
 [`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md)
 

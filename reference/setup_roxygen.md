@@ -33,6 +33,7 @@ Next:
 [`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md).
 
 Other setup functions:
+[`setup_ci()`](https://openwashdata.github.io/washr/reference/setup_ci.md),
 [`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md),
 [`setup_rawdata()`](https://openwashdata.github.io/washr/reference/setup_rawdata.md)
 

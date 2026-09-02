@@ -47,6 +47,18 @@ and
 [`usethis::use_github()`](https://usethis.r-lib.org/reference/use_github.html).
 The guide describes this step in detail.
 
+[`setup_ci()`](https://openwashdata.github.io/washr/reference/setup_ci.md)
+adds the GitHub Actions workflow that runs `R CMD check` on every push
+and pull request, on macOS, Windows and three versions of R on Linux.
+The openwashdata review standard requires it, so run it now and the
+package meets that part of the standard from its first commit.
+
+``` r
+
+library(washr)
+setup_ci()
+```
+
 ## 2. Bring in the raw data
 
 Run
@@ -56,7 +68,6 @@ from the package root. It creates `data-raw/` and a processing script,
 
 ``` r
 
-library(washr)
 setup_rawdata()
 ```
 

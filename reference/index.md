@@ -4,6 +4,8 @@
 
 Scaffold the raw data folder and the processing script
 
+- [`setup_ci()`](https://openwashdata.github.io/washr/reference/setup_ci.md)
+  : Set up the R CMD check workflow for the data package
 - [`setup_rawdata()`](https://openwashdata.github.io/washr/reference/setup_rawdata.md)
   : Create the data-raw directory with a data-processing.R template
 

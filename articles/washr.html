@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">washr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,6 +92,14 @@ underscores.</p>
 <p>Then put it under version control and on GitHub, for example with
 <code><a href="https://usethis.r-lib.org/reference/use_git.html" class="external-link">usethis::use_git()</a></code> and <code><a href="https://usethis.r-lib.org/reference/use_github.html" class="external-link">usethis::use_github()</a></code>.
 The guide describes this step in detail.</p>
+<p><code><a href="../reference/setup_ci.html">setup_ci()</a></code> adds the GitHub Actions workflow that runs
+<code>R CMD check</code> on every push and pull request, on macOS,
+Windows and three versions of R on Linux. The openwashdata review
+standard requires it, so run it now and the package meets that part of
+the standard from its first commit.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://openwashdata.github.io/washr/">washr</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/setup_ci.html">setup_ci</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="bring-in-the-raw-data">2. Bring in the raw data<a class="anchor" aria-label="anchor" href="#bring-in-the-raw-data"></a>
@@ -100,9 +108,8 @@ The guide describes this step in detail.</p>
 <code>data-raw/</code> and a processing script,
 <code>data-raw/data_processing.R</code>, with the steps the script
 should follow.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://openwashdata.github.io/washr/">washr</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/setup_rawdata.html">setup_rawdata</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/setup_rawdata.html">setup_rawdata</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Copy the raw files into <code>data-raw/</code>. In the processing
 script, read them, clean them into one or more tidy data frames, and end
 with <code><a href="https://usethis.r-lib.org/reference/use_data.html" class="external-link">usethis::use_data()</a></code> so each data frame lands in
@@ -117,7 +124,7 @@ is where the website and the metadata find the downloadable files.</p>
 <code>data/</code> and writes <code>data-raw/dictionary.csv</code> with
 one row per variable: the file it belongs to, its name, its type, and an
 empty description.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setup_dictionary.html">setup_dictionary</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Open the CSV and write a description for every variable. The
 dictionary is the one place where variables are described; the roxygen
@@ -129,7 +136,7 @@ documentation and the metadata are generated from it.</p>
 <p><code><a href="../reference/setup_roxygen.html">setup_roxygen()</a></code> writes one file per data object under
 <code>R/</code>, with a title and description placeholder and the
 variable table from the dictionary.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setup_roxygen.html">setup_roxygen</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Open each file, replace the title and the description, then run
 <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> so the help pages exist. When you
@@ -145,7 +152,7 @@ in the file.</p>
 standard expects: the language, the date, the repository URL, the bug
 report URL, and the CC BY 4.0 license when the package has none yet.
 Existing values are kept and merged.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/update_description.html">update_description</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Then open <code>DESCRIPTION</code> and check the title, the
 description and the authors. Authors are written with
@@ -168,7 +175,7 @@ file and the files in <code>inst/extdata</code>, and writes it as
 JSON-LD into <code>pkgdown/templates/in-header.html</code>. The website
 build embeds it in the head of every page, where dataset search engines
 read it.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/update_metadata.html">update_metadata</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>The function ends with the fields it could not fill and where to fill
 them. Nothing is edited by hand: change the source and run it again.
@@ -182,11 +189,11 @@ openwashdata template, with the installation instructions, the download
 table, and a section for the first data object. With
 <code>has_example = TRUE</code> it adds an Example section with a
 scaffold for a first plot.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setup_readme.html">setup_readme</a></span><span class="op">(</span>has_example <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Write the text, add a section for each further data object, then
 render it:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/build_readme.html" class="external-link">build_readme</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -196,7 +203,7 @@ render it:</p>
 the openwashdata template and builds the site into <code>docs/</code>.
 The template sets the Pages URL, the analytics header, the funding
 sidebar, and a reference index with one entry per data object.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setup_website.html">setup_website</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Running it again keeps your <code>_pkgdown.yml</code> and rebuilds
 the site. <code>docs/</code> is committed and served by GitHub Pages;
@@ -206,7 +213,7 @@ instead, the function leaves <code>docs/</code> ignored.</p>
 and colors of the site, from the central brand repository and wires
 <code>_pkgdown.yml</code> to it. Run it once after
 <code><a href="../reference/setup_website.html">setup_website()</a></code>, and again whenever the brand changes.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/use_brand.html">use_brand</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -217,7 +224,7 @@ and colors of the site, from the central brand repository and wires
 the first release so the files exist, then again with the DOI once the
 release is deposited on Zenodo; the guide describes the Zenodo
 steps.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/update_citation.html">update_citation</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co"># after the Zenodo release</span></span>
 <span><span class="fu"><a href="../reference/update_citation.html">update_citation</a></span><span class="op">(</span>doi <span class="op">=</span> <span class="st">"10.5281/zenodo.11185699"</span><span class="op">)</span></span></code></pre></div>
