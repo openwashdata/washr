@@ -2,7 +2,32 @@
 
 ## washr (development version)
 
+- New
+  [`use_brand()`](https://openwashdata-dev.github.io/washr/reference/use_brand.md)
+  installs the openwashdata brand (`_brand.yml` and the logo files it
+  references) from the central openwashdata/brand repository into the
+  active package, refreshes an existing copy idempotently, and wires an
+  existing `_pkgdown.yml` to the brand through bslib so the package site
+  renders with the brand fonts and colors
+  ([\#109](https://github.com/openwashdata/washr/issues/109)).
+
+- [`setup_readme()`](https://openwashdata-dev.github.io/washr/reference/setup_readme.md)
+  no longer writes a dead license link. The README template carried the
+  package name placeholder in URL encoded form, so whisker never
+  substituted it and every generated README linked to
+  `.../%7B%7B%7Bpackagename%7D%7D%7D/blob/main/LICENSE.md`
+  ([\#101](https://github.com/openwashdata/washr/issues/101)).
+
+- [`update_citation()`](https://openwashdata-dev.github.io/washr/reference/update_citation.md)
+  adds `CITATION.cff` to `.Rbuildignore`, so `R CMD check` no longer
+  reports a non-standard file at the top level of the data package. cffr
+  only adds the entry itself when handed a file path, and washr hands it
+  a cff object
+  ([\#102](https://github.com/openwashdata/washr/issues/102)).
+
 ## washr 1.0.2
+
+CRAN release: 2026-07-26
 
 Patch release: bug fixes only, no new API. New maintainer: Lars
 Schöbitz.

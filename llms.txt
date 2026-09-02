@@ -91,6 +91,8 @@ Helper functions to communicate your data
   : Generate the README RMarkdown file
 - [`setup_website()`](https://openwashdata-dev.github.io/washr/reference/setup_website.md)
   : Set up a pkgdown website for the data package
+- [`use_brand()`](https://openwashdata-dev.github.io/washr/reference/use_brand.md)
+  : Install or refresh the openwashdata brand in the active package
 
 # Articles
 

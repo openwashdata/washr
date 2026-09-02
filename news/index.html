@@ -35,9 +35,12 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="washr-development-version">washr (development version)<a class="anchor" aria-label="anchor" href="#washr-development-version"></a></h2>
-</div>
+<ul><li><p>New <code><a href="../reference/use_brand.html">use_brand()</a></code> installs the openwashdata brand (<code>_brand.yml</code> and the logo files it references) from the central openwashdata/brand repository into the active package, refreshes an existing copy idempotently, and wires an existing <code>_pkgdown.yml</code> to the brand through bslib so the package site renders with the brand fonts and colors (<a href="https://github.com/openwashdata/washr/issues/109" class="external-link">#109</a>).</p></li>
+<li><p><code><a href="../reference/setup_readme.html">setup_readme()</a></code> no longer writes a dead license link. The README template carried the package name placeholder in URL encoded form, so whisker never substituted it and every generated README linked to <code>.../%7B%7B%7Bpackagename%7D%7D%7D/blob/main/LICENSE.md</code> (<a href="https://github.com/openwashdata/washr/issues/101" class="external-link">#101</a>).</p></li>
+<li><p><code><a href="../reference/update_citation.html">update_citation()</a></code> adds <code>CITATION.cff</code> to <code>.Rbuildignore</code>, so <code>R CMD check</code> no longer reports a non-standard file at the top level of the data package. cffr only adds the entry itself when handed a file path, and washr hands it a cff object (<a href="https://github.com/openwashdata/washr/issues/102" class="external-link">#102</a>).</p></li>
+</ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.2" id="washr-102">washr 1.0.2<a class="anchor" aria-label="anchor" href="#washr-102"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.0.2" id="washr-102">washr 1.0.2<a class="anchor" aria-label="anchor" href="#washr-102"></a></h2><p class="text-muted">CRAN release: 2026-07-26</p>
 <p>Patch release: bug fixes only, no new API. New maintainer: Lars Schöbitz.</p>
 <ul><li>
 <code><a href="../reference/update_citation.html">update_citation()</a></code> no longer requires a <code>doi</code> argument; calling it without one generates the citation files without a DOI, for use before a release exists (<a href="https://github.com/openwashdata/washr/issues/57" class="external-link">#57</a>).</li>
