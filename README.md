@@ -8,8 +8,6 @@
 [![CRAN
 status](https://www.r-pkg.org/badges/version/washr)](https://CRAN.R-project.org/package=washr)
 [![R-CMD-check](https://github.com/openwashdata/washr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/openwashdata/washr/actions/workflows/R-CMD-check.yaml)
-[![Codecov test
-coverage](https://codecov.io/gh/openwashdata/washr/graph/badge.svg)](https://app.codecov.io/gh/openwashdata/washr)
 [![License: GPL
 v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
