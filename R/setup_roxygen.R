@@ -78,22 +78,24 @@ setup_roxygen <- function() {
 #' }
 #'
 generate_roxygen_docs <- function(input_file_path, output_file_path, df_name=NULL){
-  # Read input CSV file
   dict <- utils::read.csv(input_file_path)
-  ## If an empty csv should quit with error: Cannot generate roxygen file with an empty dictionary
-  # Check if df_name is provided and not NULL, then filter input_df
   dict <- subset(dict, dict$file_name == paste0(df_name, ".rda"))
-  if (file.exists(output_file_path)) {
-    head <- get_roxygen_head(output_file_path)
-  } else {
-    head <- create_roxygen_head(df_name)
+  if (nrow(dict) == 0) {
+    usethis::ui_stop("The dictionary has no rows for {usethis::ui_value(paste0(df_name, '.rda'))}. Update data-raw/dictionary.csv first.")
   }
   body <- create_roxygen_body(dict)
-  output <- c(head, body)
-  # Label dataset
-  output <- c(output, paste0('"', df_name, '"'))
-  # Write output to file
-  writeLines(output, output_file_path)
+  label <- paste0('"', df_name, '"')
+  if (file.exists(output_file_path)) {
+    # Re-run: regenerate only the @format block; the title and description
+    # above it and anything below it (e.g., @source, @examples) are kept
+    parts <- split_roxygen_file(output_file_path, df_name)
+    output <- c(parts$head, body, parts$tail, label)
+    current <- readLines(output_file_path, warn = FALSE)
+  } else {
+    output <- c(create_roxygen_head(df_name), body, label)
+    current <- NULL
+  }
+  if (!identical(current, output)) writeLines(output, output_file_path)
   return(output)
 }
 
@@ -106,17 +108,22 @@ create_roxygen_head <- function(df_name) {
   return(roxygen_head)
 }
 
-get_roxygen_head <- function(roxygen_file_path){
-  roxygen_head <- character()
-  roxygen_text <- readLines(roxygen_file_path)
-  i <- 1
-  line <- roxygen_text[1]
-  while (!startsWith(line, prefix = "#' @format")) {
-    roxygen_head <- c(roxygen_head, roxygen_text[i])
-    i <- i+1
-    line <- roxygen_text[i]
+# Split an existing roxygen file into the lines before the @format block
+# (title, description, other tags) and the lines after the block's closing
+# "#' }" up to the dataset label. Errors when no @format line exists.
+split_roxygen_file <- function(roxygen_file_path, df_name){
+  lines <- readLines(roxygen_file_path, warn = FALSE)
+  fmt <- which(startsWith(lines, "#' @format"))
+  if (length(fmt) == 0) {
+    usethis::ui_stop("{usethis::ui_path(roxygen_file_path)} has no {usethis::ui_code(\"#' @format\")} line, so the generated block cannot be told from your text. Add the line back, or delete the file and run setup_roxygen() again.")
   }
-  return(roxygen_head)
+  fmt <- fmt[1]
+  closing <- which(trimws(lines) == "#' }")
+  closing <- closing[closing > fmt]
+  end <- if (length(closing)) closing[1] else fmt
+  tail <- if (end < length(lines)) lines[(end + 1):length(lines)] else character()
+  tail <- tail[trimws(tail) != paste0('"', df_name, '"')]
+  list(head = lines[seq_len(fmt - 1)], tail = tail)
 }
 
 create_roxygen_body <- function(dict){

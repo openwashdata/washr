@@ -43,6 +43,41 @@
   surface is now nine functions. dataspice, dplyr, readr, stringr and tibble
   leave Imports with the removed code (#71, #100, #72).
 
+- devtools moves from Imports to Suggests. `update_citation()` still rebuilds
+  README.md through `devtools::build_readme()`, because the README loads the
+  data package, and asks to install devtools when it is missing; the site
+  rebuild calls `pkgdown::build_site()` directly. `setup_website()` no longer
+  renders the example article on its own, since the site build renders it.
+  The version constraint on utils is dropped; utils is a base package and the
+  constraint silently required R 4.3.3. With the seven packages removed by
+  the FAIR layer work, Imports go from 16 to 10 (#72).
+
+- Idempotency and ergonomics sweep of the core (#73). Every function that
+  rewrites a file follows read-merge-write and is safe to re-run:
+  - `setup_website()` keeps an existing `_pkgdown.yml` as it is and only
+    rebuilds the site, so the guide's "answer No when prompted" step goes
+    away; it no longer crashes without a `.gitignore`; and it leaves `docs`
+    ignored when a pkgdown workflow deploys the site, or when the new
+    `track_docs = FALSE` argument says so (#104). The example article is
+    created once.
+  - The `_pkgdown.yml` template carries the Pages URL as the site URL, the
+    explanatory comments, and a reference index with one entry per data
+    object, matching the openwashdata review standard's template.
+  - `update_citation()` re-run without a `doi` keeps the DOI already on
+    file instead of dropping it, moves keywords typed into `CITATION.cff` by
+    hand to `X-schema.org-keywords` in DESCRIPTION (their canonical home,
+    from where cffr carries them forward), and rebuilds the README only when
+    the badge changes.
+  - `setup_roxygen()` re-run regenerates only the `@format` block and keeps
+    everything below it (`@source`, `@examples`, and other text), writes
+    nothing when the result is unchanged, and errors clearly when a file has
+    no `@format` line instead of crashing.
+  - `setup_dictionary()` records the first class of multi-class columns
+    (`POSIXct`, `ordered`, `Date`) instead of a deparsed vector.
+  - Loading a `.rda` file with several objects, or a file that is not an
+    `.rda`, now errors with the file name and the reason instead of
+    documenting the first object or crashing.
+
 # washr 1.0.2
 
 Patch release: bug fixes only, no new API. New maintainer: Lars Schöbitz.

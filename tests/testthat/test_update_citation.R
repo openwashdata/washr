@@ -82,3 +82,31 @@ test_that("CITATION.cff full-file snapshot (#65)", {
   cff <- gsub(pkgname, "PKGNAME", readLines("CITATION.cff"), fixed = TRUE)
   expect_snapshot(cat(cff, sep = "\n"))
 })
+
+test_that("update_citation() re-run without a doi keeps the DOI on file (#73)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  desc::desc_set("Date", "2026-07-23")
+  suppressMessages(update_citation(doi = "10.5281/zenodo.11185699"))
+  suppressMessages(update_citation())
+  expect_identical(cffr::cff_read("CITATION.cff")$doi, "10.5281/zenodo.11185699")
+})
+
+test_that("update_citation() moves hand-added CITATION.cff keywords to DESCRIPTION and keeps them (#73)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  desc::desc_set("Date", "2026-07-23")
+  suppressMessages(update_citation())
+  cff <- readLines("CITATION.cff")
+  writeLines(c(cff, "keywords:", "- sanitation", "- kampala"), "CITATION.cff")
+  suppressMessages(update_citation())
+  expect_identical(desc::desc_get_field("X-schema.org-keywords"), "sanitation, kampala")
+  expect_identical(unlist(cffr::cff_read("CITATION.cff")$keywords), c("sanitation", "kampala"))
+  # DESCRIPTION stays canonical on later runs (cffr pads a single keyword
+  # with "r-package" to satisfy the CFF schema, so check membership)
+  desc::desc_set("X-schema.org-keywords", "water")
+  suppressMessages(update_citation())
+  keywords <- unlist(cffr::cff_read("CITATION.cff")$keywords)
+  expect_true("water" %in% keywords)
+  expect_false(any(c("sanitation", "kampala") %in% keywords))
+})

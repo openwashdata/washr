@@ -1,5 +1,9 @@
-
-url: https://github.com/openwashdata/{{{name}}}
+# Standard openwashdata _pkgdown.yml, written by washr::setup_website().
+# `url` is the site base URL (canonical links, sitemap.xml, redirects), so it
+# is the Pages URL, never the GitHub repository URL; the repository link lives
+# in home.links below. The in_header block is the openwashdata analytics
+# header. washr keeps this file as it is on every later run.
+url: https://openwashdata.github.io/{{{name}}}/
 template:
   bootstrap: 5
   includes:
@@ -26,3 +30,15 @@ authors:
     roles: [cre, aut, ctb]
     before: "So *who* does the work?"
     after: "Thanks all!"
+{{#has_datasets}}
+
+# One entry per data object in data/, each under its own descriptive name.
+# Add every new data object here, or the site build stops.
+reference:
+- title: "Data"
+  desc: "Access the {{{name}}} datasets"
+  contents:
+{{#datasets}}
+  - {{{.}}}
+{{/datasets}}
+{{/has_datasets}}
