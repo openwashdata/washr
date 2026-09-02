@@ -8,18 +8,27 @@
 #' the citation files without a DOI or badge.
 #'
 #' @param doi DOI (Digital Object Identifier), e.g., 10.5281/zenodo.11185699.
+#' @param build Logical. Rebuild README.md and the pkgdown site after the
+#'   citation files change? Defaults to `TRUE`. Set to `FALSE` to regenerate
+#'   the citation files alone, e.g., in scripts and tests.
 #'   Defaults to NULL for the pre-release call, in which case no DOI is
 #'   recorded and no badge is added.
 #'
 #' @returns NULL. A citation .cff file is written under the root directory.
+#' @seealso Before: [setup_website()]. Run again with the DOI after the Zenodo release; [update_metadata()] then picks the DOI up.
+#'
+#' @family metadata functions
+#'
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #'   update_citation(doi = "10.5281/zenodo.11185699")
+#'   # Regenerate the citation files without rebuilding README.md and the site
+#'   update_citation(build = FALSE)
 #' }
 #'
-update_citation <- function(doi = NULL){
+update_citation <- function(doi = NULL, build = TRUE){
   cff_path <- "CITATION.cff"
   existing <- if (file.exists(cff_path)) cffr::cff_read(cff_path) else NULL
 
@@ -71,13 +80,15 @@ update_citation <- function(doi = NULL){
     !any(grepl(paste0("zenodo.org/badge/DOI/", doi, ".svg"), readLines("README.Rmd", warn = FALSE), fixed = TRUE))
   if(badge_missing){
     add_citation_badge(doi)
-    # the README loads the data package, so the rebuild runs in a separate
-    # process with the package loaded; devtools is a Suggests for this call
-    rlang::check_installed("devtools", reason = "to rebuild README.md after the badge changes.")
-    devtools::build_readme()
+    if (build) {
+      # the README loads the data package, so the rebuild runs in a separate
+      # process with the package loaded; devtools is a Suggests for this call
+      rlang::check_installed("devtools", reason = "to rebuild README.md after the badge changes.")
+      devtools::build_readme()
+    }
   }
 
-  if(dir.exists(file.path("docs"))){
+  if(build && dir.exists(file.path("docs"))){
     pkgdown::build_site()
   }
 

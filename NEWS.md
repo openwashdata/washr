@@ -86,6 +86,13 @@
   `NA` in it, and says which data object the template documents when there
   are several (#74, supersedes #24).
 
+- Test bar (#75). Every export has a behavioral test that asserts on file
+  content or output; every `expect_error()` names its message; the
+  `setup_rawdata()` tests check the rendered template. `update_citation()`
+  gains `build`, so scripts and tests can regenerate the citation files
+  without the README and site rebuilds. The r-lib test coverage workflow
+  reports coverage to Codecov on every push and pull request.
+
 # washr 1.0.2
 
 Patch release: bug fixes only, no new API. New maintainer: Lars Schöbitz.

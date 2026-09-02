@@ -110,3 +110,13 @@ test_that("update_citation() moves hand-added CITATION.cff keywords to DESCRIPTI
   expect_true("water" %in% keywords)
   expect_false(any(c("sanitation", "kampala") %in% keywords))
 })
+
+test_that("update_citation(build = FALSE) adds the badge but skips the README and site rebuilds (#75)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  desc::desc_set("Date", "2026-07-23")
+  writeLines(c("# pkg", "<!-- badges: start -->", "<!-- badges: end -->"), "README.Rmd")
+  suppressMessages(update_citation(doi = "10.5281/zenodo.11185699", build = FALSE))
+  expect_true(any(grepl("zenodo.11185699.svg", readLines("README.Rmd"), fixed = TRUE)))
+  expect_false(file.exists("README.md"))
+})

@@ -4,10 +4,14 @@
 \alias{update_citation}
 \title{Update the citation file for the dataset.}
 \usage{
-update_citation(doi = NULL)
+update_citation(doi = NULL, build = TRUE)
 }
 \arguments{
-\item{doi}{DOI (Digital Object Identifier), e.g., 10.5281/zenodo.11185699.
+\item{doi}{DOI (Digital Object Identifier), e.g., 10.5281/zenodo.11185699.}
+
+\item{build}{Logical. Rebuild README.md and the pkgdown site after the
+citation files change? Defaults to \code{TRUE}. Set to \code{FALSE} to regenerate
+the citation files alone, e.g., in scripts and tests.
 Defaults to NULL for the pre-release call, in which case no DOI is
 recorded and no badge is added.}
 }
@@ -24,6 +28,16 @@ the citation files without a DOI or badge.
 \examples{
 \dontrun{
   update_citation(doi = "10.5281/zenodo.11185699")
+  # Regenerate the citation files without rebuilding README.md and the site
+  update_citation(build = FALSE)
 }
 
 }
+\seealso{
+Before: \code{\link[=setup_website]{setup_website()}}. Run again with the DOI after the Zenodo release; \code{\link[=update_metadata]{update_metadata()}} then picks the DOI up.
+
+Other metadata functions:
+\code{\link[=update_description]{update_description()}},
+\code{\link[=update_metadata]{update_metadata()}}
+}
+\concept{metadata functions}
