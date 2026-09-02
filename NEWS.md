@@ -6,6 +6,11 @@
   wires an existing `_pkgdown.yml` to the brand through bslib so the
   package site renders with the brand fonts and colors (#109).
 
+- `setup_readme()` no longer writes a dead license link. The README template
+  carried the package name placeholder in URL encoded form, so whisker never
+  substituted it and every generated README linked to
+  `.../%7B%7B%7Bpackagename%7D%7D%7D/blob/main/LICENSE.md` (#101).
+
 # washr 1.0.2
 
 Patch release: bug fixes only, no new API. New maintainer: Lars Schöbitz.

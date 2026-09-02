@@ -34,3 +34,17 @@ test_that("setup_readme(force = TRUE) overwrites an existing README.Rmd", {
   expect_no_error(setup_readme(force = TRUE))
   expect_false(identical(readLines("README.Rmd"), "# OLD README"))
 })
+
+test_that("setup_readme() substitutes the package name in the license link (#101)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  d1 <- data.frame(id = 1:3, name = c("A", "B", "C"))
+  usethis::use_data(d1)
+  setup_readme()
+  license <- grep("LICENSE.md", readLines("README.Rmd"), fixed = TRUE, value = TRUE)
+  expect_length(license, 1)
+  expect_false(grepl("%7B", license, fixed = TRUE))
+  expect_match(license,
+               paste0("openwashdata/", desc::desc_get("Package"), "/blob/main/LICENSE.md"),
+               fixed = TRUE)
+})
