@@ -25,7 +25,6 @@ reference:
   - add_creator
   - add_metadata
   - generate_jsonld
-  - update_gsheet_metadata
   - update_metadata
   - update_biblio
   - update_access

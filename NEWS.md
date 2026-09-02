@@ -16,6 +16,11 @@
   cffr only adds the entry itself when handed a file path, and washr hands it
   a cff object (#102).
 
+- `update_gsheet_metadata()` is removed. It appended a row to a private
+  openwashdata Google Sheet, needed interactive Google authentication, and
+  never shipped on CRAN. googlesheets4 leaves Imports with it. The catalogue
+  update becomes org-internal tooling outside the package (#69).
+
 # washr 1.0.2
 
 Patch release: bug fixes only, no new API. New maintainer: Lars Schöbitz.

@@ -25,7 +25,6 @@ Imports:
     desc (>= 1.4.3),
     devtools (>= 2.4.5),
     dplyr,
-    googlesheets4,
     jsonlite,
     lubridate (>= 1.7.0),
     pkgdown (>= 2.0.7),
