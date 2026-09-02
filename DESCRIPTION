@@ -35,8 +35,10 @@ Imports:
     tools,
     usethis (>= 2.2.3),
     utils (>= 4.3.3),
-    stringr
-Suggests: 
+    stringr,
+    yaml
+Suggests:
+    brand.yml,
     knitr,
     remotes,
     rmarkdown,

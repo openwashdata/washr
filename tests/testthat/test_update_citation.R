@@ -31,6 +31,17 @@ test_that("update_citation() leaves no .bk1 backup files behind (#60)", {
   expect_length(list.files(".", pattern = "\\.bk[0-9]+$", recursive = TRUE), 0)
 })
 
+test_that("update_citation() adds CITATION.cff to .Rbuildignore (#102)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  desc::desc_set("Date", "2026-07-23")
+  suppressMessages(update_citation())
+  expect_true(file.exists(".Rbuildignore"))
+  expect_true("^CITATION\\.cff$" %in% readLines(".Rbuildignore"))
+  suppressMessages(update_citation())
+  expect_length(grep("CITATION", readLines(".Rbuildignore"), fixed = TRUE), 1)
+})
+
 test_that("add_citation_badge() errors clearly without the badges-end marker", {
   create_local_package()
   writeLines(c("# pkg", "no badge markers here"), "README.Rmd")
