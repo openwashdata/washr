@@ -5,7 +5,7 @@
 #' named `data_processing.R` for importing, processing and exporting the tidy data.
 #' The template assumes that the dataset name is the same as the data package name.
 #'
-#' @seealso Next: [setup_dictionary()] once the processing script has exported the tidy data with `usethis::use_data()`.
+#' @seealso Before: [setup_ci()]. Next: [setup_dictionary()] once the processing script has exported the tidy data with `usethis::use_data()`.
 #'
 #' @family setup functions
 #'

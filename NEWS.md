@@ -101,6 +101,14 @@
   by workflow stage; and the pkgdown site URL points at the openwashdata
   organisation (it pointed at the dev fork, which broke canonical links).
 
+- New `setup_ci()` writes the GitHub Actions workflow that runs `R CMD check`
+  on every push and pull request to `main` and `dev`, on macOS, Windows and
+  three versions of R on Linux, and adds the matching badge to `README.Rmd`.
+  The README template carries the badge as well. The openwashdata review
+  standard requires the workflow with the `dev` trigger, so a package
+  scaffolded with washr meets that part of the review floor by construction
+  (#86).
+
 # washr 1.0.2
 
 Patch release: bug fixes only, no new API. New maintainer: Lars Schöbitz.

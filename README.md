@@ -43,6 +43,8 @@ remotes::install_github("openwashdata/washr")
 The stable core scaffolds and documents the package, one function per
 step, in the order you run them:
 
+- `setup_ci()` adds the R CMD check workflow the review standard
+  requires.
 - `setup_rawdata()` creates `data-raw/` and the processing script.
 - `setup_dictionary()` writes the variable dictionary from the data
   objects.

@@ -16,3 +16,10 @@ is_pkg <- function(){
            file.exists(file.path(getwd(), "NAMESPACE"))
   )
 }
+
+# The GitHub repository URL from the URL field of DESCRIPTION, or NULL.
+github_repo_url <- function(file = ".") {
+  urls <- desc::desc_get_urls(file = file)
+  repo <- urls[grepl("^https?://github\\.com/[^/]+/[^/]+/?$", urls)]
+  if (length(repo)) sub("/$", "", repo[[1]]) else NULL
+}

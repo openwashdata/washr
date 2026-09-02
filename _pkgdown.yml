@@ -6,6 +6,7 @@ reference:
 - title: "Set up the data package"
   desc: "Scaffold the raw data folder and the processing script"
   contents:
+  - setup_ci
   - setup_rawdata
 
 - title: "Document the data"

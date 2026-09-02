@@ -44,12 +44,18 @@ usethis::create_package("~/path/to/fslogisticskampala")
 
 Then put it under version control and on GitHub, for example with `usethis::use_git()` and `usethis::use_github()`. The guide describes this step in detail.
 
+`setup_ci()` adds the GitHub Actions workflow that runs `R CMD check` on every push and pull request, on macOS, Windows and three versions of R on Linux. The openwashdata review standard requires it, so run it now and the package meets that part of the standard from its first commit.
+
+```{r}
+library(washr)
+setup_ci()
+```
+
 ## 2. Bring in the raw data
 
 Run `setup_rawdata()` from the package root. It creates `data-raw/` and a processing script, `data-raw/data_processing.R`, with the steps the script should follow.
 
 ```{r}
-library(washr)
 setup_rawdata()
 ```
 

@@ -49,8 +49,7 @@ build_dataset_jsonld <- function(path = ".") {
   }
 
   # Repository and site from the DESCRIPTION URL field
-  repo_url <- urls[grepl("^https?://github\\.com/[^/]+/[^/]+/?$", urls)]
-  repo_url <- if (length(repo_url)) sub("/$", "", repo_url[[1]]) else NULL
+  repo_url <- github_repo_url(path)
   site_url <- urls[grepl("github\\.io", urls)]
   site_url <- if (length(site_url)) site_url[[1]] else repo_url
   if (is.null(repo_url)) {
