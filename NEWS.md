@@ -34,6 +34,15 @@
   `generate_jsonld()` is no longer exported (it is the internal builder), and
   lubridate leaves Imports (#68, #70, #67).
 
+- The dataspice helpers are removed: `add_metadata()`, `add_creator()`,
+  `update_access()`, `update_attributes()` and `update_biblio()`. None of
+  them shipped on CRAN. `update_metadata()` replaced their output, and a
+  package that still carries `data/metadata/` keeps it; washr ignores the
+  folder. `fill_dictionary()` and `generate_roxygen_docs()` are no longer
+  exported; `setup_dictionary()` and `setup_roxygen()` call them. The export
+  surface is now nine functions. dataspice, dplyr, readr, stringr and tibble
+  leave Imports with the removed code (#71, #100, #72).
+
 # washr 1.0.2
 
 Patch release: bug fixes only, no new API. New maintainer: Lars Schöbitz.

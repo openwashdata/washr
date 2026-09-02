@@ -68,7 +68,7 @@ setup_roxygen <- function() {
 #'
 #' @returns Character string of a generated roxygen documentation.
 #'
-#' @export
+#' @keywords internal
 #'
 #' @examples \dontrun{
 #' # Generate roxygen2 documentation from example.csv

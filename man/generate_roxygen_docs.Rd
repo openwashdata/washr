@@ -29,3 +29,4 @@ generate_roxygen_docs("example.csv", "output.R", df_name = "specific_variable")
 }
 
 }
+\keyword{internal}
