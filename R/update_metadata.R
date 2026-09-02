@@ -35,6 +35,10 @@
 #'   attribute names the fields that could not be filled and says where to
 #'   fill them.
 #'
+#' @seealso Before: [update_description()], which writes the DESCRIPTION fields this reads. Next: [setup_readme()]. The DOI comes from [update_citation()].
+#'
+#' @family metadata functions
+#'
 #' @export
 #'
 #' @examples

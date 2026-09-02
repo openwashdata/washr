@@ -7,6 +7,10 @@
 #' variable types, and descriptions. If tidy data exists, the dictionary is populated with
 #' relevant information; otherwise, it creates an empty dictionary CSV file.
 #'
+#' @seealso Before: [setup_rawdata()]. Next: [setup_roxygen()] once the descriptions in `data-raw/dictionary.csv` are written.
+#'
+#' @family setup functions
+#'
 #' @export
 #'
 #' @returns NULL. Error if raw data is not found or not in a package directory.

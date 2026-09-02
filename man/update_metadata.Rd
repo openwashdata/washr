@@ -48,3 +48,11 @@ tarball.
 update_metadata()
 }
 }
+\seealso{
+Before: \code{\link[=update_description]{update_description()}}, which writes the DESCRIPTION fields this reads. Next: \code{\link[=setup_readme]{setup_readme()}}. The DOI comes from \code{\link[=update_citation]{update_citation()}}.
+
+Other metadata functions:
+\code{\link[=update_citation]{update_citation()}},
+\code{\link[=update_description]{update_description()}}
+}
+\concept{metadata functions}

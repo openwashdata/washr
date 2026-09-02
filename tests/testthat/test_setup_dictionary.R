@@ -13,7 +13,7 @@ test_that("setup_dictionary throws error when data-raw directory does not exist"
   # Mocking the current working directory with DESCRIPTION file but without data-raw directory
   create_local_package()
   rlang::local_interactive(FALSE)
-  expect_error(setup_dictionary())
+  expect_error(setup_dictionary(), "not set up the raw data")
 })
 
 test_that("setup_dictionary throws error when tidy data does not exist", {
@@ -21,7 +21,7 @@ test_that("setup_dictionary throws error when tidy data does not exist", {
   create_local_package()
   rlang::local_interactive(FALSE)
   washr::setup_rawdata()
-  expect_error(setup_dictionary())
+  expect_error(setup_dictionary(), "no tidy data")
 })
 
 test_that("setup_dictionary throws no error", {
@@ -62,7 +62,7 @@ test_that("setup_dictionary sets up a dictionary with correct values", {
 test_that("setup_dictionary throws error when not in correct working directory", {
   create_local_package()
   rlang::local_interactive(FALSE)
-  expect_error(fill_dictionary(dict_path = "dict.csv"))
+  expect_error(fill_dictionary(dict_path = "dict.csv", data_dir = "data/"), "no tidy data")
 })
 
 

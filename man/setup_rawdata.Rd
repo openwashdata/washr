@@ -20,3 +20,11 @@ The template assumes that the dataset name is the same as the data package name.
 }
 
 }
+\seealso{
+Next: \code{\link[=setup_dictionary]{setup_dictionary()}} once the processing script has exported the tidy data with \code{usethis::use_data()}.
+
+Other setup functions:
+\code{\link[=setup_dictionary]{setup_dictionary()}},
+\code{\link[=setup_roxygen]{setup_roxygen()}}
+}
+\concept{setup functions}

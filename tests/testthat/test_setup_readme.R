@@ -1,9 +1,10 @@
 options(usethis.quiet = TRUE)
 # TEST setup_readme ------------------------------------------------------------
-test_that("setup_readme throws a warning when no tidy dataset available in data/", {
+test_that("setup_readme() stops before writing when data/ holds no data object (#74)", {
   create_local_package()
   rlang::local_interactive(FALSE)
-  expect_warning(setup_readme())
+  expect_error(setup_readme(), "No data object")
+  expect_false(file.exists("README.Rmd"))
 })
 
 test_that("setup_readme runs when there is data objects", {
@@ -47,4 +48,31 @@ test_that("setup_readme() substitutes the package name in the license link (#101
   expect_match(license,
                paste0("openwashdata/", desc::desc_get("Package"), "/blob/main/LICENSE.md"),
                fixed = TRUE)
+})
+
+test_that("setup_readme(has_example = TRUE) adds the Example section with a ggplot2 scaffold (#74)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  d1 <- data.frame(id = 1:3, name = c("A", "B", "C"))
+  usethis::use_data(d1)
+  setup_readme(has_example = TRUE)
+  readme <- readLines("README.Rmd")
+  expect_true("## Example" %in% readme)
+  expect_true(any(grepl("# d1 |>", readme, fixed = TRUE)))
+  expect_true(any(grepl("ggplot(aes(", readme, fixed = TRUE)))
+  expect_false(any(grepl("{{{", readme, fixed = TRUE)))
+})
+
+test_that("setup_readme() omits the Example section by default and documents the first data object (#74)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  zebra <- data.frame(id = 1)
+  apple <- data.frame(id = 1)
+  usethis::use_data(zebra, apple)
+  withr::with_options(list(usethis.quiet = FALSE),
+                      expect_message(setup_readme(), "2 data objects"))
+  readme <- readLines("README.Rmd")
+  expect_false("## Example" %in% readme)
+  expect_true(any(grepl("### apple", readme, fixed = TRUE)))
+  expect_false(any(grepl("{{{", readme, fixed = TRUE)))
 })

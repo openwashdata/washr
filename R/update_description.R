@@ -11,6 +11,10 @@
 #' @param file Character. The file path to the DESCRIPTION file of the R package. Defaults to the current working directory.
 #' @param github_user Character. The URL path to the GitHub user or organization that hosts the current package. Defaults to "https://github.com/openwashdata".
 #'
+#' @seealso Before: [setup_roxygen()]. Next: [update_metadata()] for the schema.org metadata, then [setup_readme()].
+#'
+#' @family metadata functions
+#'
 #' @export
 #'
 #' @returns NULL. Update fields directly in DESCRIPTION file.

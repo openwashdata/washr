@@ -17,6 +17,10 @@
 #' @returns NULL. This function creates documentation files inside "R/". Error if
 #' tidy data cannot be found.
 #'
+#' @seealso Before: [setup_dictionary()]. Next: [update_description()].
+#'
+#' @family setup functions
+#'
 #' @export
 #'
 #' @examples

@@ -5,7 +5,7 @@ test_that("setup_roxygen throws error when no tidy dataset available in data/", 
   rlang::local_interactive(FALSE)
   washr::setup_rawdata()
   file.create("data-raw/dictionary.csv")
-  expect_error(setup_roxygen())
+  expect_error(setup_roxygen(), "No tidy data sets")
 })
 
 test_that("setup_roxygen throws error when no dictionary data/", {
@@ -14,7 +14,7 @@ test_that("setup_roxygen throws error when no dictionary data/", {
   washr::setup_rawdata()
   d1 <- data.frame(id = 1:3, name = c("A", "B", "C"))
   usethis::use_data(d1)
-  expect_error(setup_roxygen())
+  expect_error(setup_roxygen(), "dictionary does not exist")
 })
 
 

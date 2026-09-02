@@ -78,6 +78,29 @@
     `.rda`, now errors with the file name and the reason instead of
     documenting the first object or crashing.
 
+- `setup_readme()` gains `has_example`, the argument the guide documents.
+  With `has_example = TRUE` the README carries an Example section with a
+  commented ggplot2 scaffold for a first plot, pairing with the argument of
+  the same name on `setup_website()`. The function now stops with a clear
+  message when `data/` holds no data object instead of writing a README with
+  `NA` in it, and says which data object the template documents when there
+  are several (#74, supersedes #24).
+
+- Test bar (#75). Every export has a behavioral test that asserts on file
+  content or output; every `expect_error()` names its message; the
+  `setup_rawdata()` tests check the rendered template. `update_citation()`
+  gains `build`, so scripts and tests can regenerate the citation files
+  without the README and site rebuilds. The r-lib test coverage workflow
+  reports coverage to Codecov on every push and pull request.
+
+- Documentation (#76). The Get started vignette walks through the workflow
+  in the order of the publishing guide, one function per step; the README
+  gives the toolkit overview with the stable core and the experimental FAIR
+  layer, and carries the CRAN and coverage badges; every export names its
+  neighbours in the workflow under See also; the reference index is grouped
+  by workflow stage; and the pkgdown site URL points at the openwashdata
+  organisation (it pointed at the dev fork, which broke canonical links).
+
 # washr 1.0.2
 
 Patch release: bug fixes only, no new API. New maintainer: Lars Schöbitz.

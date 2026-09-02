@@ -1,31 +1,29 @@
-url: https://openwashdata-dev.github.io/washr/
+url: https://openwashdata.github.io/washr/
 template:
   bootstrap: 5
 
 reference:
-- title: "Using washr"
-
-- subtitle: "Setting up your data repository"
+- title: "Set up the data package"
+  desc: "Scaffold the raw data folder and the processing script"
   contents:
   - setup_rawdata
 
-- subtitle: "Documenting your data"
-  desc: "Helper functions to document both your dataset(s) and functions"
+- title: "Document the data"
+  desc: "The dictionary and the roxygen documentation it feeds"
   contents:
   - setup_dictionary
   - setup_roxygen
 
-- subtitle: "Adding metadata"
-  desc: "Helper functions to add metadata"
+- title: "Describe the package"
+  desc: "DESCRIPTION as the canonical source, and the schema.org metadata derived from it (experimental)"
   contents:
-  - update_citation
   - update_description
   - update_metadata
 
-
-- subtitle: "Publishing your data"
-  desc: "Helper functions to communicate your data"
+- title: "Publish"
+  desc: "README, website, brand, and the citation with its DOI"
   contents:
   - setup_readme
   - setup_website
   - use_brand
+  - update_citation

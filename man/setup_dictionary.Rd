@@ -24,3 +24,11 @@ setup_dictionary()
 }
 
 }
+\seealso{
+Before: \code{\link[=setup_rawdata]{setup_rawdata()}}. Next: \code{\link[=setup_roxygen]{setup_roxygen()}} once the descriptions in \code{data-raw/dictionary.csv} are written.
+
+Other setup functions:
+\code{\link[=setup_rawdata]{setup_rawdata()}},
+\code{\link[=setup_roxygen]{setup_roxygen()}}
+}
+\concept{setup functions}

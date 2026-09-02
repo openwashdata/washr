@@ -3,7 +3,7 @@ options(usethis.quiet = TRUE)
 test_that("setup_website throws an error when no README file available", {
   create_local_package()
   rlang::local_interactive(FALSE)
-  expect_error(setup_website())
+  expect_error(setup_website(), "No README.md")
 })
 
 # The site build is mocked: these tests cover the file handling around it.

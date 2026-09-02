@@ -24,6 +24,10 @@
 #'
 #' @returns NULL. Error if no README file is found.
 #'
+#' @seealso Before: [setup_readme()]. Next: [use_brand()] for the brand, and [update_citation()] once the release has a DOI.
+#'
+#' @family publishing functions
+#'
 #' @export
 #'
 #' @examples
