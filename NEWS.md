@@ -21,6 +21,19 @@
   never shipped on CRAN. googlesheets4 leaves Imports with it. The catalogue
   update becomes org-internal tooling outside the package (#69).
 
+- `update_metadata()` is rewritten as the one FAIR step (lifecycle:
+  experimental). It derives a schema.org Dataset description from
+  DESCRIPTION, `data-raw/dictionary.csv`, `CITATION.cff` and the files in
+  `inst/extdata`, writes it as JSON-LD into `pkgdown/templates/in-header.html`
+  so every page of the site carries it, and ends by listing the fields it
+  could not fill. Spatial and temporal coverage and keywords live in
+  DESCRIPTION as `X-schema.org-spatialCoverage`,
+  `X-schema.org-temporalCoverage` and `X-schema.org-keywords`. It no longer
+  calls the dataspice helpers, creates no `data/metadata` folder, and writes
+  no `inst/extdata/metadata.json`; existing copies of both are ignored.
+  `generate_jsonld()` is no longer exported (it is the internal builder), and
+  lubridate leaves Imports (#68, #70, #67).
+
 # washr 1.0.2
 
 Patch release: bug fixes only, no new API. New maintainer: Lars Schöbitz.

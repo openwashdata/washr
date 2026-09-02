@@ -2,20 +2,49 @@
 % Please edit documentation in R/update_metadata.R
 \name{update_metadata}
 \alias{update_metadata}
-\title{Updates all metadata files simultaneously}
+\title{Generate and embed the schema.org metadata of the data package}
 \usage{
-update_metadata()
+update_metadata(quiet = FALSE)
+}
+\arguments{
+\item{quiet}{Logical. Suppress the messages and the report of blank
+fields. Defaults to \code{FALSE}.}
 }
 \value{
-NULL. Error handling is done in the helper functions.
+The Dataset description as a list, invisibly. The \code{"blank"}
+attribute names the fields that could not be filled and says where to
+fill them.
 }
 \description{
-This function updates all metadata files simultaneously by calling helper
-functions. Ideally, this function is used rather than individual helpers.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
+\code{update_metadata()} derives a schema.org Dataset description from the
+canonical sources of the package and writes it as a JSON-LD block into the
+head of every pkgdown page, where dataset search engines read it. Nothing
+is hand edited: to change a value, change its source and run the function
+again. Running it twice produces no change. It ends by listing the fields
+it could not fill and where to fill them.
+
+The sources are:\tabular{ll}{
+   Field \tab Source \cr
+   name, description, version, datePublished, license \tab \code{Title}, \code{Description}, \code{Version}, \code{Date}, \code{License} in DESCRIPTION \cr
+   url \tab the pkgdown site (a \code{github.io} entry in \code{URL}), else the repository \cr
+   keywords \tab \code{X-schema.org-keywords} in DESCRIPTION, comma separated \cr
+   spatialCoverage, temporalCoverage \tab \code{X-schema.org-spatialCoverage} and \code{X-schema.org-temporalCoverage} in DESCRIPTION \cr
+   creator, maintainer, funder, publisher \tab \code{Authors@R} roles \code{aut}/\code{cre}, \code{cre}, \code{fnd}, \code{cph}; ORCID from the \code{comment} field \cr
+   identifier, sameAs \tab the DOI in \code{CITATION.cff}, written by \code{\link[=update_citation]{update_citation()}} \cr
+   variableMeasured \tab \code{data-raw/dictionary.csv} \cr
+   distribution \tab every file in \code{inst/extdata} that belongs to a dataset, one entry per file \cr
+}
+
+
+The JSON-LD lands in \verb{pkgdown/templates/in-header.html}, which pkgdown
+picks up on the next site build. The file also keeps the \code{in_header}
+includes from \verb{_pkgdown.yml} working. It is not shipped in the package
+tarball.
 }
 \examples{
 \dontrun{
 update_metadata()
 }
-
 }

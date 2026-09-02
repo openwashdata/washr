@@ -24,7 +24,6 @@ reference:
   - update_description
   - add_creator
   - add_metadata
-  - generate_jsonld
   - update_metadata
   - update_biblio
   - update_access

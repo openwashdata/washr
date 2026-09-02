@@ -26,7 +26,6 @@ Imports:
     devtools (>= 2.4.5),
     dplyr,
     jsonlite,
-    lubridate (>= 1.7.0),
     pkgdown (>= 2.0.7),
     readr,
     rlang (>= 1.1.3),
@@ -35,7 +34,8 @@ Imports:
     usethis (>= 2.2.3),
     utils (>= 4.3.3),
     stringr,
-    yaml
+    yaml,
+    lifecycle
 Suggests:
     brand.yml,
     knitr,
