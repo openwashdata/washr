@@ -110,14 +110,26 @@ readr::read_csv("data-raw/dictionary.csv") |>
   kableExtra::scroll_box(height = "200px")
 ```
 
+{{#has_example}}
 ## Example
+
+Describe here what the plot below shows and why it is a useful first look
+at the data.
 
 ```{r}
 library({{{packagename}}})
+# install.packages("ggplot2")
+# library(ggplot2)
 
-# Provide some example code here
+# A first plot of the data: replace the aesthetics with variables from
+# {{{dataname}}}, then uncomment the block and the library call above.
+# {{{dataname}}} |>
+#   ggplot(aes(x = , y = )) +
+#   geom_point() +
+#   labs(x = "", y = "", title = "")
 ```
 
+{{/has_example}}
 ## License
 
 Data are available as

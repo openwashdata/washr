@@ -78,6 +78,14 @@
     `.rda`, now errors with the file name and the reason instead of
     documenting the first object or crashing.
 
+- `setup_readme()` gains `has_example`, the argument the guide documents.
+  With `has_example = TRUE` the README carries an Example section with a
+  commented ggplot2 scaffold for a first plot, pairing with the argument of
+  the same name on `setup_website()`. The function now stops with a clear
+  message when `data/` holds no data object instead of writing a README with
+  `NA` in it, and says which data object the template documents when there
+  are several (#74, supersedes #24).
+
 # washr 1.0.2
 
 Patch release: bug fixes only, no new API. New maintainer: Lars Schöbitz.

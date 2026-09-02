@@ -4,11 +4,16 @@
 \alias{setup_readme}
 \title{Generate the README RMarkdown file}
 \usage{
-setup_readme(force = FALSE)
+setup_readme(force = FALSE, has_example = FALSE)
 }
 \arguments{
 \item{force}{Logical. If FALSE (the default), the function stops when a
 README.Rmd already exists. Set to TRUE to overwrite the existing file.}
+
+\item{has_example}{Logical. Should the README include an Example section
+with a commented ggplot2 scaffold for a first plot of the data? Defaults
+to FALSE. Pairs with the \code{has_example} argument of \code{\link[=setup_website]{setup_website()}},
+which adds the matching article to the site.}
 }
 \value{
 NULL. This function creates a README.Rmd under the package directory.
@@ -17,6 +22,10 @@ NULL. This function creates a README.Rmd under the package directory.
 \code{setup_readme()} uses the openwashdata README template to generate README files based on datasets
 retrieved from the \verb{data/} directory. It helps in creating consistent and informative README documentation
 for your data packages.
+
+The template documents the first data object in \verb{data/} (alphabetically);
+add a section per further object by hand. It stops when \verb{data/} holds no
+data object, because every data section needs one.
 }
 \examples{
 \dontrun{
@@ -24,5 +33,7 @@ for your data packages.
 setup_dictionary()
 # Complete and save the dictionary CSV file with variable descriptions
 setup_readme()
+# With an Example section to fill with a first plot
+setup_readme(has_example = TRUE)
 }
 }
