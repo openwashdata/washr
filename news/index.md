@@ -171,19 +171,20 @@ CRAN are gone. Imports go from 16 to 10.
   Every export has a behavioral test that asserts on file content or
   output; every `expect_error()` names its message; the
   [`setup_rawdata()`](https://openwashdata.github.io/washr/reference/setup_rawdata.md)
-  tests check the rendered template. The r-lib test coverage workflow
-  reports coverage to Codecov on every push and pull request.
+  tests check the rendered template. A test coverage workflow measures
+  coverage on every push and pull request and writes it to the job
+  summary.
 
 - Documentation
   ([\#76](https://github.com/openwashdata/washr/issues/76)). The Get
   started vignette walks through the workflow in the order of the
   publishing guide, one function per step; the README gives the toolkit
   overview with the stable core and the experimental FAIR layer, and
-  carries the CRAN and coverage badges; every export names its
-  neighbours in the workflow under See also; the reference index is
-  grouped by workflow stage; and the pkgdown site URL points at the
-  openwashdata organisation (it pointed at the dev fork, which broke
-  canonical links).
+  carries the CRAN status badge; every export names its neighbours in
+  the workflow under See also; the reference index is grouped by
+  workflow stage; and the pkgdown site URL points at the openwashdata
+  organisation (it pointed at the dev fork, which broke canonical
+  links).
 
 ## washr 1.0.2
 
