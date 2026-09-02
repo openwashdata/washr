@@ -98,7 +98,7 @@ collect_tidydata_info <- function(data_dir){
     tidydata <- load_object(file.path(data_dir, d)) # Read in tidy dataset(s)
     file_name <- c(file_name, rep(d, ncol(tidydata)))
     var_name <-c(var_name, colnames(tidydata))
-    var_type <- c(var_type, sapply(tidydata, class))
+    var_type <- c(var_type, vapply(tidydata, function(x) class(x)[1], character(1)))
   }
   var_type <- as.character(var_type)
   return(data.frame(file_name, var_name, var_type))

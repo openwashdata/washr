@@ -49,3 +49,49 @@ test_that("setup_roxygen works well", {
   washr::setup_roxygen()
   expect_true(file.exists(file.path(getwd(), "R", "d1.R")))
 })
+
+roxygen_fixture <- function(env = parent.frame()) {
+  create_local_package(env = env)
+  rlang::local_interactive(FALSE, frame = env)
+  washr::setup_rawdata()
+  d1 <- data.frame(id = 1:3, name = c("A", "B", "C"))
+  usethis::use_data(d1)
+  washr::setup_dictionary()
+  washr::setup_roxygen()
+  file.path("R", "d1.R")
+}
+
+test_that("setup_roxygen() re-run keeps the text below the @format block (#73)", {
+  doc_path <- roxygen_fixture()
+  doc <- readLines(doc_path)
+  label <- which(doc == '"d1"')
+  doc <- append(doc, c("#' @source Collected by hand", "#' @examples", "#' head(d1)"), after = label - 1)
+  writeLines(doc, doc_path)
+  dict_path <- file.path("data-raw", "dictionary.csv")
+  dict <- read.csv(dict_path)
+  dict$description[1] <- "ID Number"
+  write.csv(dict, dict_path, row.names = FALSE)
+  washr::setup_roxygen()
+  after <- readLines(doc_path)
+  expect_true("#' @source Collected by hand" %in% after)
+  expect_true("#' head(d1)" %in% after)
+  expect_true(any(grepl("\\item{id}{ID Number}", after, fixed = TRUE)))
+  expect_identical(after[length(after)], '"d1"')
+  expect_identical(sum(grepl("@format", after, fixed = TRUE)), 1L)
+})
+
+test_that("setup_roxygen() rewrites nothing when the dictionary is unchanged (#73)", {
+  doc_path <- roxygen_fixture()
+  before <- file.info(doc_path)$mtime
+  content <- readLines(doc_path)
+  Sys.sleep(1.1)
+  washr::setup_roxygen()
+  expect_identical(readLines(doc_path), content)
+  expect_identical(file.info(doc_path)$mtime, before)
+})
+
+test_that("setup_roxygen() errors clearly on a file without an @format line (#73)", {
+  doc_path <- roxygen_fixture()
+  writeLines(c("#' d1: hand written", "#' no format line here", '"d1"'), doc_path)
+  expect_error(washr::setup_roxygen(), "@format")
+})

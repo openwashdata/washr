@@ -65,3 +65,27 @@ test_that("setup_dictionary throws error when not in correct working directory",
   expect_error(fill_dictionary(dict_path = "dict.csv"))
 })
 
+
+test_that("setup_dictionary() records the first class of multi-class columns (#73)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  washr::setup_rawdata()
+  events <- data.frame(when = as.POSIXct("2022-03-01 10:00:00", tz = "UTC"),
+                       level = factor("low", levels = c("low", "high"), ordered = TRUE),
+                       day = as.Date("2022-03-01"))
+  usethis::use_data(events)
+  washr::setup_dictionary()
+  dict <- read.csv(file.path("data-raw", "dictionary.csv"))
+  expect_identical(dict$variable_type, c("POSIXct", "ordered", "Date"))
+})
+
+test_that("load_object() errors informatively on multi-object and non-rda files (#73)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  dir.create("data")
+  a <- 1; b <- 2
+  save(a, b, file = file.path("data", "two.rda"))
+  expect_error(load_object(file.path("data", "two.rda")), "2 objects")
+  writeLines("x", file.path("data", "notes.txt"))
+  expect_error(load_object(file.path("data", "notes.txt")), "not an .rda file")
+})

@@ -4,19 +4,34 @@
 \alias{setup_website}
 \title{Set up a pkgdown website for the data package}
 \usage{
-setup_website(has_example = FALSE)
+setup_website(has_example = FALSE, track_docs = NULL)
 }
 \arguments{
 \item{has_example}{Logical. Should the pkgdown website include a vignette page
 for writing an example? Defaults to FALSE.}
+
+\item{track_docs}{Logical. Remove \code{docs} from \code{.gitignore} so the built
+site is committed? Defaults to \code{TRUE} unless a pkgdown workflow exists
+under \verb{.github/workflows/}.}
 }
 \value{
 NULL. Error if no README file is found.
 }
 \description{
-\code{setup_website()} uses the openwashdata pkgdown template to create a website for the data package
-based on its README.md file. The website provides a structured and visually appealing presentation
-of the package's documentation.
+\code{setup_website()} writes the openwashdata pkgdown configuration and builds
+the site from the package documentation and README.md. The configuration
+comes from the washr template: the Pages URL as the site URL, the
+openwashdata analytics header, the funding sidebar, the authors footer,
+and a reference index with one entry per data object in \verb{data/}.
+
+The function is safe to re-run. An existing \verb{_pkgdown.yml} is kept as it
+is and only the site is rebuilt, so hand edits and the brand wiring from
+\code{\link[=use_brand]{use_brand()}} survive. The example article is created once.
+
+By default the built \verb{docs/} folder is tracked in git, which is how
+openwashdata packages publish their site from \code{main}. When the package
+deploys through the pkgdown GitHub Actions workflow instead
+(\code{.github/workflows/pkgdown.yaml} exists), \verb{docs/} stays ignored.
 }
 \examples{
 \dontrun{
