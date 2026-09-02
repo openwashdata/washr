@@ -6,10 +6,7 @@
 <url><loc>https://openwashdata-dev.github.io/washr/authors.html</loc></url>
 <url><loc>https://openwashdata-dev.github.io/washr/index.html</loc></url>
 <url><loc>https://openwashdata-dev.github.io/washr/news/index.html</loc></url>
-<url><loc>https://openwashdata-dev.github.io/washr/reference/add_creator.html</loc></url>
-<url><loc>https://openwashdata-dev.github.io/washr/reference/add_metadata.html</loc></url>
 <url><loc>https://openwashdata-dev.github.io/washr/reference/fill_dictionary.html</loc></url>
-<url><loc>https://openwashdata-dev.github.io/washr/reference/generate_jsonld.html</loc></url>
 <url><loc>https://openwashdata-dev.github.io/washr/reference/generate_roxygen_docs.html</loc></url>
 <url><loc>https://openwashdata-dev.github.io/washr/reference/index.html</loc></url>
 <url><loc>https://openwashdata-dev.github.io/washr/reference/setup_dictionary.html</loc></url>
@@ -17,13 +14,10 @@
 <url><loc>https://openwashdata-dev.github.io/washr/reference/setup_readme.html</loc></url>
 <url><loc>https://openwashdata-dev.github.io/washr/reference/setup_roxygen.html</loc></url>
 <url><loc>https://openwashdata-dev.github.io/washr/reference/setup_website.html</loc></url>
-<url><loc>https://openwashdata-dev.github.io/washr/reference/update_access.html</loc></url>
-<url><loc>https://openwashdata-dev.github.io/washr/reference/update_attributes.html</loc></url>
-<url><loc>https://openwashdata-dev.github.io/washr/reference/update_biblio.html</loc></url>
 <url><loc>https://openwashdata-dev.github.io/washr/reference/update_citation.html</loc></url>
 <url><loc>https://openwashdata-dev.github.io/washr/reference/update_description.html</loc></url>
-<url><loc>https://openwashdata-dev.github.io/washr/reference/update_gsheet_metadata.html</loc></url>
 <url><loc>https://openwashdata-dev.github.io/washr/reference/update_metadata.html</loc></url>
 <url><loc>https://openwashdata-dev.github.io/washr/reference/use_brand.html</loc></url>
+<url><loc>https://openwashdata-dev.github.io/washr/reference/washr-package.html</loc></url>
 </urlset>
 

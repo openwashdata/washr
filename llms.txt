@@ -49,13 +49,9 @@ Helper functions to document both your dataset(s) and functions
 
 - [`setup_dictionary()`](https://openwashdata-dev.github.io/washr/reference/setup_dictionary.md)
   : Create a dictionary file for tidy data sets
-- [`fill_dictionary()`](https://openwashdata-dev.github.io/washr/reference/fill_dictionary.md)
-  : Fill in the dictionary file based on the tidy data information
 - [`setup_roxygen()`](https://openwashdata-dev.github.io/washr/reference/setup_roxygen.md)
   : Set up roxygen documentation for all tidy data sets using the
   dictionary
-- [`generate_roxygen_docs()`](https://openwashdata-dev.github.io/washr/reference/generate_roxygen_docs.md)
-  : Generate roxygen2 documentation from a CSV file
 
 ### Adding metadata
 
@@ -65,23 +61,9 @@ Helper functions to add metadata
   : Update the citation file for the dataset.
 - [`update_description()`](https://openwashdata-dev.github.io/washr/reference/update_description.md)
   : Update the DESCRIPTION file to conform with openwashdata standards
-- [`add_creator()`](https://openwashdata-dev.github.io/washr/reference/add_creator.md)
-  : Add contributors to the creators metadata file
-- [`add_metadata()`](https://openwashdata-dev.github.io/washr/reference/add_metadata.md)
-  : Adds metadata files and creates the metadata folder
-- [`generate_jsonld()`](https://openwashdata-dev.github.io/washr/reference/generate_jsonld.md)
-  : Function to create a JSON-LD document from available metadata
-- [`update_gsheet_metadata()`](https://openwashdata-dev.github.io/washr/reference/update_gsheet_metadata.md)
-  : Updates metadata google sheet automatically
 - [`update_metadata()`](https://openwashdata-dev.github.io/washr/reference/update_metadata.md)
-  : Updates all metadata files simultaneously
-- [`update_biblio()`](https://openwashdata-dev.github.io/washr/reference/update_biblio.md)
-  : Function to update the biblio metadata file
-- [`update_access()`](https://openwashdata-dev.github.io/washr/reference/update_access.md)
-  : Updates the access metadata file with links to the downloadable data
-  files
-- [`update_attributes()`](https://openwashdata-dev.github.io/washr/reference/update_attributes.md)
-  : Update metadata attributes file
+  **\[experimental\]** : Generate and embed the schema.org metadata of
+  the data package
 
 ### Publishing your data
 

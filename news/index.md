@@ -25,6 +25,49 @@
   a cff object
   ([\#102](https://github.com/openwashdata/washr/issues/102)).
 
+- `update_gsheet_metadata()` is removed. It appended a row to a private
+  openwashdata Google Sheet, needed interactive Google authentication,
+  and never shipped on CRAN. googlesheets4 leaves Imports with it. The
+  catalogue update becomes org-internal tooling outside the package
+  ([\#69](https://github.com/openwashdata/washr/issues/69)).
+
+- [`update_metadata()`](https://openwashdata-dev.github.io/washr/reference/update_metadata.md)
+  is rewritten as the one FAIR step (lifecycle: experimental). It
+  derives a schema.org Dataset description from DESCRIPTION,
+  `data-raw/dictionary.csv`, `CITATION.cff` and the files in
+  `inst/extdata`, writes it as JSON-LD into
+  `pkgdown/templates/in-header.html` so every page of the site carries
+  it, and ends by listing the fields it could not fill. Spatial and
+  temporal coverage and keywords live in DESCRIPTION as
+  `X-schema.org-spatialCoverage`, `X-schema.org-temporalCoverage` and
+  `X-schema.org-keywords`. It no longer calls the dataspice helpers,
+  creates no `data/metadata` folder, and writes no
+  `inst/extdata/metadata.json`; existing copies of both are ignored.
+  `generate_jsonld()` is no longer exported (it is the internal
+  builder), and lubridate leaves Imports
+  ([\#68](https://github.com/openwashdata/washr/issues/68),
+  [\#70](https://github.com/openwashdata/washr/issues/70),
+  [\#67](https://github.com/openwashdata/washr/issues/67)).
+
+- The dataspice helpers are removed: `add_metadata()`, `add_creator()`,
+  `update_access()`, `update_attributes()` and `update_biblio()`. None
+  of them shipped on CRAN.
+  [`update_metadata()`](https://openwashdata-dev.github.io/washr/reference/update_metadata.md)
+  replaced their output, and a package that still carries
+  `data/metadata/` keeps it; washr ignores the folder.
+  [`fill_dictionary()`](https://openwashdata-dev.github.io/washr/reference/fill_dictionary.md)
+  and
+  [`generate_roxygen_docs()`](https://openwashdata-dev.github.io/washr/reference/generate_roxygen_docs.md)
+  are no longer exported;
+  [`setup_dictionary()`](https://openwashdata-dev.github.io/washr/reference/setup_dictionary.md)
+  and
+  [`setup_roxygen()`](https://openwashdata-dev.github.io/washr/reference/setup_roxygen.md)
+  call them. The export surface is now nine functions. dataspice, dplyr,
+  readr, stringr and tibble leave Imports with the removed code
+  ([\#71](https://github.com/openwashdata/washr/issues/71),
+  [\#100](https://github.com/openwashdata/washr/issues/100),
+  [\#72](https://github.com/openwashdata/washr/issues/72)).
+
 ## washr 1.0.2
 
 CRAN release: 2026-07-26
