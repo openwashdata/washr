@@ -16,6 +16,17 @@ setup_rawdata()
 NULL. This function will create a directory "data-raw" under the package
 directory.
 
+## See also
+
+Next:
+[`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md)
+once the processing script has exported the tidy data with
+[`usethis::use_data()`](https://usethis.r-lib.org/reference/use_data.html).
+
+Other setup functions:
+[`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md),
+[`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md)
+
 ## Examples
 
 ``` r

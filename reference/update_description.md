@@ -33,6 +33,19 @@ update_description(
 
 NULL. Update fields directly in DESCRIPTION file.
 
+## See also
+
+Before:
+[`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md).
+Next:
+[`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md)
+for the schema.org metadata, then
+[`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md).
+
+Other metadata functions:
+[`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md),
+[`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md)
+
 ## Examples
 
 ``` r

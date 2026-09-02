@@ -25,6 +25,17 @@ setup_roxygen()
 NULL. This function creates documentation files inside "R/". Error if
 tidy data cannot be found.
 
+## See also
+
+Before:
+[`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md).
+Next:
+[`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md).
+
+Other setup functions:
+[`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md),
+[`setup_rawdata()`](https://openwashdata.github.io/washr/reference/setup_rawdata.md)
+
 ## Examples
 
 ``` r

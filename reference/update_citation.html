@@ -52,7 +52,7 @@ the citation files without a DOI or badge.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">update_citation</span><span class="op">(</span>doi <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">update_citation</span><span class="op">(</span>doi <span class="op">=</span> <span class="cn">NULL</span>, build <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -60,7 +60,13 @@ the citation files without a DOI or badge.</p>
 
 
 <dl><dt id="arg-doi">doi<a class="anchor" aria-label="anchor" href="#arg-doi"></a></dt>
-<dd><p>DOI (Digital Object Identifier), e.g., 10.5281/zenodo.11185699.
+<dd><p>DOI (Digital Object Identifier), e.g., 10.5281/zenodo.11185699.</p></dd>
+
+
+<dt id="arg-build">build<a class="anchor" aria-label="anchor" href="#arg-build"></a></dt>
+<dd><p>Logical. Rebuild README.md and the pkgdown site after the
+citation files change? Defaults to <code>TRUE</code>. Set to <code>FALSE</code> to regenerate
+the citation files alone, e.g., in scripts and tests.
 Defaults to NULL for the pre-release call, in which case no DOI is
 recorded and no badge is added.</p></dd>
 
@@ -69,11 +75,20 @@ recorded and no badge is added.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>NULL. A citation .cff file is written under the root directory.</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Before: <code><a href="setup_website.html">setup_website()</a></code>. Run again with the DOI after the Zenodo release; <code><a href="update_metadata.html">update_metadata()</a></code> then picks the DOI up.</p>
+<p>Other metadata functions:
+<code><a href="update_description.html">update_description()</a></code>,
+<code><a href="update_metadata.html">update_metadata()</a></code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span>  <span class="fu">update_citation</span><span class="op">(</span>doi <span class="op">=</span> <span class="st">"10.5281/zenodo.11185699"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># Regenerate the citation files without rebuilding README.md and the site</span></span></span>
+<span class="r-in"><span>  <span class="fu">update_citation</span><span class="op">(</span>build <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

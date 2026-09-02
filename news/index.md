@@ -3,7 +3,7 @@
 ## washr (development version)
 
 - New
-  [`use_brand()`](https://openwashdata-dev.github.io/washr/reference/use_brand.md)
+  [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
   installs the openwashdata brand (`_brand.yml` and the logo files it
   references) from the central openwashdata/brand repository into the
   active package, refreshes an existing copy idempotently, and wires an
@@ -11,14 +11,14 @@
   renders with the brand fonts and colors
   ([\#109](https://github.com/openwashdata/washr/issues/109)).
 
-- [`setup_readme()`](https://openwashdata-dev.github.io/washr/reference/setup_readme.md)
+- [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md)
   no longer writes a dead license link. The README template carried the
   package name placeholder in URL encoded form, so whisker never
   substituted it and every generated README linked to
   `.../%7B%7B%7Bpackagename%7D%7D%7D/blob/main/LICENSE.md`
   ([\#101](https://github.com/openwashdata/washr/issues/101)).
 
-- [`update_citation()`](https://openwashdata-dev.github.io/washr/reference/update_citation.md)
+- [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)
   adds `CITATION.cff` to `.Rbuildignore`, so `R CMD check` no longer
   reports a non-standard file at the top level of the data package. cffr
   only adds the entry itself when handed a file path, and washr hands it
@@ -31,7 +31,7 @@
   catalogue update becomes org-internal tooling outside the package
   ([\#69](https://github.com/openwashdata/washr/issues/69)).
 
-- [`update_metadata()`](https://openwashdata-dev.github.io/washr/reference/update_metadata.md)
+- [`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md)
   is rewritten as the one FAIR step (lifecycle: experimental). It
   derives a schema.org Dataset description from DESCRIPTION,
   `data-raw/dictionary.csv`, `CITATION.cff` and the files in
@@ -52,16 +52,16 @@
 - The dataspice helpers are removed: `add_metadata()`, `add_creator()`,
   `update_access()`, `update_attributes()` and `update_biblio()`. None
   of them shipped on CRAN.
-  [`update_metadata()`](https://openwashdata-dev.github.io/washr/reference/update_metadata.md)
+  [`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md)
   replaced their output, and a package that still carries
   `data/metadata/` keeps it; washr ignores the folder.
-  [`fill_dictionary()`](https://openwashdata-dev.github.io/washr/reference/fill_dictionary.md)
+  [`fill_dictionary()`](https://openwashdata.github.io/washr/reference/fill_dictionary.md)
   and
-  [`generate_roxygen_docs()`](https://openwashdata-dev.github.io/washr/reference/generate_roxygen_docs.md)
+  [`generate_roxygen_docs()`](https://openwashdata.github.io/washr/reference/generate_roxygen_docs.md)
   are no longer exported;
-  [`setup_dictionary()`](https://openwashdata-dev.github.io/washr/reference/setup_dictionary.md)
+  [`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md)
   and
-  [`setup_roxygen()`](https://openwashdata-dev.github.io/washr/reference/setup_roxygen.md)
+  [`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md)
   call them. The export surface is now nine functions. dataspice, dplyr,
   readr, stringr and tibble leave Imports with the removed code
   ([\#71](https://github.com/openwashdata/washr/issues/71),
@@ -69,14 +69,14 @@
   [\#72](https://github.com/openwashdata/washr/issues/72)).
 
 - devtools moves from Imports to Suggests.
-  [`update_citation()`](https://openwashdata-dev.github.io/washr/reference/update_citation.md)
+  [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)
   still rebuilds README.md through
   [`devtools::build_readme()`](https://devtools.r-lib.org/reference/build_readme.html),
   because the README loads the data package, and asks to install
   devtools when it is missing; the site rebuild calls
   [`pkgdown::build_site()`](https://pkgdown.r-lib.org/reference/build_site.html)
   directly.
-  [`setup_website()`](https://openwashdata-dev.github.io/washr/reference/setup_website.md)
+  [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md)
   no longer renders the example article on its own, since the site build
   renders it. The version constraint on utils is dropped; utils is a
   base package and the constraint silently required R 4.3.3. With the
@@ -88,7 +88,7 @@
   function that rewrites a file follows read-merge-write and is safe to
   re-run:
 
-  - [`setup_website()`](https://openwashdata-dev.github.io/washr/reference/setup_website.md)
+  - [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md)
     keeps an existing `_pkgdown.yml` as it is and only rebuilds the
     site, so the guide’s “answer No when prompted” step goes away; it no
     longer crashes without a `.gitignore`; and it leaves `docs` ignored
@@ -99,23 +99,56 @@
   - The `_pkgdown.yml` template carries the Pages URL as the site URL,
     the explanatory comments, and a reference index with one entry per
     data object, matching the openwashdata review standard’s template.
-  - [`update_citation()`](https://openwashdata-dev.github.io/washr/reference/update_citation.md)
+  - [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)
     re-run without a `doi` keeps the DOI already on file instead of
     dropping it, moves keywords typed into `CITATION.cff` by hand to
     `X-schema.org-keywords` in DESCRIPTION (their canonical home, from
     where cffr carries them forward), and rebuilds the README only when
     the badge changes.
-  - [`setup_roxygen()`](https://openwashdata-dev.github.io/washr/reference/setup_roxygen.md)
+  - [`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md)
     re-run regenerates only the `@format` block and keeps everything
     below it (`@source`, `@examples`, and other text), writes nothing
     when the result is unchanged, and errors clearly when a file has no
     `@format` line instead of crashing.
-  - [`setup_dictionary()`](https://openwashdata-dev.github.io/washr/reference/setup_dictionary.md)
+  - [`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md)
     records the first class of multi-class columns (`POSIXct`,
     `ordered`, `Date`) instead of a deparsed vector.
   - Loading a `.rda` file with several objects, or a file that is not an
     `.rda`, now errors with the file name and the reason instead of
     documenting the first object or crashing.
+
+- [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md)
+  gains `has_example`, the argument the guide documents. With
+  `has_example = TRUE` the README carries an Example section with a
+  commented ggplot2 scaffold for a first plot, pairing with the argument
+  of the same name on
+  [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md).
+  The function now stops with a clear message when `data/` holds no data
+  object instead of writing a README with `NA` in it, and says which
+  data object the template documents when there are several
+  ([\#74](https://github.com/openwashdata/washr/issues/74), supersedes
+  [\#24](https://github.com/openwashdata/washr/issues/24)).
+
+- Test bar ([\#75](https://github.com/openwashdata/washr/issues/75)).
+  Every export has a behavioral test that asserts on file content or
+  output; every `expect_error()` names its message; the
+  [`setup_rawdata()`](https://openwashdata.github.io/washr/reference/setup_rawdata.md)
+  tests check the rendered template.
+  [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)
+  gains `build`, so scripts and tests can regenerate the citation files
+  without the README and site rebuilds. The r-lib test coverage workflow
+  reports coverage to Codecov on every push and pull request.
+
+- Documentation
+  ([\#76](https://github.com/openwashdata/washr/issues/76)). The Get
+  started vignette walks through the workflow in the order of the
+  publishing guide, one function per step; the README gives the toolkit
+  overview with the stable core and the experimental FAIR layer, and
+  carries the CRAN and coverage badges; every export names its
+  neighbours in the workflow under See also; the reference index is
+  grouped by workflow stage; and the pkgdown site URL points at the
+  openwashdata organisation (it pointed at the dev fork, which broke
+  canonical links).
 
 ## washr 1.0.2
 
@@ -124,7 +157,7 @@ CRAN release: 2026-07-26
 Patch release: bug fixes only, no new API. New maintainer: Lars
 Schöbitz.
 
-- [`update_citation()`](https://openwashdata-dev.github.io/washr/reference/update_citation.md)
+- [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)
   no longer requires a `doi` argument; calling it without one generates
   the citation files without a DOI, for use before a release exists
   ([\#57](https://github.com/openwashdata/washr/issues/57)).
@@ -134,23 +167,23 @@ Schöbitz.
   earlier versions, and a missing `<!-- badges: end -->` marker now
   gives a clear error
   ([\#58](https://github.com/openwashdata/washr/issues/58)).
-- [`update_description()`](https://openwashdata-dev.github.io/washr/reference/update_description.md)
+- [`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
   preserves existing `URL` and `Config/Needs/website` entries and merges
   them with the openwashdata defaults instead of replacing them
   ([\#59](https://github.com/openwashdata/washr/issues/59),
   [\#63](https://github.com/openwashdata/washr/issues/63)).
-- [`update_description()`](https://openwashdata-dev.github.io/washr/reference/update_description.md)
+- [`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
   no longer overwrites an existing license; CC BY 4.0 is only set when
   the package has no license yet
   ([\#63](https://github.com/openwashdata/washr/issues/63)).
-- [`update_description()`](https://openwashdata-dev.github.io/washr/reference/update_description.md)
+- [`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
   honors its `file` argument when checking for the DESCRIPTION file
   ([\#63](https://github.com/openwashdata/washr/issues/63)).
-- [`update_citation()`](https://openwashdata-dev.github.io/washr/reference/update_citation.md)
+- [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)
   cleans up the `*.bk1` backup files that cffr leaves behind when
   overwriting `CITATION.cff` and `inst/CITATION`
   ([\#60](https://github.com/openwashdata/washr/issues/60)).
-- [`setup_readme()`](https://openwashdata-dev.github.io/washr/reference/setup_readme.md)
+- [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md)
   no longer deletes an existing README.Rmd; it stops with an error
   unless the new `force = TRUE` argument is passed
   ([\#64](https://github.com/openwashdata/washr/issues/64)).

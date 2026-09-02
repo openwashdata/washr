@@ -8,7 +8,7 @@ footer, and a reference index with one entry per data object in `data/`.
 
 The function is safe to re-run. An existing `_pkgdown.yml` is kept as it
 is and only the site is rebuilt, so hand edits and the brand wiring from
-[`use_brand()`](https://openwashdata-dev.github.io/washr/reference/use_brand.md)
+[`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
 survive. The example article is created once.
 
 By default the built `docs/` folder is tracked in git, which is how
@@ -38,6 +38,20 @@ setup_website(has_example = FALSE, track_docs = NULL)
 ## Value
 
 NULL. Error if no README file is found.
+
+## See also
+
+Before:
+[`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md).
+Next:
+[`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
+for the brand, and
+[`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)
+once the release has a DOI.
+
+Other publishing functions:
+[`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md),
+[`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
 
 ## Examples
 

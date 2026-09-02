@@ -53,23 +53,47 @@
 <!-- badges: start -->
 
 <!-- badges: end -->
-<p>The goal of <code>washr</code> is to provide tools to make the <a href="https://openwashdata.org/pages/gallery/data/" class="external-link">openwashdata data package</a> workflow consistent and efficient.</p>
+<p>washr turns a cleaned dataset into a documented R data package that follows the FAIR principles, with a website, a citation file and machine readable metadata. It is the toolkit behind the <a href="https://openwashdata.org/pages/gallery/data/" class="external-link">openwashdata</a> data packages, and it works for any group that publishes open data as an R package.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>The easiest way to get started with <code>washr</code> is by installing it from CRAN:</p>
+<p>From CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"washr"</span><span class="op">)</span></span></code></pre></div>
-<p>To get the latest version, you can install the development version from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>Or the development version from <a href="https://github.com/openwashdata/washr" class="external-link">GitHub</a>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"openwashdata/washr"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"openwashdata/washr"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="what-washr-does">What washr does<a class="anchor" aria-label="anchor" href="#what-washr-does"></a>
+</h2>
+<p>The stable core scaffolds and documents the package, one function per step, in the order you run them:</p>
+<ul>
+<li>
+<code><a href="reference/setup_rawdata.html">setup_rawdata()</a></code> creates <code>data-raw/</code> and the processing script.</li>
+<li>
+<code><a href="reference/setup_dictionary.html">setup_dictionary()</a></code> writes the variable dictionary from the data objects.</li>
+<li>
+<code><a href="reference/setup_roxygen.html">setup_roxygen()</a></code> writes the roxygen documentation from the dictionary.</li>
+<li>
+<code><a href="reference/update_description.html">update_description()</a></code> completes <code>DESCRIPTION</code> to the openwashdata standard.</li>
+<li>
+<code><a href="reference/setup_readme.html">setup_readme()</a></code> writes the README from the template.</li>
+<li>
+<code><a href="reference/setup_website.html">setup_website()</a></code> writes the pkgdown configuration and builds the site.</li>
+<li>
+<code><a href="reference/use_brand.html">use_brand()</a></code> installs the openwashdata brand for the site.</li>
+<li>
+<code><a href="reference/update_citation.html">update_citation()</a></code> writes the citation files, with the DOI once there is one.</li>
+</ul>
+<p>The FAIR layer is one experimental function. <code><a href="reference/update_metadata.html">update_metadata()</a></code> derives a schema.org description of the dataset from the files above and embeds it in the site, where dataset search engines read it.</p>
+<p>Every function reads what is there, merges its changes, and is safe to run again.</p>
 </div>
 <div class="section level2">
 <h2 id="how-to-use-washr">How to use washr<a class="anchor" aria-label="anchor" href="#how-to-use-washr"></a>
 </h2>
-<p>To learn more about <code>washr</code>, check out the ‘Get Started’ page. This, along with the ‘Reference’ page, will give you a good overview of the toolkit.</p>
-<p>If you decide to use <code>washr</code> for publishing your data (which we hope you will!), take a look at our <a href="https://global-health-engineering.github.io/ghedatapublishing/" class="external-link">detailed guide</a>. It’s regularly updated and walks you through the entire process.</p>
+<p>The <a href="https://openwashdata.github.io/washr/articles/washr.html">Get started</a> page walks through the workflow in order, and the <a href="https://openwashdata.github.io/washr/reference/index.html">Reference</a> page documents each function. The <a href="https://global-health-engineering.github.io/ghedatapublishing/" class="external-link">publishing guide</a> covers the same steps with more explanation and the parts outside R, such as the GitHub repository and the Zenodo release.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -111,7 +135,9 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
+<li><a href="https://CRAN.R-project.org/package=washr" class="external-link"><img src="https://www.r-pkg.org/badges/version/washr" alt="CRAN status"></a></li>
 <li><a href="https://github.com/openwashdata/washr/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/openwashdata/washr/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://app.codecov.io/gh/openwashdata/washr" class="external-link"><img src="https://codecov.io/gh/openwashdata/washr/graph/badge.svg" alt="Codecov test coverage"></a></li>
 <li><a href="https://www.gnu.org/licenses/gpl-3.0" class="external-link"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3"></a></li>
 </ul>
 </div>

@@ -1,84 +1,117 @@
 # washr
 
-The goal of `washr` is to provide tools to make the [openwashdata data
-package](https://openwashdata.org/pages/gallery/data/) workflow
-consistent and efficient.
+washr turns a cleaned dataset into a documented R data package that
+follows the FAIR principles, with a website, a citation file and machine
+readable metadata. It is the toolkit behind the
+[openwashdata](https://openwashdata.org/pages/gallery/data/) data
+packages, and it works for any group that publishes open data as an R
+package.
 
 ## Installation
 
-The easiest way to get started with `washr` is by installing it from
-CRAN:
+From CRAN:
 
 ``` r
 
 install.packages("washr")
 ```
 
-To get the latest version, you can install the development version from
-[GitHub](https://github.com/) with:
+Or the development version from
+[GitHub](https://github.com/openwashdata/washr):
 
 ``` r
 
-# install.packages("devtools")
-devtools::install_github("openwashdata/washr")
+# install.packages("remotes")
+remotes::install_github("openwashdata/washr")
 ```
+
+## What washr does
+
+The stable core scaffolds and documents the package, one function per
+step, in the order you run them:
+
+- [`setup_rawdata()`](https://openwashdata.github.io/washr/reference/setup_rawdata.md)
+  creates `data-raw/` and the processing script.
+- [`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md)
+  writes the variable dictionary from the data objects.
+- [`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md)
+  writes the roxygen documentation from the dictionary.
+- [`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
+  completes `DESCRIPTION` to the openwashdata standard.
+- [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md)
+  writes the README from the template.
+- [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md)
+  writes the pkgdown configuration and builds the site.
+- [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
+  installs the openwashdata brand for the site.
+- [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)
+  writes the citation files, with the DOI once there is one.
+
+The FAIR layer is one experimental function.
+[`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md)
+derives a schema.org description of the dataset from the files above and
+embeds it in the site, where dataset search engines read it.
+
+Every function reads what is there, merges its changes, and is safe to
+run again.
 
 ## How to use washr
 
-To learn more about `washr`, check out the ‘Get Started’ page. This,
-along with the ‘Reference’ page, will give you a good overview of the
-toolkit.
-
-If you decide to use `washr` for publishing your data (which we hope you
-will!), take a look at our [detailed
-guide](https://global-health-engineering.github.io/ghedatapublishing/).
-It’s regularly updated and walks you through the entire process.
+The [Get
+started](https://openwashdata.github.io/washr/articles/washr.html) page
+walks through the workflow in order, and the
+[Reference](https://openwashdata.github.io/washr/reference/index.html)
+page documents each function. The [publishing
+guide](https://global-health-engineering.github.io/ghedatapublishing/)
+covers the same steps with more explanation and the parts outside R,
+such as the GitHub repository and the Zenodo release.
 
 # Package index
 
-## Using washr
+## Set up the data package
 
-### Setting up your data repository
+Scaffold the raw data folder and the processing script
 
-- [`setup_rawdata()`](https://openwashdata-dev.github.io/washr/reference/setup_rawdata.md)
+- [`setup_rawdata()`](https://openwashdata.github.io/washr/reference/setup_rawdata.md)
   : Create the data-raw directory with a data-processing.R template
 
-### Documenting your data
+## Document the data
 
-Helper functions to document both your dataset(s) and functions
+The dictionary and the roxygen documentation it feeds
 
-- [`setup_dictionary()`](https://openwashdata-dev.github.io/washr/reference/setup_dictionary.md)
+- [`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md)
   : Create a dictionary file for tidy data sets
-- [`setup_roxygen()`](https://openwashdata-dev.github.io/washr/reference/setup_roxygen.md)
+- [`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md)
   : Set up roxygen documentation for all tidy data sets using the
   dictionary
 
-### Adding metadata
+## Describe the package
 
-Helper functions to add metadata
+DESCRIPTION as the canonical source, and the schema.org metadata derived
+from it (experimental)
 
-- [`update_citation()`](https://openwashdata-dev.github.io/washr/reference/update_citation.md)
-  : Update the citation file for the dataset.
-- [`update_description()`](https://openwashdata-dev.github.io/washr/reference/update_description.md)
+- [`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
   : Update the DESCRIPTION file to conform with openwashdata standards
-- [`update_metadata()`](https://openwashdata-dev.github.io/washr/reference/update_metadata.md)
+- [`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md)
   **\[experimental\]** : Generate and embed the schema.org metadata of
   the data package
 
-### Publishing your data
+## Publish
 
-Helper functions to communicate your data
+README, website, brand, and the citation with its DOI
 
-- [`setup_readme()`](https://openwashdata-dev.github.io/washr/reference/setup_readme.md)
+- [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md)
   : Generate the README RMarkdown file
-- [`setup_website()`](https://openwashdata-dev.github.io/washr/reference/setup_website.md)
+- [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md)
   : Set up a pkgdown website for the data package
-- [`use_brand()`](https://openwashdata-dev.github.io/washr/reference/use_brand.md)
+- [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
   : Install or refresh the openwashdata brand in the active package
+- [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)
+  : Update the citation file for the dataset.
 
 # Articles
 
 ### All vignettes
 
 - [Get started with
-  washr](https://openwashdata-dev.github.io/washr/articles/washr.md):
+  washr](https://openwashdata.github.io/washr/articles/washr.md):

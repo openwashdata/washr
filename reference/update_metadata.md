@@ -19,7 +19,7 @@ The sources are:
 | keywords | `X-schema.org-keywords` in DESCRIPTION, comma separated |
 | spatialCoverage, temporalCoverage | `X-schema.org-spatialCoverage` and `X-schema.org-temporalCoverage` in DESCRIPTION |
 | creator, maintainer, funder, publisher | `Authors@R` roles `aut`/`cre`, `cre`, `fnd`, `cph`; ORCID from the `comment` field |
-| identifier, sameAs | the DOI in `CITATION.cff`, written by [`update_citation()`](https://openwashdata-dev.github.io/washr/reference/update_citation.md) |
+| identifier, sameAs | the DOI in `CITATION.cff`, written by [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md) |
 | variableMeasured | `data-raw/dictionary.csv` |
 | distribution | every file in `inst/extdata` that belongs to a dataset, one entry per file |
 
@@ -45,6 +45,19 @@ update_metadata(quiet = FALSE)
 
 The Dataset description as a list, invisibly. The `"blank"` attribute
 names the fields that could not be filled and says where to fill them.
+
+## See also
+
+Before:
+[`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md),
+which writes the DESCRIPTION fields this reads. Next:
+[`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md).
+The DOI comes from
+[`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md).
+
+Other metadata functions:
+[`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md),
+[`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
 
 ## Examples
 

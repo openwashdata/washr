@@ -1,30 +1,228 @@
 # Get started with washr
 
-The `washr` package offers an easy-to-use toolkit to publish your WASH
-data. This guide provides simple steps to get the package up and running
-on your machine.
+washr turns a cleaned dataset into a documented R data package that
+follows the FAIR principles, with a website, a citation file and machine
+readable metadata. This page walks through the workflow in the order you
+run it. Each step is one function, and every function is safe to run
+again after you have edited the files it wrote.
 
-To install the latest stable version of `washr` from CRAN, use the
-following command in your R console:
+The [publishing
+guide](https://global-health-engineering.github.io/ghedatapublishing/)
+covers the same steps with more explanation and the parts that happen
+outside R, such as creating the GitHub repository and the Zenodo
+release. The chapters of the guide follow the same order as the sections
+below.
+
+## Install
+
+From CRAN:
 
 ``` r
 
 install.packages("washr")
 ```
 
-If you’d like to try out the latest features and improvements, you can
-install the development version of `washr` from GitHub. Make sure you
-have the `remotes` package installed:
+Or the development version from GitHub:
 
 ``` r
 
-# Install washr from GitHub
+# install.packages("remotes")
 remotes::install_github("openwashdata/washr")
 ```
 
-After installing `washr`, you can start using its functions in your WASH
-data publication workflow! For a detailed guide on how to get set up and
-an overview of the package features, visit the full guide
-[here](https://global-health-engineering.github.io/ghedatapublishing/).
+## 1. Create the package
 
-Happy coding with `washr`!
+Create an R package for the dataset and open it as a project. The
+package name is the name of the dataset, in lower case, without dots or
+underscores.
+
+``` r
+
+usethis::create_package("~/path/to/fslogisticskampala")
+```
+
+Then put it under version control and on GitHub, for example with
+[`usethis::use_git()`](https://usethis.r-lib.org/reference/use_git.html)
+and
+[`usethis::use_github()`](https://usethis.r-lib.org/reference/use_github.html).
+The guide describes this step in detail.
+
+## 2. Bring in the raw data
+
+Run
+[`setup_rawdata()`](https://openwashdata.github.io/washr/reference/setup_rawdata.md)
+from the package root. It creates `data-raw/` and a processing script,
+`data-raw/data_processing.R`, with the steps the script should follow.
+
+``` r
+
+library(washr)
+setup_rawdata()
+```
+
+Copy the raw files into `data-raw/`. In the processing script, read
+them, clean them into one or more tidy data frames, and end with
+[`usethis::use_data()`](https://usethis.r-lib.org/reference/use_data.html)
+so each data frame lands in `data/` as an `.rda` file. The script also
+exports each data frame as CSV and XLSX into `inst/extdata/`, which is
+where the website and the metadata find the downloadable files.
+
+## 3. Write the dictionary
+
+[`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md)
+reads every data object in `data/` and writes `data-raw/dictionary.csv`
+with one row per variable: the file it belongs to, its name, its type,
+and an empty description.
+
+``` r
+
+setup_dictionary()
+```
+
+Open the CSV and write a description for every variable. The dictionary
+is the one place where variables are described; the roxygen
+documentation and the metadata are generated from it.
+
+## 4. Generate the roxygen documentation
+
+[`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md)
+writes one file per data object under `R/`, with a title and description
+placeholder and the variable table from the dictionary.
+
+``` r
+
+setup_roxygen()
+```
+
+Open each file, replace the title and the description, then run
+[`devtools::document()`](https://devtools.r-lib.org/reference/document.html)
+so the help pages exist. When you change a description in the dictionary
+later, run
+[`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md)
+again: it regenerates only the variable table and keeps the title, the
+description and anything else you wrote in the file.
+
+## 5. Complete DESCRIPTION
+
+[`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
+sets the fields the openwashdata standard expects: the language, the
+date, the repository URL, the bug report URL, and the CC BY 4.0 license
+when the package has none yet. Existing values are kept and merged.
+
+``` r
+
+update_description()
+```
+
+Then open `DESCRIPTION` and check the title, the description and the
+authors. Authors are written with
+[`person()`](https://rdrr.io/r/utils/person.html) and carry their ORCID
+in the comment field. Three more facts have no other home and go into
+`DESCRIPTION` by hand:
+
+    X-schema.org-keywords: sanitation, faecal sludge, Kampala
+    X-schema.org-spatialCoverage: Kampala, Uganda
+    X-schema.org-temporalCoverage: 2022-03-01/2022-09-30
+
+The keywords are a comma separated list. The spatial coverage is a place
+name. The temporal coverage is a start and an end date separated by a
+slash.
+
+## 6. Generate the metadata
+
+[`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md)
+derives a schema.org description of the dataset from `DESCRIPTION`, the
+dictionary, the citation file and the files in `inst/extdata`, and
+writes it as JSON-LD into `pkgdown/templates/in-header.html`. The
+website build embeds it in the head of every page, where dataset search
+engines read it.
+
+``` r
+
+update_metadata()
+```
+
+The function ends with the fields it could not fill and where to fill
+them. Nothing is edited by hand: change the source and run it again.
+This function is experimental; its output shape may still change.
+
+## 7. Write the README
+
+[`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md)
+writes `README.Rmd` from the openwashdata template, with the
+installation instructions, the download table, and a section for the
+first data object. With `has_example = TRUE` it adds an Example section
+with a scaffold for a first plot.
+
+``` r
+
+setup_readme(has_example = TRUE)
+```
+
+Write the text, add a section for each further data object, then render
+it:
+
+``` r
+
+devtools::build_readme()
+```
+
+## 8. Build the website
+
+[`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md)
+writes `_pkgdown.yml` from the openwashdata template and builds the site
+into `docs/`. The template sets the Pages URL, the analytics header, the
+funding sidebar, and a reference index with one entry per data object.
+
+``` r
+
+setup_website()
+```
+
+Running it again keeps your `_pkgdown.yml` and rebuilds the site.
+`docs/` is committed and served by GitHub Pages; when the package
+deploys through a pkgdown GitHub Actions workflow instead, the function
+leaves `docs/` ignored.
+
+[`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
+installs the openwashdata brand, the fonts and colors of the site, from
+the central brand repository and wires `_pkgdown.yml` to it. Run it once
+after
+[`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md),
+and again whenever the brand changes.
+
+``` r
+
+use_brand()
+```
+
+## 9. Cite and release
+
+[`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)
+writes `CITATION.cff` and `inst/CITATION` from `DESCRIPTION`. Run it
+before the first release so the files exist, then again with the DOI
+once the release is deposited on Zenodo; the guide describes the Zenodo
+steps.
+
+``` r
+
+update_citation()
+# after the Zenodo release
+update_citation(doi = "10.5281/zenodo.11185699")
+```
+
+With a DOI the function also adds the DOI badge to the README and
+rebuilds it and the site. A later run without the DOI keeps the DOI on
+file. Run
+[`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md)
+once more after that, so the metadata carries the DOI as well.
+
+## Running steps again
+
+Every function above reads what is there, merges its changes, and writes
+only what changed. The two exceptions stop instead of overwriting:
+[`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md)
+when the dictionary exists, and
+[`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md)
+when `README.Rmd` exists (pass `force = TRUE` to replace it). A full
+second run of the other steps on an unchanged package changes no file.
