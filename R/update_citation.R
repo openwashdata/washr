@@ -57,11 +57,14 @@ update_citation <- function(doi = NULL){
   # Modify README and pkgdown
   if(!is.null(doi) && file.exists(file.path("README.Rmd"))){
     add_citation_badge(doi)
+    # the README loads the data package, so the rebuild runs in a separate
+    # process with the package loaded; devtools is a Suggests for this call
+    rlang::check_installed("devtools", reason = "to rebuild README.md after the badge changes.")
     devtools::build_readme()
   }
 
   if(dir.exists(file.path("docs"))){
-    devtools::build_site()
+    pkgdown::build_site()
   }
 
   # By last, read the citation

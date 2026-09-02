@@ -43,6 +43,15 @@
   surface is now nine functions. dataspice, dplyr, readr, stringr and tibble
   leave Imports with the removed code (#71, #100, #72).
 
+- devtools moves from Imports to Suggests. `update_citation()` still rebuilds
+  README.md through `devtools::build_readme()`, because the README loads the
+  data package, and asks to install devtools when it is missing; the site
+  rebuild calls `pkgdown::build_site()` directly. `setup_website()` no longer
+  renders the example article on its own, since the site build renders it.
+  The version constraint on utils is dropped; utils is a base package and the
+  constraint silently required R 4.3.3. With the seven packages removed by
+  the FAIR layer work, Imports go from 16 to 10 (#72).
+
 # washr 1.0.2
 
 Patch release: bug fixes only, no new API. New maintainer: Lars Schöbitz.

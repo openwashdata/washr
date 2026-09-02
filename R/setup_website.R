@@ -36,10 +36,9 @@ setup_website <- function(has_example=FALSE){
                             package = "washr")
     }
 
-    # Create example vignettes
+    # Create the example article; pkgdown::build_site() renders it below
     if (has_example) {
       usethis::use_article("examples")
-      devtools::build_rmd("vignettes/articles/examples.Rmd")
     }
     pkgdown::build_site()
     # remove docs/ in gitignore
