@@ -23,3 +23,4 @@ fill_dictionary(dict_path = "data-raw/dictionary.csv", data_dir = "data/")
 }
 
 }
+\keyword{internal}

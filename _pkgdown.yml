@@ -13,23 +13,14 @@ reference:
   desc: "Helper functions to document both your dataset(s) and functions"
   contents:
   - setup_dictionary
-  - fill_dictionary
   - setup_roxygen
-  - generate_roxygen_docs
 
 - subtitle: "Adding metadata"
   desc: "Helper functions to add metadata"
   contents:
   - update_citation
   - update_description
-  - add_creator
-  - add_metadata
-  - generate_jsonld
-  - update_gsheet_metadata
   - update_metadata
-  - update_biblio
-  - update_access
-  - update_attributes
 
 
 - subtitle: "Publishing your data"

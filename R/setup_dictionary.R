@@ -47,7 +47,7 @@ setup_dictionary <- function() {
 #'
 #' @returns A tibble data frame of dataset dictionary with an empty description column to be written.
 #'
-#' @export
+#' @keywords internal
 #'
 #' @examples
 #' \dontrun{
