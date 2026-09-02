@@ -22,9 +22,11 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::covr, any::xml2
+          extra-packages: any::covr
           needs: coverage
 
+      # Coverage is measured here and written to the job summary. No upload
+      # to an external service, so no token is needed.
       - name: Test coverage
         run: |
           cov <- covr::package_coverage(
@@ -33,17 +35,16 @@ jobs:
             install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package")
           )
           print(cov)
-          covr::to_cobertura(cov)
+          files <- covr::coverage_to_list(cov)$filecoverage
+          summary <- c(
+            sprintf("## Test coverage: %.1f%%", covr::percent_coverage(cov)),
+            "",
+            "| File | Coverage |",
+            "|---|---|",
+            sprintf("| %s | %.1f%% |", names(files), files)
+          )
+          writeLines(summary, Sys.getenv("GITHUB_STEP_SUMMARY"))
         shell: Rscript {0}
-
-      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
-        with:
-          # Fail if error if not on PR, or if on PR and token is given
-          fail_ci_if_error: ${{ github.event_name != 'pull_request' || secrets.CODECOV_TOKEN }}
-          files: ./cobertura.xml
-          plugins: noop
-          disable_search: true
-          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Show testthat output
         if: always()
