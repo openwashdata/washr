@@ -35,6 +35,10 @@ update_citation <- function(doi = NULL){
   # Writes the CFF file
   cffr::cff_write(mod_cff)
 
+  # cffr adds CITATION.cff to .Rbuildignore only when cff_write() is given a
+  # path; for a cff object it returns early, so do it here (idempotent).
+  usethis::use_build_ignore("CITATION.cff")
+
   # Now write a CITATION file from the CITATION.cff file
   # Use inst/CITATION instead (the default if not provided)
   path_cit <- file.path("inst/CITATION")
