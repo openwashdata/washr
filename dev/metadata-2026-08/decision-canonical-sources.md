@@ -58,3 +58,15 @@ dataspice conformance means the four CSVs use dataspice's exact column schemas w
 ## Out of scope
 
 Zenodo automation (#56, v1.2.0), the org website catalog, any new external service, and the mechanics of org configuration (#81) beyond naming funder and publisher as future config values.
+
+## Amendment 2026-09-02: no staging CSVs, coverage fields in DESCRIPTION
+
+Decided by Lars Schöbitz on 2026-09-02 after the engine plus driver review (#111) and the decision support posted there. Triage record: #113.
+
+1. The staging layer is dropped. `update_metadata()` builds the schema.org Dataset object directly from the three canonical sources and the file listing of `inst/extdata`, embeds it in the pkgdown page head, and reports the fields that remain blank. No `data/metadata/` folder is created, and the dataspice file format is no longer a target. The field mappings above apply unchanged to the JSON-LD; where they name a CSV column, read them as JSON-LD properties.
+2. The helpers are deleted, not made internal: `add_metadata()`, `add_creator()`, `update_access()`, `update_attributes()`, `update_biblio()`, `update_gsheet_metadata()`. `generate_jsonld()` becomes the internal builder called by `update_metadata()`. None of them shipped on CRAN, so no deprecation cycle applies.
+3. Spatial and temporal coverage live in DESCRIPTION as `X-schema.org-spatialCoverage` and `X-schema.org-temporalCoverage`, as text and under the same prefix as the keywords (e.g., "Kampala, Uganda" and the ISO 8601 interval "2022-03-01/2022-09-30"). A per dataset override in data-dict.yaml can follow once #105 exists, with the DESCRIPTION value as the package default. `unitText` stays blank until the dictionary gains a unit column (openwashdata/pkgreview#39).
+4. Distributions: one JSON-LD `distribution` entry per file found in `inst/extdata`, matched to a dataset by name prefix, with the MIME type from the extension (`text/csv`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`, `application/gzip` for `.csv.gz`). No entry is invented for a file that does not exist (#100).
+5. Packages that already carry `data/metadata/` or `data-raw/metadata/` keep their files; washr ignores them. NEWS records the change.
+
+Consequences for the issues: #68 and #70 merge into #68 (derive, embed, report, validate). #71 becomes the deletion issue and closes #100 when it ships. #87 is closed by this amendment. The three Imports that #72 removes are unchanged. In the "Artifacts" section above, the CSV entry no longer applies; CITATION.cff, inst/CITATION and the JSON-LD stand. The "retire the CSVs entirely" question recorded for v1.2.0 is answered now.
