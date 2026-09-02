@@ -53,3 +53,11 @@ use_brand()
 use_brand(pkgdown = FALSE)
 }
 }
+\seealso{
+Before: \code{\link[=setup_website]{setup_website()}}, which writes the \verb{_pkgdown.yml} this wires.
+
+Other publishing functions:
+\code{\link[=setup_readme]{setup_readme()}},
+\code{\link[=setup_website]{setup_website()}}
+}
+\concept{publishing functions}

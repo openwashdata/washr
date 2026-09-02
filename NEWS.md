@@ -93,6 +93,14 @@
   without the README and site rebuilds. The r-lib test coverage workflow
   reports coverage to Codecov on every push and pull request.
 
+- Documentation (#76). The Get started vignette walks through the workflow
+  in the order of the publishing guide, one function per step; the README
+  gives the toolkit overview with the stable core and the experimental FAIR
+  layer, and carries the CRAN and coverage badges; every export names its
+  neighbours in the workflow under See also; the reference index is grouped
+  by workflow stage; and the pkgdown site URL points at the openwashdata
+  organisation (it pointed at the dev fork, which broke canonical links).
+
 # washr 1.0.2
 
 Patch release: bug fixes only, no new API. New maintainer: Lars Schöbitz.

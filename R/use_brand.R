@@ -34,6 +34,10 @@
 #' @returns Invisibly, a character vector of the files written or
 #'   updated (empty when everything was already current).
 #'
+#' @seealso Before: [setup_website()], which writes the `_pkgdown.yml` this wires.
+#'
+#' @family publishing functions
+#'
 #' @export
 #'
 #' @examples

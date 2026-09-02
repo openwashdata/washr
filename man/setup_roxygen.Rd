@@ -32,3 +32,11 @@ setup_roxygen()
 }
 
 }
+\seealso{
+Before: \code{\link[=setup_dictionary]{setup_dictionary()}}. Next: \code{\link[=update_description]{update_description()}}.
+
+Other setup functions:
+\code{\link[=setup_dictionary]{setup_dictionary()}},
+\code{\link[=setup_rawdata]{setup_rawdata()}}
+}
+\concept{setup functions}

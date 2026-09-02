@@ -5,40 +5,72 @@
 
 <!-- badges: start -->
 
+[![CRAN
+status](https://www.r-pkg.org/badges/version/washr)](https://CRAN.R-project.org/package=washr)
 [![R-CMD-check](https://github.com/openwashdata/washr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/openwashdata/washr/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/openwashdata/washr/graph/badge.svg)](https://app.codecov.io/gh/openwashdata/washr)
 [![License: GPL
 v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 <!-- badges: end -->
 
-The goal of `washr` is to provide tools to make the [openwashdata data
-package](https://openwashdata.org/pages/gallery/data/) workflow
-consistent and efficient.
+washr turns a cleaned dataset into a documented R data package that
+follows the FAIR principles, with a website, a citation file and machine
+readable metadata. It is the toolkit behind the
+[openwashdata](https://openwashdata.org/pages/gallery/data/) data
+packages, and it works for any group that publishes open data as an R
+package.
 
 ## Installation
 
-The easiest way to get started with `washr` is by installing it from
-CRAN:
+From CRAN:
 
 ``` r
 install.packages("washr")
 ```
 
-To get the latest version, you can install the development version from
-[GitHub](https://github.com/) with:
+Or the development version from
+[GitHub](https://github.com/openwashdata/washr):
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("openwashdata/washr")
+# install.packages("remotes")
+remotes::install_github("openwashdata/washr")
 ```
+
+## What washr does
+
+The stable core scaffolds and documents the package, one function per
+step, in the order you run them:
+
+- `setup_rawdata()` creates `data-raw/` and the processing script.
+- `setup_dictionary()` writes the variable dictionary from the data
+  objects.
+- `setup_roxygen()` writes the roxygen documentation from the
+  dictionary.
+- `update_description()` completes `DESCRIPTION` to the openwashdata
+  standard.
+- `setup_readme()` writes the README from the template.
+- `setup_website()` writes the pkgdown configuration and builds the
+  site.
+- `use_brand()` installs the openwashdata brand for the site.
+- `update_citation()` writes the citation files, with the DOI once there
+  is one.
+
+The FAIR layer is one experimental function. `update_metadata()` derives
+a schema.org description of the dataset from the files above and embeds
+it in the site, where dataset search engines read it.
+
+Every function reads what is there, merges its changes, and is safe to
+run again.
 
 ## How to use washr
 
-To learn more about `washr`, check out the ‘Get Started’ page. This,
-along with the ‘Reference’ page, will give you a good overview of the
-toolkit.
-
-If you decide to use `washr` for publishing your data (which we hope you
-will!), take a look at our [detailed
-guide](https://global-health-engineering.github.io/ghedatapublishing/).
-It’s regularly updated and walks you through the entire process.
+The [Get
+started](https://openwashdata.github.io/washr/articles/washr.html) page
+walks through the workflow in order, and the
+[Reference](https://openwashdata.github.io/washr/reference/index.html)
+page documents each function. The [publishing
+guide](https://global-health-engineering.github.io/ghedatapublishing/)
+covers the same steps with more explanation and the parts outside R,
+such as the GitHub repository and the Zenodo release.

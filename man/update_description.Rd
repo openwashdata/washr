@@ -38,3 +38,11 @@ update_description(github_user = "https://github.com/yourusername")
 
 
 }
+\seealso{
+Before: \code{\link[=setup_roxygen]{setup_roxygen()}}. Next: \code{\link[=update_metadata]{update_metadata()}} for the schema.org metadata, then \code{\link[=setup_readme]{setup_readme()}}.
+
+Other metadata functions:
+\code{\link[=update_citation]{update_citation()}},
+\code{\link[=update_metadata]{update_metadata()}}
+}
+\concept{metadata functions}

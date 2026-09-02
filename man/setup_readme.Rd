@@ -37,3 +37,11 @@ setup_readme()
 setup_readme(has_example = TRUE)
 }
 }
+\seealso{
+Before: \code{\link[=update_description]{update_description()}}. Next: \code{\link[=setup_website]{setup_website()}}, which builds the site from README.md.
+
+Other publishing functions:
+\code{\link[=setup_website]{setup_website()}},
+\code{\link[=use_brand]{use_brand()}}
+}
+\concept{publishing functions}

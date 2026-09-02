@@ -39,3 +39,11 @@ deploys through the pkgdown GitHub Actions workflow instead
  setup_website(has_example = TRUE)
 }
 }
+\seealso{
+Before: \code{\link[=setup_readme]{setup_readme()}}. Next: \code{\link[=use_brand]{use_brand()}} for the brand, and \code{\link[=update_citation]{update_citation()}} once the release has a DOI.
+
+Other publishing functions:
+\code{\link[=setup_readme]{setup_readme()}},
+\code{\link[=use_brand]{use_brand()}}
+}
+\concept{publishing functions}

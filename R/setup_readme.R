@@ -18,6 +18,10 @@
 #'
 #' @returns NULL. This function creates a README.Rmd under the package directory.
 #'
+#' @seealso Before: [update_description()]. Next: [setup_website()], which builds the site from README.md.
+#'
+#' @family publishing functions
+#'
 #' @export
 #'
 #' @examples
