@@ -35,6 +35,9 @@
 #'   updated (empty when everything was already current).
 #'
 #' @seealso Before: [setup_website()], which writes the `_pkgdown.yml` this wires.
+#'   For branded PDF and Word reports that read the installed `_brand.yml`,
+#'   the openwashdata Quarto extension
+#'   [quarto-owd](https://github.com/openwashdata/quarto-owd).
 #'
 #' @family publishing functions
 #'

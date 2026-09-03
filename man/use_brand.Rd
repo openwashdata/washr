@@ -55,6 +55,9 @@ use_brand(pkgdown = FALSE)
 }
 \seealso{
 Before: \code{\link[=setup_website]{setup_website()}}, which writes the \verb{_pkgdown.yml} this wires.
+For branded PDF and Word reports that read the installed \verb{_brand.yml},
+the openwashdata Quarto extension
+\href{https://github.com/openwashdata/quarto-owd}{quarto-owd}.
 
 Other publishing functions:
 \code{\link[=setup_readme]{setup_readme()}},
