@@ -1,0 +1,76 @@
+---
+title: "README table trial: kable, kableExtra, lt"
+output: github_document
+always_allow_html: true
+---
+
+<!-- Run from the root of the fslogisticskampala package (or any package
+     with data/, data-raw/dictionary.csv and inst/extdata/). Findings are in
+     evaluation-lt.md next to this file. -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", message = FALSE, warning = FALSE)
+load("data/trips.rda")
+dict <- readr::read_csv("data-raw/dictionary.csv")
+extdata_path <- "https://github.com/openwashdata/fslogisticskampala/raw/main/inst/extdata/"
+```
+
+## A. current template: kable + kableExtra
+
+```{r a1}
+dict |>
+  dplyr::filter(file_name == "trips.rda") |>
+  dplyr::select(variable_name:description) |>
+  knitr::kable() |>
+  kableExtra::kable_styling("striped") |>
+  kableExtra::scroll_box(height = "200px")
+```
+
+## B. lt, default (JavaScript spec)
+
+```{r b1}
+library(lt)
+trips |> head(3) |> lt()
+```
+
+```{r b2}
+dict |>
+  dplyr::filter(file_name == "trips.rda") |>
+  dplyr::select(variable_name:description) |>
+  lt(auto_label = FALSE)
+```
+
+## C. lt, baked static table (needs Node.js or Chromium at knit time)
+
+```{r c0}
+options(lt.lt_static = list(method = "node", css = FALSE, fragment = TRUE))
+```
+
+```{r c1}
+trips |> head(3) |> lt(auto_format = FALSE)
+```
+
+```{r c2}
+dict |>
+  dplyr::filter(file_name == "trips.rda") |>
+  dplyr::select(variable_name:description) |>
+  lt(auto_label = FALSE)
+```
+
+```{r c3}
+dict |>
+  dplyr::distinct(file_name) |>
+  dplyr::mutate(dataset = sub("\\.rda$", "", file_name), .keep = "none") |>
+  dplyr::mutate(
+    CSV = sprintf('<a href="%s%s.csv">Download CSV</a>', extdata_path, dataset),
+    XLSX = sprintf('<a href="%s%s.xlsx">Download XLSX</a>', extdata_path, dataset)
+  ) |>
+  lt() |>
+  lt_html(c("CSV", "XLSX"))
+```
+
+## D. plain kable for the preview
+
+```{r d1}
+trips |> head(3) |> knitr::kable()
+```
