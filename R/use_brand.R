@@ -35,6 +35,9 @@
 #'   updated (empty when everything was already current).
 #'
 #' @seealso Before: [setup_website()], which writes the `_pkgdown.yml` this wires.
+#'   For branded PDF and Word reports that read the installed `_brand.yml`,
+#'   the openwashdata Quarto extension
+#'   [quarto-owd](https://github.com/openwashdata/quarto-owd).
 #'
 #' @family publishing functions
 #'
@@ -131,14 +134,22 @@ place_brand_file <- function(tmp, dest) {
 }
 
 # The logo paths a brand definition references: the named images plus any
-# size entries that are direct paths rather than image names.
+# size entries that are direct paths rather than image names. An entry is
+# either a path or, since openwashdata/brand 1.0.0, a list with a path and
+# an alt text.
 brand_logo_paths <- function(brand) {
   logo <- brand$logo
   if (is.null(logo)) {
     return(character(0))
   }
-  images <- unlist(logo$images, use.names = FALSE)
-  sizes <- unlist(logo[setdiff(names(logo), "images")], use.names = FALSE)
+  as_path <- function(entry) {
+    if (is.list(entry)) entry$path else entry
+  }
+  images <- vapply(logo$images, as_path, character(1), USE.NAMES = FALSE)
+  sizes <- vapply(
+    logo[setdiff(names(logo), "images")], as_path, character(1),
+    USE.NAMES = FALSE
+  )
   direct <- setdiff(sizes, names(logo$images))
   unique(c(images, direct))
 }
