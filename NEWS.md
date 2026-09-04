@@ -1,3 +1,5 @@
+# washr (development version)
+
 # washr 1.1.0
 
 The first minor release under the new maintainer. Every function now reads

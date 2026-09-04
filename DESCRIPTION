@@ -1,6 +1,6 @@
 Package: washr
 Title: Publication Toolkit for Water, Sanitation and Hygiene (WASH) Data
-Version: 1.1.0
+Version: 1.1.0.9000
 Date: 2026-09-02
 Authors@R: c(
     person("Mian", "Zhong", , "mzhong@ethz.ch", role = "aut",
