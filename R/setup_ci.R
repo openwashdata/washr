@@ -35,12 +35,13 @@ setup_ci <- function() {
     usethis::ui_info("{usethis::ui_path(target)} exists and is kept as it is.")
   } else {
     dir.create(dirname(target), recursive = TRUE, showWarnings = FALSE)
-    usethis::use_template(template = "R-CMD-check.yaml",
-                          save_as = target,
-                          data = list(),
-                          ignore = FALSE,
-                          open = FALSE,
-                          package = "washr")
+    # Copied, not rendered. usethis::use_template() runs the file through
+    # whisker, whose {{ }} delimiters swallow the inner braces of every
+    # ${{ ... }} GitHub Actions expression and leave a bare $ behind (#130).
+    # The template carries no variables, so there is nothing to interpolate.
+    file.copy(system.file("templates", "R-CMD-check.yaml", package = "washr"),
+              target, overwrite = FALSE)
+    usethis::ui_done("Writing {usethis::ui_path(target)}")
   }
   usethis::use_build_ignore(".github")
   if (add_check_badge()) {

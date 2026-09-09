@@ -1,4 +1,19 @@
-# washr (development version)
+# washr 1.1.1
+
+A patch release with two fixes, both of which stopped a scaffolded package
+from building or checking.
+
+- `setup_ci()` now writes the workflow file unchanged. It was written through
+  `usethis::use_template()`, which renders with whisker, and whisker reads
+  `{{ }}` as its own delimiters. Every `${{ ... }}` GitHub Actions expression
+  came out as a bare `$`, so `runs-on: $` matched no runner and each matrix
+  job queued until the 24 hour limit and then failed. A package scaffolded
+  with 1.1.0 therefore shipped a workflow that never ran (#130).
+
+- `use_brand()` reads the `path` of a logo entry written as a list of path
+  and alt text, the form openwashdata/brand uses since 1.0.0. Before, the alt
+  text was read as a second path and the call failed after it had already
+  written `_brand.yml` (#123).
 
 # washr 1.1.0
 
@@ -18,7 +33,8 @@ from 16 to 10.
   The README template carries the badge as well. The openwashdata review
   standard requires the workflow with the `dev` trigger, so a package
   scaffolded with washr meets that part of the review floor by construction
-  (#86).
+  (#86). The workflow this release wrote was corrupt and never ran; fixed in
+  1.1.1 (#130).
 
 - `update_metadata()` is rewritten as the one FAIR step (lifecycle:
   experimental). It derives a schema.org Dataset description from
