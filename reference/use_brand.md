@@ -58,7 +58,9 @@ demand.
 
 Before:
 [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md),
-which writes the `_pkgdown.yml` this wires.
+which writes the `_pkgdown.yml` this wires. For branded PDF and Word
+reports that read the installed `_brand.yml`, the openwashdata Quarto
+extension [quarto-owd](https://github.com/openwashdata/quarto-owd).
 
 Other publishing functions:
 [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md),

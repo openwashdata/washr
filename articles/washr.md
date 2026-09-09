@@ -207,6 +207,15 @@ and again whenever the brand changes.
 use_brand()
 ```
 
+Branded PDF and Word reports about the package use the openwashdata
+Quarto extension,
+[quarto-owd](https://github.com/openwashdata/quarto-owd), with the
+formats `owd-typst` and `owd-docx`. Install it in the package root with
+`quarto add openwashdata/quarto-owd`; it reads the `_brand.yml` that
+[`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
+installed, so no second brand copy is needed. Add `^_extensions$` to
+`.Rbuildignore`.
+
 ## 9. Cite and release
 
 [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)

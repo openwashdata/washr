@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">washr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -215,6 +215,14 @@ and colors of the site, from the central brand repository and wires
 <code><a href="../reference/setup_website.html">setup_website()</a></code>, and again whenever the brand changes.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/use_brand.html">use_brand</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Branded PDF and Word reports about the package use the openwashdata
+Quarto extension, <a href="https://github.com/openwashdata/quarto-owd" class="external-link">quarto-owd</a>, with
+the formats <code>owd-typst</code> and <code>owd-docx</code>. Install it
+in the package root with
+<code>quarto add openwashdata/quarto-owd</code>; it reads the
+<code>_brand.yml</code> that <code><a href="../reference/use_brand.html">use_brand()</a></code> installed, so no
+second brand copy is needed. Add <code>^_extensions$</code> to
+<code>.Rbuildignore</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="cite-and-release">9. Cite and release<a class="anchor" aria-label="anchor" href="#cite-and-release"></a>
