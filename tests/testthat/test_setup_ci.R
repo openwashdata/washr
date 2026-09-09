@@ -16,6 +16,25 @@ test_that("setup_ci() writes the check workflow with the dev trigger and build i
   expect_true("^\\.github$" %in% readLines(".Rbuildignore"))
 })
 
+test_that("setup_ci() writes the GitHub Actions expressions intact (#130)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  path <- setup_ci()
+  lines <- readLines(path)
+  # The file is copied rather than rendered, because whisker reads {{ }} as its
+  # own delimiters and would reduce every ${{ ... }} expression to a bare $.
+  expect_true(any(grepl("runs-on: ${{ matrix.config.os }}", lines, fixed = TRUE)))
+  expect_true(any(grepl("r-version: ${{ matrix.config.r }}", lines, fixed = TRUE)))
+  expect_true(any(grepl("${{ secrets.GITHUB_TOKEN }}", lines, fixed = TRUE)))
+  # A corrupted file still parses as YAML, so assert on the raw lines: no key
+  # may be left with a bare $ as its value.
+  expect_false(any(grepl("^\\s*[[:alnum:]_-]+:\\s*\\$\\s*$", lines)))
+  expect_identical(
+    lines,
+    readLines(system.file("templates", "R-CMD-check.yaml", package = "washr"))
+  )
+})
+
 test_that("setup_ci() keeps an existing workflow file as it is", {
   create_local_package()
   rlang::local_interactive(FALSE)

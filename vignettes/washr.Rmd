@@ -139,6 +139,8 @@ Running it again keeps your `_pkgdown.yml` and rebuilds the site. `docs/` is com
 use_brand()
 ```
 
+Branded PDF and Word reports about the package use the openwashdata Quarto extension, [quarto-owd](https://github.com/openwashdata/quarto-owd), with the formats `owd-typst` and `owd-docx`. Install it in the package root with `quarto add openwashdata/quarto-owd`; it reads the `_brand.yml` that `use_brand()` installed, so no second brand copy is needed. Add `^_extensions$` to `.Rbuildignore`.
+
 ## 9. Cite and release
 
 `update_citation()` writes `CITATION.cff` and `inst/CITATION` from `DESCRIPTION`. Run it before the first release so the files exist, then again with the DOI once the release is deposited on Zenodo; the guide describes the Zenodo steps.

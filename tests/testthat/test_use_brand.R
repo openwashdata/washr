@@ -32,6 +32,42 @@ test_that("use_brand installs the brand and referenced logos", {
   expect_setequal(written, c("_brand.yml", "logos/icon.png"))
 })
 
+test_that("use_brand reads logo entries that carry a path and an alt text", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  src <- make_brand_source()
+  writeLines(
+    c(
+      "meta:",
+      "  name: openwashdata",
+      "color:",
+      "  palette:",
+      "    owd-purple: \"#5b195b\"",
+      "  primary: owd-purple",
+      "logo:",
+      "  images:",
+      "    icon:",
+      "      path: logos/icon.png",
+      "      alt: openwashdata, stacked wordmark",
+      "    badge:",
+      "      path: logos/badge.png",
+      "      alt: openwashdata badge",
+      "  small: icon",
+      "  medium:",
+      "    path: logos/wordmark.png",
+      "    alt: openwashdata wordmark"
+    ),
+    file.path(src, "_brand.yml")
+  )
+  writeBin(as.raw(1:8), file.path(src, "logos", "badge.png"))
+  writeBin(as.raw(1:8), file.path(src, "logos", "wordmark.png"))
+  written <- use_brand(source = src, pkgdown = FALSE)
+  expect_setequal(
+    written,
+    c("_brand.yml", "logos/icon.png", "logos/badge.png", "logos/wordmark.png")
+  )
+})
+
 test_that("use_brand is idempotent and reports refreshed files", {
   create_local_package()
   rlang::local_interactive(FALSE)
