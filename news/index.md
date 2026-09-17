@@ -2,7 +2,7 @@
 
 ## washr 1.1.1
 
-A patch release with two fixes, both of which stopped a scaffolded
+A patch release with three fixes. The first two stopped a scaffolded
 package from building or checking.
 
 - [`setup_ci()`](https://openwashdata.github.io/washr/reference/setup_ci.md)
@@ -21,6 +21,15 @@ package from building or checking.
   text was read as a second path and the call failed after it had
   already written `_brand.yml`
   ([\#123](https://github.com/openwashdata/washr/issues/123)).
+
+- [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)
+  declares the work as a dataset in CITATION.cff, the form the Citation
+  File Format provides for data, through a new `type` argument that
+  defaults to `"dataset"`. The file used to say software, the cffr
+  default, so a data package presented itself as software in its own
+  citation file. Zenodo’s GitHub integration ignores the field; the
+  resource type of a deposit still needs a `.zenodo.json`
+  ([\#56](https://github.com/openwashdata/washr/issues/56)).
 
 ## washr 1.1.0
 

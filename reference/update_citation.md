@@ -9,7 +9,7 @@ generate the citation files without a DOI or badge.
 ## Usage
 
 ``` r
-update_citation(doi = NULL, build = TRUE)
+update_citation(doi = NULL, build = TRUE, type = c("dataset", "software"))
 ```
 
 ## Arguments
@@ -25,6 +25,13 @@ update_citation(doi = NULL, build = TRUE)
   citation files alone, e.g., in scripts and tests. Defaults to NULL for
   the pre-release call, in which case no DOI is recorded and no badge is
   added.
+
+- type:
+
+  The CFF `type` of the work: `"dataset"` (the default, a data package)
+  or `"software"`. Before 1.1.1 the file always said software, the cffr
+  default. Zenodo's GitHub integration ignores this field; the resource
+  type of a deposit comes from a `.zenodo.json` (#56).
 
 ## Value
 

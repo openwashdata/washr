@@ -52,7 +52,7 @@ the citation files without a DOI or badge.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">update_citation</span><span class="op">(</span>doi <span class="op">=</span> <span class="cn">NULL</span>, build <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">update_citation</span><span class="op">(</span>doi <span class="op">=</span> <span class="cn">NULL</span>, build <span class="op">=</span> <span class="cn">TRUE</span>, type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dataset"</span>, <span class="st">"software"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -69,6 +69,13 @@ citation files change? Defaults to <code>TRUE</code>. Set to <code>FALSE</code> 
 the citation files alone, e.g., in scripts and tests.
 Defaults to NULL for the pre-release call, in which case no DOI is
 recorded and no badge is added.</p></dd>
+
+
+<dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
+<dd><p>The CFF <code>type</code> of the work: <code>"dataset"</code> (the default, a data
+package) or <code>"software"</code>. Before 1.1.1 the file always said software,
+the cffr default. Zenodo's GitHub integration ignores this field; the
+resource type of a deposit comes from a <code>.zenodo.json</code> (#56).</p></dd>
 
 </dl></div>
     <div class="section level2">
