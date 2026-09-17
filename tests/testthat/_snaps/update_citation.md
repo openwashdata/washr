@@ -10,7 +10,7 @@
        
       cff-version: 1.2.0
       message: 'To cite package "PKGNAME" in publications use:'
-      type: software
+      type: dataset
       title: 'PKGNAME: What the Package Does (One Line, Title Case)'
       version: 0.0.0.9000
       doi: 10.5281/zenodo.11185699

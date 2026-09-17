@@ -13,6 +13,10 @@
 #'   the citation files alone, e.g., in scripts and tests.
 #'   Defaults to NULL for the pre-release call, in which case no DOI is
 #'   recorded and no badge is added.
+#' @param type The CFF `type` of the work: `"dataset"` (the default, a data
+#'   package) or `"software"`. Before 1.1.1 the file always said software,
+#'   the cffr default. Zenodo's GitHub integration ignores this field; the
+#'   resource type of a deposit comes from a `.zenodo.json` (#56).
 #'
 #' @returns NULL. A citation .cff file is written under the root directory.
 #' @seealso Before: [setup_website()]. Run again with the DOI after the Zenodo release; [update_metadata()] then picks the DOI up.
@@ -28,7 +32,9 @@
 #'   update_citation(build = FALSE)
 #' }
 #'
-update_citation <- function(doi = NULL, build = TRUE){
+update_citation <- function(doi = NULL, build = TRUE,
+                            type = c("dataset", "software")){
+  type <- match.arg(type)
   cff_path <- "CITATION.cff"
   existing <- if (file.exists(cff_path)) cffr::cff_read(cff_path) else NULL
 
@@ -42,7 +48,7 @@ update_citation <- function(doi = NULL, build = TRUE){
   migrate_cff_keywords(existing)
 
   # Creates CFF with all author roles
-  keys <- list("date-released" = desc::desc_get("Date"))
+  keys <- list("date-released" = desc::desc_get("Date"), type = type)
   if (!is.null(doi)) {
     keys$doi <- doi
   }

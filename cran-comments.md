@@ -1,3 +1,24 @@
+## Version 1.1.1
+
+Patch release: three fixes and one new argument with a default. Nothing is
+removed and the maintainer is unchanged.
+
+### Changes
+
+- `setup_ci()` writes the GitHub Actions workflow file unchanged; the
+  template renderer had stripped every `${{ }}` expression.
+- `use_brand()` reads logo entries written as a list of path and alt text.
+- `update_citation()` gains a `type` argument (default `"dataset"`) so
+  CITATION.cff declares the work as a dataset instead of software.
+
+### R CMD check results
+
+0 errors | 0 warnings | 0 notes
+
+### Reverse dependencies
+
+None on CRAN.
+
 ## Version 1.1.0
 
 First minor release. The maintainer is unchanged since 1.0.2.

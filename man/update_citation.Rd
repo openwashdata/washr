@@ -4,7 +4,7 @@
 \alias{update_citation}
 \title{Update the citation file for the dataset.}
 \usage{
-update_citation(doi = NULL, build = TRUE)
+update_citation(doi = NULL, build = TRUE, type = c("dataset", "software"))
 }
 \arguments{
 \item{doi}{DOI (Digital Object Identifier), e.g., 10.5281/zenodo.11185699.}
@@ -14,6 +14,11 @@ citation files change? Defaults to \code{TRUE}. Set to \code{FALSE} to regenerat
 the citation files alone, e.g., in scripts and tests.
 Defaults to NULL for the pre-release call, in which case no DOI is
 recorded and no badge is added.}
+
+\item{type}{The CFF \code{type} of the work: \code{"dataset"} (the default, a data
+package) or \code{"software"}. Before 1.1.1 the file always said software,
+the cffr default. Zenodo's GitHub integration ignores this field; the
+resource type of a deposit comes from a \code{.zenodo.json} (#56).}
 }
 \value{
 NULL. A citation .cff file is written under the root directory.

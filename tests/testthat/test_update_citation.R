@@ -120,3 +120,13 @@ test_that("update_citation(build = FALSE) adds the badge but skips the README an
   expect_true(any(grepl("zenodo.11185699.svg", readLines("README.Rmd"), fixed = TRUE)))
   expect_false(file.exists("README.md"))
 })
+
+test_that("update_citation() declares the work as a dataset in CITATION.cff (#56)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  desc::desc_set("Date", "2026-07-23")
+  suppressMessages(update_citation())
+  expect_equal(cffr::cff_read("CITATION.cff")$type, "dataset")
+  suppressMessages(update_citation(type = "software"))
+  expect_equal(cffr::cff_read("CITATION.cff")$type, "software")
+})
