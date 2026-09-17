@@ -13,7 +13,6 @@
       Config/testthat/edition: 3
       Encoding: UTF-8
       Roxygen: list(markdown = TRUE)
-      RoxygenNote: SCRUBBED
       Config/Needs/website: rmarkdown, leaflet
       URL: https://openwashdata.github.io/testpkg/,
           https://github.com/openwashdata/PKGNAME
