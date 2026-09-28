@@ -7,6 +7,19 @@
 #' they exist. Before a release exists, call it without arguments to generate
 #' the citation files without a DOI or badge.
 #'
+#' @details
+#' When the data comes from a published article, list the article DOI in
+#' DESCRIPTION as `X-schema.org-isBasedOn`, e.g.,
+#' `X-schema.org-isBasedOn: https://doi.org/10.2166/wh.2026.173`. Separate
+#' several DOIs with commas. `update_citation()` looks up each DOI at doi.org
+#' and writes it as a `references` entry in CITATION.cff, with a message that
+#' asks users to cite both the data package and the article. `inst/CITATION`
+#' then holds both entries, so `citation()` prints both. The package itself
+#' stays the work cited by GitHub's "Cite this repository". A DOI that cannot
+#' be looked up keeps its entry from the existing CITATION.cff. Other
+#' references in CITATION.cff or `inst/CITATION` are dropped, because
+#' DESCRIPTION is their canonical source (#134).
+#'
 #' @param doi DOI (Digital Object Identifier), e.g., 10.5281/zenodo.11185699.
 #' @param build Logical. Rebuild README.md and the pkgdown site after the
 #'   citation files change? Defaults to `TRUE`. Set to `FALSE` to regenerate
@@ -59,6 +72,24 @@ update_citation <- function(doi = NULL, build = TRUE,
   # Remove the preferred-citation key
   mod_cff$`preferred-citation` <- NULL
 
+  # References come from X-schema.org-isBasedOn only (#134). cffr also turns
+  # extra inst/CITATION entries into references; those are either this
+  # function's own output from the last run or hand-written entries, and
+  # DESCRIPTION is the canonical source for both.
+  derived <- vapply(mod_cff$references,
+                    function(r) if_null(r$doi, if_null(r$title, "")), character(1))
+  mod_cff$references <- NULL
+  sources <- source_dois()
+  dropped <- derived[!tolower(derived) %in% tolower(sources)]
+  if (length(dropped) > 0) {
+    usethis::ui_info("Dropping {usethis::ui_value(dropped)} from the references: list source DOIs in X-schema.org-isBasedOn in DESCRIPTION")
+  }
+  refs <- if (length(sources) > 0) source_references(sources, existing) else list()
+  if (length(refs) > 0) {
+    mod_cff$references <- refs
+    mod_cff$message <- source_message(refs, type)
+  }
+
   # Writes the CFF file
   cffr::cff_write(mod_cff)
 
@@ -72,7 +103,15 @@ update_citation <- function(doi = NULL, build = TRUE,
 
   a_cff <- cffr::cff_read(path = "CITATION.cff")
 
-  cffr::cff_write_citation(a_cff, file = path_cit)
+  if (length(refs) > 0) {
+    # Both entries, under a header that asks for both citations
+    dir.create("inst", showWarnings = FALSE)
+    writeLines(sprintf("citHeader(%s)", encodeString(a_cff$message, quote = '"')),
+               path_cit, useBytes = TRUE)
+    cffr::cff_write_citation(a_cff, file = path_cit, append = TRUE, what = "all")
+  } else {
+    cffr::cff_write_citation(a_cff, file = path_cit)
+  }
 
   # cffr backs up an existing file as *.bk1 before overwriting; drop the
   # backups so they cannot slip into release commits

@@ -18,6 +18,7 @@
 #' | url | the pkgdown site (a `github.io` entry in `URL`), else the repository |
 #' | keywords | `X-schema.org-keywords` in DESCRIPTION, comma separated |
 #' | spatialCoverage, temporalCoverage | `X-schema.org-spatialCoverage` and `X-schema.org-temporalCoverage` in DESCRIPTION |
+#' | isBasedOn | the source article DOIs in `X-schema.org-isBasedOn` in DESCRIPTION, comma separated |
 #' | creator, maintainer, funder, publisher | `Authors@R` roles `aut`/`cre`, `cre`, `fnd`, `cph`; ORCID from the `comment` field |
 #' | identifier, sameAs | the DOI in `CITATION.cff`, written by [update_citation()] |
 #' | variableMeasured | `data-raw/dictionary.csv` |

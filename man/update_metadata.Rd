@@ -31,6 +31,7 @@ The sources are:\tabular{ll}{
    url \tab the pkgdown site (a \code{github.io} entry in \code{URL}), else the repository \cr
    keywords \tab \code{X-schema.org-keywords} in DESCRIPTION, comma separated \cr
    spatialCoverage, temporalCoverage \tab \code{X-schema.org-spatialCoverage} and \code{X-schema.org-temporalCoverage} in DESCRIPTION \cr
+   isBasedOn \tab the source article DOIs in \code{X-schema.org-isBasedOn} in DESCRIPTION, comma separated \cr
    creator, maintainer, funder, publisher \tab \code{Authors@R} roles \code{aut}/\code{cre}, \code{cre}, \code{fnd}, \code{cph}; ORCID from the \code{comment} field \cr
    identifier, sameAs \tab the DOI in \code{CITATION.cff}, written by \code{\link[=update_citation]{update_citation()}} \cr
    variableMeasured \tab \code{data-raw/dictionary.csv} \cr

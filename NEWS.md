@@ -1,3 +1,22 @@
+# washr (development version)
+
+- `update_citation()` cites the source article of a package that republishes
+  data from a publication. List the article DOI in DESCRIPTION as
+  `X-schema.org-isBasedOn`, and separate several DOIs with commas. Each DOI
+  is looked up at doi.org and written as a `references` entry in
+  CITATION.cff, with a message that asks users to cite both the data package
+  and the article. `inst/CITATION` holds both entries under the same header,
+  so `citation()` prints both. The package stays the work that GitHub's
+  "Cite this repository" shows. A DOI that cannot be looked up keeps its
+  entry from the existing CITATION.cff, so a run without a network
+  connection changes nothing. References that do not come from the field
+  are dropped, because DESCRIPTION is their canonical source. Before, the
+  function had no way to keep such a reference, and a hand-written second
+  entry in `inst/CITATION` was lost on the second run (#134).
+
+- `update_metadata()` writes the same DOIs as schema.org `isBasedOn` in the
+  JSON-LD (#134).
+
 # washr 1.1.1
 
 A patch release with three fixes. The first two stopped a scaffolded package
