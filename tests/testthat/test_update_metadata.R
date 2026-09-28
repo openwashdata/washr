@@ -165,3 +165,13 @@ test_that("the JSON-LD parses and the embedded site head carries it (#68)", {
   expect_true(any(grepl("application/ld+json", head, fixed = TRUE)))
   expect_true(any(grepl("plausible.io", head, fixed = TRUE)))
 })
+
+test_that("update_metadata() writes the source article DOIs as isBasedOn (#134)", {
+  create_metadata_fixture()
+  d <- suppressMessages(update_metadata())
+  expect_null(d$isBasedOn)
+  desc::desc_set("X-schema.org-isBasedOn", "https://doi.org/10.2166/wh.2026.173, 10.2166/ws.2023.177")
+  d <- suppressMessages(update_metadata())
+  expect_identical(as.character(d$isBasedOn),
+                   c("https://doi.org/10.2166/wh.2026.173", "https://doi.org/10.2166/ws.2023.177"))
+})

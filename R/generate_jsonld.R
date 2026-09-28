@@ -6,7 +6,8 @@
 # Sources (decision document dev/metadata-2026-08/decision-canonical-sources.md,
 # amendment of 2026-09-02):
 #   DESCRIPTION            name, description, version, date, license, URLs,
-#                          keywords and coverage (X-schema.org-* fields),
+#                          keywords, coverage and source DOIs
+#                          (X-schema.org-* fields),
 #                          creators, maintainer, funder and publisher (Authors@R)
 #   data-raw/dictionary.csv  datasets and variables
 #   CITATION.cff           DOI
@@ -31,6 +32,7 @@ build_dataset_jsonld <- function(path = ".") {
   keywords <- split_field(field("X-schema.org-keywords"))
   spatial <- field("X-schema.org-spatialCoverage")
   temporal <- field("X-schema.org-temporalCoverage")
+  based_on <- source_dois(desc_file)
   urls <- desc::desc_get_urls(file = desc_file)
   authors <- tryCatch(desc::desc_get_authors(file = desc_file),
                       error = function(e) NULL)
@@ -124,6 +126,7 @@ build_dataset_jsonld <- function(path = ".") {
     funder = if (length(people$funder)) people$funder,
     spatialCoverage = if (!identical(spatial, "")) list("@type" = "Place", name = spatial),
     temporalCoverage = if (!identical(temporal, "")) temporal,
+    isBasedOn = if (length(based_on)) I(paste0("https://doi.org/", based_on)),
     variableMeasured = if (length(variables)) variables,
     distribution = if (length(dist$distribution)) dist$distribution
   )

@@ -30,6 +30,19 @@ README RMarkdown file and re-builds the README.md and pkgdown website if
 they exist. Before a release exists, call it without arguments to generate
 the citation files without a DOI or badge.
 }
+\details{
+When the data comes from a published article, list the article DOI in
+DESCRIPTION as \code{X-schema.org-isBasedOn}, e.g.,
+\verb{X-schema.org-isBasedOn: https://doi.org/10.2166/wh.2026.173}. Separate
+several DOIs with commas. \code{update_citation()} looks up each DOI at doi.org
+and writes it as a \code{references} entry in CITATION.cff, with a message that
+asks users to cite both the data package and the article. \code{inst/CITATION}
+then holds both entries, so \code{citation()} prints both. The package itself
+stays the work cited by GitHub's "Cite this repository". A DOI that cannot
+be looked up keeps its entry from the existing CITATION.cff. Other
+references in CITATION.cff or \code{inst/CITATION} are dropped, because
+DESCRIPTION is their canonical source (#134).
+}
 \examples{
 \dontrun{
   update_citation(doi = "10.5281/zenodo.11185699")
