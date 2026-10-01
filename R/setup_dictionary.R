@@ -7,7 +7,7 @@
 #' variable types, and descriptions. If tidy data exists, the dictionary is populated with
 #' relevant information; otherwise, it creates an empty dictionary CSV file.
 #'
-#' @seealso Before: [setup_rawdata()]. Next: [setup_roxygen()] once the descriptions in `data-raw/dictionary.csv` are written.
+#' @seealso Before: [setup_rawdata()]. Next: [setup_roxygen()] once the descriptions in `data-raw/dictionary.csv` are written. When the data changes later, [update_dictionary()] brings the dictionary in line with it and keeps the descriptions.
 #'
 #' @family setup functions
 #'
@@ -35,7 +35,10 @@ setup_dictionary <- function() {
   # Check dictionary csvfile existence
   dict_path <- file.path("data-raw", "dictionary.csv")
   if (!no_dict(dict_path)) {
-    cli::cli_abort("The dictionary CSV file {.path {dict_path}} already exists!")
+    cli::cli_abort(c(
+      "The dictionary CSV file {.path {dict_path}} already exists!",
+      "i" = "Run {.fun update_dictionary} to bring it in line with the data. It keeps the descriptions."
+    ))
   }
   fill_dictionary(dict_path, "data/")
   invisible(dict_path)

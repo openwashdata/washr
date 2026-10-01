@@ -33,6 +33,7 @@ Next: \code{\link[=setup_rawdata]{setup_rawdata()}}. The badge appears in the RE
 Other setup functions:
 \code{\link[=setup_dictionary]{setup_dictionary()}},
 \code{\link[=setup_rawdata]{setup_rawdata()}},
-\code{\link[=setup_roxygen]{setup_roxygen()}}
+\code{\link[=setup_roxygen]{setup_roxygen()}},
+\code{\link[=update_dictionary]{update_dictionary()}}
 }
 \concept{setup functions}

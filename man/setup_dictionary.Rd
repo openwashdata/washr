@@ -26,11 +26,12 @@ setup_dictionary()
 
 }
 \seealso{
-Before: \code{\link[=setup_rawdata]{setup_rawdata()}}. Next: \code{\link[=setup_roxygen]{setup_roxygen()}} once the descriptions in \code{data-raw/dictionary.csv} are written.
+Before: \code{\link[=setup_rawdata]{setup_rawdata()}}. Next: \code{\link[=setup_roxygen]{setup_roxygen()}} once the descriptions in \code{data-raw/dictionary.csv} are written. When the data changes later, \code{\link[=update_dictionary]{update_dictionary()}} brings the dictionary in line with it and keeps the descriptions.
 
 Other setup functions:
 \code{\link[=setup_ci]{setup_ci()}},
 \code{\link[=setup_rawdata]{setup_rawdata()}},
-\code{\link[=setup_roxygen]{setup_roxygen()}}
+\code{\link[=setup_roxygen]{setup_roxygen()}},
+\code{\link[=update_dictionary]{update_dictionary()}}
 }
 \concept{setup functions}

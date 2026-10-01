@@ -77,6 +77,12 @@ setup_dictionary()
 
 Open the CSV and write a description for every variable. The dictionary is the one place where variables are described; the roxygen documentation and the metadata are generated from it.
 
+When the data changes later, run `update_dictionary()`. It adds a row for each new variable, removes the row of a variable that no longer exists, refreshes the types, and keeps every description and every column you added yourself, such as `unit` or `allowed_values`. Then run `setup_roxygen()` again.
+
+```{r}
+update_dictionary()
+```
+
 ## 4. Generate the roxygen documentation
 
 `setup_roxygen()` writes one file per data object under `R/`, with a title and description placeholder and the variable table from the dictionary.
@@ -161,4 +167,4 @@ With a DOI the function also adds the DOI badge to the README and rebuilds it an
 
 ## Running steps again
 
-Every function above reads what is there, merges its changes, and writes only what changed. The two exceptions stop instead of overwriting: `setup_dictionary()` when the dictionary exists, and `setup_readme()` when `README.Rmd` exists (pass `force = TRUE` to replace it). A full second run of the other steps on an unchanged package changes no file.
+Every function above reads what is there, merges its changes, and writes only what changed. The two exceptions stop instead of overwriting: `setup_dictionary()` when the dictionary exists (run `update_dictionary()` instead, which keeps what you wrote), and `setup_readme()` when `README.Rmd` exists (pass `force = TRUE` to replace it). A full second run of the other steps on an unchanged package changes no file.

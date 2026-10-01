@@ -17,7 +17,7 @@
 #' @returns The paths of the documentation files inside "R/", invisibly, one
 #'   per data set. Error if tidy data cannot be found.
 #'
-#' @seealso Before: [setup_dictionary()]. Next: [update_description()].
+#' @seealso Before: [setup_dictionary()], or [update_dictionary()] after the data changed. Next: [update_description()].
 #'
 #' @family setup functions
 #'
