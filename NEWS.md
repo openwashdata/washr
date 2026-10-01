@@ -17,6 +17,14 @@
   usethis helpers it calls, for use in scripts. Warnings and errors are
   never silenced (#84).
 
+- `use_brand()` adds `_brand.yml` and the logo directory to `.Rbuildignore`.
+  Before, `R CMD check` reported both as non-standard top-level files after
+  the brand was installed (#133).
+
+- The README and the vignette name the openwashdata R-universe as a third
+  way to install washr, next to CRAN and GitHub, and say what each source
+  gives you (#131).
+
 - `update_citation()` cites the source article of a package that republishes
   data from a publication. List the article DOI in DESCRIPTION as
   `X-schema.org-isBasedOn`, and separate several DOIs with commas. Each DOI
