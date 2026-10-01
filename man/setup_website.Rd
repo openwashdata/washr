@@ -15,14 +15,18 @@ site is committed? Defaults to \code{TRUE} unless a pkgdown workflow exists
 under \verb{.github/workflows/}.}
 }
 \value{
-NULL. Error if no README file is found.
+The path of \verb{_pkgdown.yml}, invisibly. Error if no README file is
+found.
 }
 \description{
 \code{setup_website()} writes the openwashdata pkgdown configuration and builds
 the site from the package documentation and README.md. The configuration
-comes from the washr template: the Pages URL as the site URL, the
-openwashdata analytics header, the funding sidebar, the authors footer,
-and a reference index with one entry per data object in \verb{data/}.
+comes from the washr template, filled from DESCRIPTION: the Pages URL as
+the site URL, the repository link, the analytics header, the funding
+sidebar, the authors footer, and a reference index with one entry per
+data object in \verb{data/}. The analytics domain and the funding text are the
+\code{Config/washr/analytics-domain} and \code{Config/washr/funding} fields that
+\code{\link[=update_description]{update_description()}} writes; a field set to \code{none} leaves its block out.
 
 The function is safe to re-run. An existing \verb{_pkgdown.yml} is kept as it
 is and only the site is rebuilt, so hand edits and the brand wiring from
@@ -43,6 +47,7 @@ deploys through the pkgdown GitHub Actions workflow instead
 Before: \code{\link[=setup_readme]{setup_readme()}}. Next: \code{\link[=use_brand]{use_brand()}} for the brand, and \code{\link[=update_citation]{update_citation()}} once the release has a DOI.
 
 Other publishing functions:
+\code{\link[=check_publication_readiness]{check_publication_readiness()}},
 \code{\link[=setup_readme]{setup_readme()}},
 \code{\link[=use_brand]{use_brand()}}
 }

@@ -7,8 +7,8 @@
 setup_roxygen()
 }
 \value{
-NULL. This function creates documentation files inside "R/". Error if
-tidy data cannot be found.
+The paths of the documentation files inside "R/", invisibly, one
+per data set. Error if tidy data cannot be found.
 }
 \description{
 Creates or updates Roxygen documentation for all tidy data sets found
@@ -33,11 +33,12 @@ setup_roxygen()
 
 }
 \seealso{
-Before: \code{\link[=setup_dictionary]{setup_dictionary()}}. Next: \code{\link[=update_description]{update_description()}}.
+Before: \code{\link[=setup_dictionary]{setup_dictionary()}}, or \code{\link[=update_dictionary]{update_dictionary()}} after the data changed. Next: \code{\link[=update_description]{update_description()}}.
 
 Other setup functions:
 \code{\link[=setup_ci]{setup_ci()}},
 \code{\link[=setup_dictionary]{setup_dictionary()}},
-\code{\link[=setup_rawdata]{setup_rawdata()}}
+\code{\link[=setup_rawdata]{setup_rawdata()}},
+\code{\link[=update_dictionary]{update_dictionary()}}
 }
 \concept{setup functions}

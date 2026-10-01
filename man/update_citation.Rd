@@ -7,28 +7,48 @@
 update_citation(doi = NULL, build = TRUE, type = c("dataset", "software"))
 }
 \arguments{
-\item{doi}{DOI (Digital Object Identifier), e.g., 10.5281/zenodo.11185699.}
+\item{doi}{DOI (Digital Object Identifier), e.g., 10.5281/zenodo.11185699.
+Defaults to \code{NULL} for the call before the release, in which case no
+DOI is recorded and no badge is added.}
 
 \item{build}{Logical. Rebuild README.md and the pkgdown site after the
 citation files change? Defaults to \code{TRUE}. Set to \code{FALSE} to regenerate
-the citation files alone, e.g., in scripts and tests.
-Defaults to NULL for the pre-release call, in which case no DOI is
-recorded and no badge is added.}
+the citation files alone, e.g., in scripts and tests.}
 
 \item{type}{The CFF \code{type} of the work: \code{"dataset"} (the default, a data
 package) or \code{"software"}. Before 1.1.1 the file always said software,
 the cffr default. Zenodo's GitHub integration ignores this field; the
-resource type of a deposit comes from a \code{.zenodo.json} (#56).}
+resource type of a deposit comes from \code{.zenodo.json}, which always says
+dataset.}
 }
 \value{
-NULL. A citation .cff file is written under the root directory.
+The paths of the three files written, \code{CITATION.cff},
+\code{inst/CITATION} and \code{.zenodo.json}, invisibly.
 }
 \description{
 Create a citation *.cff file for the dataset from a given DOI (Digital
 Object Identifier). When a DOI is supplied, it adds the DOI badge to the
-README RMarkdown file and re-builds the README.md and pkgdown website if
+README RMarkdown file (the Zenodo badge, or a generic DOI badge when
+\code{Config/washr/doi-provider} in DESCRIPTION names another provider) and re-builds the README.md and pkgdown website if
 they exist. Before a release exists, call it without arguments to generate
 the citation files without a DOI or badge.
+
+The same run writes \code{.zenodo.json} through \code{\link[=update_zenodo_json]{update_zenodo_json()}}, so the
+metadata Zenodo reads at release time comes from the same DESCRIPTION as
+the citation files.
+}
+\details{
+When the data comes from a published article, list the article DOI in
+DESCRIPTION as \code{X-schema.org-isBasedOn}, e.g.,
+\verb{X-schema.org-isBasedOn: https://doi.org/10.2166/wh.2026.173}. Separate
+several DOIs with commas. \code{update_citation()} looks up each DOI at doi.org
+and writes it as a \code{references} entry in CITATION.cff, with a message that
+asks users to cite both the data package and the article. \code{inst/CITATION}
+then holds both entries, so \code{citation()} prints both. The package itself
+stays the work cited by GitHub's "Cite this repository". A DOI that cannot
+be looked up keeps its entry from the existing CITATION.cff. Other
+references in CITATION.cff or \code{inst/CITATION} are dropped, because
+DESCRIPTION is their canonical source (#134).
 }
 \examples{
 \dontrun{
@@ -39,10 +59,11 @@ the citation files without a DOI or badge.
 
 }
 \seealso{
-Before: \code{\link[=setup_website]{setup_website()}}. Run again with the DOI after the Zenodo release; \code{\link[=update_metadata]{update_metadata()}} then picks the DOI up.
+Before: \code{\link[=setup_website]{setup_website()}}. Run again with the DOI after the Zenodo release; \code{\link[=update_metadata]{update_metadata()}} then picks the DOI up. \code{\link[=update_zenodo_json]{update_zenodo_json()}} for the Zenodo metadata file alone.
 
 Other metadata functions:
 \code{\link[=update_description]{update_description()}},
-\code{\link[=update_metadata]{update_metadata()}}
+\code{\link[=update_metadata]{update_metadata()}},
+\code{\link[=update_zenodo_json]{update_zenodo_json()}}
 }
 \concept{metadata functions}

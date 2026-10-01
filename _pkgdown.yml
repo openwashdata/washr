@@ -13,6 +13,7 @@ reference:
   desc: "The dictionary and the roxygen documentation it feeds"
   contents:
   - setup_dictionary
+  - update_dictionary
   - setup_roxygen
 
 - title: "Describe the package"
@@ -28,3 +29,5 @@ reference:
   - setup_website
   - use_brand
   - update_citation
+  - update_zenodo_json
+  - check_publication_readiness

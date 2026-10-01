@@ -1,0 +1,9 @@
+trip_id,date,truck_plate,volume_m3,settlement_type
+1,2022-03-01,UAX 101A,4.5,informal
+2,2022-03-01,UAX 102B,8.0,formal
+3,2022-03-02,UAX 101A,4.0,informal
+4,2022-03-03,UBB 220C,10.5,formal
+5,2022-03-04,UAX 102B,7.5,informal
+6,2022-03-07,UBB 220C,9.0,formal
+7,2022-03-08,UAX 101A,4.5,informal
+8,2022-03-09,UAX 102B,8.0,formal

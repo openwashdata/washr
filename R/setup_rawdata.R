@@ -11,7 +11,8 @@
 #'
 #' @export
 #'
-#' @returns NULL. This function will create a directory "data-raw" under the package directory.
+#' @returns The path of the processing script, invisibly. The function creates
+#'   the directory "data-raw" under the package directory.
 #'
 #' @examples
 #' \dontrun{
@@ -19,21 +20,18 @@
 #' }
 #'
 setup_rawdata <- function(){
-  correct_wd <- is_pkg()
-  if(correct_wd) {
-    usethis::use_directory("data-raw", ignore = TRUE)
-    r_path <- file.path("data-raw", "data_processing.R")
-    name <- basename(getwd())
-    usethis::use_template(
-      "data_processing.R",
-      save_as = r_path,
-      data = list(name = name),
-      ignore = FALSE,
-      open = rlang::is_interactive(),
-      package = "washr"
-    )
-  }else{
-    usethis::ui_stop("You are not in the correct working directory for developing the data package.
-                          Please check your working directory.")
-  }
+  check_pkg_root()
+  local_session()
+  usethis::use_directory("data-raw", ignore = TRUE)
+  r_path <- file.path("data-raw", "data_processing.R")
+  name <- basename(getwd())
+  usethis::use_template(
+    "data_processing.R",
+    save_as = r_path,
+    data = list(name = name),
+    ignore = FALSE,
+    open = rlang::is_interactive(),
+    package = "washr"
+  )
+  invisible(r_path)
 }

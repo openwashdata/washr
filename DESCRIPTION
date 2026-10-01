@@ -1,7 +1,7 @@
 Package: washr
 Title: Publication Toolkit for Water, Sanitation and Hygiene (WASH) Data
-Version: 1.1.1
-Date: 2026-09-09
+Version: 1.2.0
+Date: 2026-10-01
 Authors@R: c(
     person("Mian", "Zhong", , "mzhong@ethz.ch", role = "aut",
            comment = c(ORCID = "0009-0009-4546-7214")),
@@ -21,6 +21,7 @@ URL: https://openwashdata.github.io/washr/
 BugReports: https://github.com/openwashdata/washr/issues
 Imports:
     cffr (>= 1.0.1),
+    cli (>= 3.6.0),
     desc (>= 1.4.3),
     jsonlite,
     pkgdown (>= 2.0.7),

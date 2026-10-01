@@ -152,7 +152,7 @@ test_that("the JSON-LD parses and the embedded site head carries it (#68)", {
   parsed <- jsonlite::fromJSON(paste(json, collapse = "\n"))
   expect_identical(parsed[["@type"]], "Dataset")
   usethis::use_template("_pkgdown.yml", save_as = "_pkgdown.yml",
-                        data = list(name = desc::desc_get("Package")[[1]]),
+                        data = pkgdown_template_data(),
                         ignore = FALSE, open = FALSE, package = "washr")
   writeLines("# Fixture", "README.md")
   # the home page alone proves the head template; a full build would try to
@@ -164,4 +164,14 @@ test_that("the JSON-LD parses and the embedded site head carries it (#68)", {
   head <- readLines(file.path("docs", "index.html"))
   expect_true(any(grepl("application/ld+json", head, fixed = TRUE)))
   expect_true(any(grepl("plausible.io", head, fixed = TRUE)))
+})
+
+test_that("update_metadata() writes the source article DOIs as isBasedOn (#134)", {
+  create_metadata_fixture()
+  d <- suppressMessages(update_metadata())
+  expect_null(d$isBasedOn)
+  desc::desc_set("X-schema.org-isBasedOn", "https://doi.org/10.2166/wh.2026.173, 10.2166/ws.2023.177")
+  d <- suppressMessages(update_metadata())
+  expect_identical(as.character(d$isBasedOn),
+                   c("https://doi.org/10.2166/wh.2026.173", "https://doi.org/10.2166/ws.2023.177"))
 })

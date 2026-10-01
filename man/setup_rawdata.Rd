@@ -7,7 +7,8 @@
 setup_rawdata()
 }
 \value{
-NULL. This function will create a directory "data-raw" under the package directory.
+The path of the processing script, invisibly. The function creates
+the directory "data-raw" under the package directory.
 }
 \description{
 \code{setup_rawdata()} creates a directory for raw data and an example script
@@ -26,6 +27,7 @@ Before: \code{\link[=setup_ci]{setup_ci()}}. Next: \code{\link[=setup_dictionary
 Other setup functions:
 \code{\link[=setup_ci]{setup_ci()}},
 \code{\link[=setup_dictionary]{setup_dictionary()}},
-\code{\link[=setup_roxygen]{setup_roxygen()}}
+\code{\link[=setup_roxygen]{setup_roxygen()}},
+\code{\link[=update_dictionary]{update_dictionary()}}
 }
 \concept{setup functions}

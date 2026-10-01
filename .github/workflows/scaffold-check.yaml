@@ -1,0 +1,65 @@
+# Scaffold check (#129). Builds a fixture data package with washr in the order
+# the vignette documents, runs every re-runnable step a second time, and runs
+# the pkgreview check script on the result. A change in washr that drops a
+# required item of the review standard turns this workflow red. The pkgreview
+# version comes from the PKGREVIEW_FLOOR file; raise it when pkgreview
+# releases.
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+name: scaffold-check
+
+permissions: read-all
+
+jobs:
+  scaffold-check:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          # fs to openxlsx: the processing script template. dplyr to
+          # kableExtra: the README template.
+          extra-packages: >
+            any::fs, any::here, any::readr, any::readxl, any::openxlsx,
+            any::dplyr, any::stringr, any::gt, any::kableExtra,
+            local::.
+
+      - name: Fetch the pkgreview check script at the recorded floor
+        run: |
+          ref="$(cat PKGREVIEW_FLOOR)"
+          mkdir -p "$RUNNER_TEMP/pkgreview"
+          curl -fsSL "https://github.com/openwashdata/pkgreview/archive/refs/tags/${ref}.tar.gz" \
+            | tar -xz --strip-components=1 -C "$RUNNER_TEMP/pkgreview"
+          echo "pkgreview ${ref}"
+
+      - name: Scaffold the fixture and run every step twice
+        run: Rscript dev/scaffold-check/scaffold.R "$RUNNER_TEMP/scaffoldcheck"
+
+      - name: Run the pkgreview check script
+        run: |
+          set -o pipefail
+          Rscript "$RUNNER_TEMP/pkgreview/skills/pkgreview-core/check/pkgreview-check.R" \
+            "$RUNNER_TEMP/scaffoldcheck" --org=openwashdata | tee "$RUNNER_TEMP/report.md"
+
+      - name: Add the report to the job summary
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/report.md" ]; then cat "$RUNNER_TEMP/report.md" >> "$GITHUB_STEP_SUMMARY"; fi
