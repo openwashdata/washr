@@ -44,6 +44,7 @@ deploys through the pkgdown GitHub Actions workflow instead
 Before: \code{\link[=setup_readme]{setup_readme()}}. Next: \code{\link[=use_brand]{use_brand()}} for the brand, and \code{\link[=update_citation]{update_citation()}} once the release has a DOI.
 
 Other publishing functions:
+\code{\link[=check_publication_readiness]{check_publication_readiness()}},
 \code{\link[=setup_readme]{setup_readme()}},
 \code{\link[=use_brand]{use_brand()}}
 }
