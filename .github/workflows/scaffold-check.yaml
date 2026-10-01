@@ -35,7 +35,12 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::fs, any::here, any::readr, any::readxl, any::openxlsx, local::.
+          # fs to openxlsx: the processing script template. dplyr to
+          # kableExtra: the README template.
+          extra-packages: >
+            any::fs, any::here, any::readr, any::readxl, any::openxlsx,
+            any::dplyr, any::stringr, any::gt, any::kableExtra,
+            local::.
 
       - name: Fetch the pkgreview check script at the recorded floor
         run: |
