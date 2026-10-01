@@ -15,7 +15,8 @@ site is committed? Defaults to \code{TRUE} unless a pkgdown workflow exists
 under \verb{.github/workflows/}.}
 }
 \value{
-NULL. Error if no README file is found.
+The path of \verb{_pkgdown.yml}, invisibly. Error if no README file is
+found.
 }
 \description{
 \code{setup_website()} writes the openwashdata pkgdown configuration and builds

@@ -16,7 +16,7 @@
 #'   to FALSE. Pairs with the `has_example` argument of [setup_website()],
 #'   which adds the matching article to the site.
 #'
-#' @returns NULL. This function creates a README.Rmd under the package directory.
+#' @returns The path of README.Rmd, invisibly.
 #'
 #' @seealso Before: [update_description()]. Next: [setup_website()], which builds the site from README.md.
 #'
@@ -38,21 +38,27 @@ setup_readme <- function(force = FALSE, has_example = FALSE){
   readmermd_path <- file.path("README.Rmd")
   if (file.exists(readmermd_path)) {
     if (!force) {
-      usethis::ui_stop("README.Rmd already exists.
-                        Call setup_readme(force = TRUE) to overwrite it.")
+      cli::cli_abort(c(
+        "{.path README.Rmd} already exists.",
+        "i" = "Call {.code setup_readme(force = TRUE)} to overwrite it."
+      ))
     }
     file.remove(readmermd_path)
   }
   pkgname <- desc::desc_get("Package")[[1]]
   datasets <- dataset_names()
   if (length(datasets) == 0) {
-    usethis::ui_stop("No data object found in data/. Export the tidy data with usethis::use_data() first; the README documents it.")
+    cli::cli_abort(c(
+      "No data object found in {.path data/}.",
+      "i" = "Export the tidy data with {.fun usethis::use_data} first. The README documents it."
+    ))
   }
   dataname <- datasets[[1]]
   if (length(datasets) > 1) {
-    usethis::ui_info("data/ holds {length(datasets)} data objects; the template documents {usethis::ui_value(dataname)}. Add a section for each of the others.")
+    ui_info("data/ holds {length(datasets)} data objects; the template documents {.val {dataname}}. Add a section for each of the others.")
   }
   # Create README RMarkdown with a template
+  local_quiet()
   usethis::use_readme_rmd(open = FALSE)
   file.remove(readmermd_path)
   usethis::use_template(template = "README.Rmd",
@@ -62,5 +68,6 @@ setup_readme <- function(force = FALSE, has_example = FALSE){
                                     has_example = has_example),
                         open = rlang::is_interactive(),
                         package = "washr")
-  usethis::ui_todo("Finish the writing of README and run devtools::build_readme() in console.")
+  ui_todo("Finish writing {.path {readmermd_path}}, then run {.code devtools::build_readme()}.")
+  invisible(readmermd_path)
 }

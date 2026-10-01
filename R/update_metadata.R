@@ -30,7 +30,8 @@
 #' tarball.
 #'
 #' @param quiet Logical. Suppress the messages and the report of blank
-#'   fields. Defaults to `FALSE`.
+#'   fields. Defaults to `FALSE`, or to `TRUE` when `options(washr.quiet = TRUE)`
+#'   is set.
 #'
 #' @returns The Dataset description as a list, invisibly. The `"blank"`
 #'   attribute names the fields that could not be filled and says where to
@@ -48,11 +49,19 @@
 #' }
 update_metadata <- function(quiet = FALSE) {
   if (!file.exists("DESCRIPTION")) {
-    usethis::ui_stop("No DESCRIPTION file found. Run this from the root of the data package.")
+    cli::cli_abort(c(
+      "No DESCRIPTION file found.",
+      "i" = "Run this from the root of the data package."
+    ))
   }
   if (!file.exists(file.path("data-raw", "dictionary.csv"))) {
-    usethis::ui_stop("Dictionary file not found. Run {usethis::ui_code('setup_dictionary()')} first.")
+    cli::cli_abort(c(
+      "Dictionary file not found.",
+      "i" = "Run {.fun setup_dictionary} first."
+    ))
   }
+  if (isTRUE(quiet)) rlang::local_options(washr.quiet = TRUE)
+  local_quiet()
 
   dataset <- build_dataset_jsonld(".")
   html <- jsonld_template(dataset)
@@ -64,30 +73,28 @@ update_metadata <- function(quiet = FALSE) {
   if (changed) writeLines(html, target)
   usethis::use_build_ignore("pkgdown")
 
-  if (!quiet) {
-    if (changed) {
-      usethis::ui_done("Wrote {usethis::ui_path(target)}")
-    } else {
-      usethis::ui_done("{usethis::ui_path(target)} is up to date")
-    }
-    if (file.exists("_pkgdown.yml")) {
-      usethis::ui_todo("Rebuild the site with {usethis::ui_code('pkgdown::build_site()')} to embed the metadata")
-    } else {
-      usethis::ui_todo("Run {usethis::ui_code('setup_website()')} so the site embeds the metadata")
-    }
-    report_blank(attr(dataset, "blank"))
+  if (changed) {
+    ui_done("Wrote {.path {target}}")
+  } else {
+    ui_done("{.path {target}} is up to date")
   }
+  if (file.exists("_pkgdown.yml")) {
+    ui_todo("Rebuild the site with {.code pkgdown::build_site()} to embed the metadata.")
+  } else {
+    ui_todo("Run {.fun setup_website} so the site embeds the metadata.")
+  }
+  report_blank(attr(dataset, "blank"))
   invisible(dataset)
 }
 
 report_blank <- function(blank) {
   if (length(blank) == 0) {
-    usethis::ui_done("Every metadata field is filled")
+    ui_done("Every metadata field is filled")
     return(invisible(NULL))
   }
-  usethis::ui_info("{length(blank)} metadata field(s) still blank:")
+  ui_info("{length(blank)} metadata field{?s} still blank:")
   for (nm in names(blank)) {
-    usethis::ui_todo("{nm}: {blank[[nm]]}")
+    ui_todo("{nm}: {blank[[nm]]}")
   }
   invisible(NULL)
 }

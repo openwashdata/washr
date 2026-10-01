@@ -149,7 +149,7 @@ read_dictionary <- function(path = ".") {
   needed <- c("file_name", "variable_name", "description")
   missing <- setdiff(needed, names(dictionary))
   if (length(missing)) {
-    usethis::ui_stop("data-raw/dictionary.csv lacks the column(s) {usethis::ui_value(missing)}.")
+    cli::cli_abort("{.path data-raw/dictionary.csv} lacks {length(missing)} column{?s}: {.val {missing}}.")
   }
   dictionary
 }

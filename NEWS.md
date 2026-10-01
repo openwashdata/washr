@@ -1,5 +1,22 @@
 # washr (development version)
 
+- Messages now go through cli in every function, with three kinds of lines:
+  a success line for a file that was written, an info line for something
+  that was kept or skipped, and an arrow line for the next step that is left
+  to the user. Errors name the function that was called and carry a hint on
+  how to fix the cause. washr no longer calls the `usethis::ui_*()`
+  functions, which usethis has superseded (#84).
+
+- Every function returns what it wrote, invisibly, and the documentation
+  says so. `setup_rawdata()`, `setup_dictionary()`, `setup_readme()`,
+  `setup_website()` and `update_description()` return the path of their
+  file, `setup_roxygen()` and `update_citation()` return the paths of
+  theirs. Before, most of them returned `NULL` or an internal object (#84).
+
+- `options(washr.quiet = TRUE)` silences the messages of washr and of the
+  usethis helpers it calls, for use in scripts. Warnings and errors are
+  never silenced (#84).
+
 - `update_citation()` cites the source article of a package that republishes
   data from a publication. List the article DOI in DESCRIPTION as
   `X-schema.org-isBasedOn`, and separate several DOIs with commas. Each DOI

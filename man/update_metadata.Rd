@@ -8,7 +8,8 @@ update_metadata(quiet = FALSE)
 }
 \arguments{
 \item{quiet}{Logical. Suppress the messages and the report of blank
-fields. Defaults to \code{FALSE}.}
+fields. Defaults to \code{FALSE}, or to \code{TRUE} when \code{options(washr.quiet = TRUE)}
+is set.}
 }
 \value{
 The Dataset description as a list, invisibly. The \code{"blank"}

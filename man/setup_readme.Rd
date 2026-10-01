@@ -16,7 +16,7 @@ to FALSE. Pairs with the \code{has_example} argument of \code{\link[=setup_websi
 which adds the matching article to the site.}
 }
 \value{
-NULL. This function creates a README.Rmd under the package directory.
+The path of README.Rmd, invisibly.
 }
 \description{
 \code{setup_readme()} uses the openwashdata README template to generate README files based on datasets

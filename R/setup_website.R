@@ -22,7 +22,8 @@
 #'   site is committed? Defaults to `TRUE` unless a pkgdown workflow exists
 #'   under `.github/workflows/`.
 #'
-#' @returns NULL. Error if no README file is found.
+#' @returns The path of `_pkgdown.yml`, invisibly. Error if no README file is
+#'   found.
 #'
 #' @seealso Before: [setup_readme()]. Next: [use_brand()] for the brand, and [update_citation()] once the release has a DOI.
 #'
@@ -37,12 +38,16 @@
 #' }
 setup_website <- function(has_example = FALSE, track_docs = NULL){
   if (!is_readme_available()) {
-    usethis::ui_stop("No README.md exists. Consider to set up and write README first. You may use washr::setup_readme()")
+    cli::cli_abort(c(
+      "No README.md exists.",
+      "i" = "Set up and write the README first, with {.fun setup_readme} and {.code devtools::build_readme()}."
+    ))
   }
+  local_quiet()
   name <- desc::desc_get("Package")[[1]]
   configpath <- "_pkgdown.yml"
   if (file.exists(configpath)) {
-    usethis::ui_info("{usethis::ui_path(configpath)} exists and is kept as it is. This run rebuilds the site.")
+    ui_info("{.path {configpath}} exists and is kept as it is. This run rebuilds the site.")
   } else {
     usethis::use_pkgdown(config_file = configpath)
     file.remove(configpath)
@@ -67,9 +72,9 @@ setup_website <- function(has_example = FALSE, track_docs = NULL){
   if (track_docs) {
     untrack_docs_in_gitignore()
   } else {
-    usethis::ui_info("docs/ stays in .gitignore; the site deploys through the pkgdown workflow.")
+    ui_info("docs/ stays in .gitignore; the site deploys through the pkgdown workflow.")
   }
-  invisible(NULL)
+  invisible(configpath)
 }
 
 is_readme_available <- function(){

@@ -1,12 +1,18 @@
 #' @importFrom utils head
 load_object <- function(file) {
   if (!grepl("\\.(rda|RData)$", file, ignore.case = TRUE)) {
-    usethis::ui_stop("{usethis::ui_path(file)} is not an .rda file. data/ holds one .rda file per data object, as usethis::use_data() writes them.")
+    cli::cli_abort(c(
+      "{.path {file}} is not an .rda file.",
+      "i" = "data/ holds one .rda file per data object, as {.fun usethis::use_data} writes them."
+    ))
   }
   tmp_env <- new.env()
   loaded <- load(file = file, envir = tmp_env)
   if (length(loaded) != 1) {
-    usethis::ui_stop("{usethis::ui_path(file)} holds {length(loaded)} objects ({usethis::ui_value(loaded)}). washr expects one data object per .rda file, as usethis::use_data() writes them.")
+    cli::cli_abort(c(
+      "{.path {file}} holds {length(loaded)} objects ({.val {loaded}}).",
+      "i" = "washr expects one data object per .rda file, as {.fun usethis::use_data} writes them."
+    ))
   }
   tmp_env[[loaded]]
 }
