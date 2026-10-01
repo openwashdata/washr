@@ -55,6 +55,7 @@ Before: \code{\link[=update_description]{update_description()}}, which writes th
 
 Other metadata functions:
 \code{\link[=update_citation]{update_citation()}},
-\code{\link[=update_description]{update_description()}}
+\code{\link[=update_description]{update_description()}},
+\code{\link[=update_zenodo_json]{update_zenodo_json()}}
 }
 \concept{metadata functions}

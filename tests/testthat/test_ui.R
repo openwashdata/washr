@@ -29,7 +29,7 @@ test_that("every function returns the path it wrote, invisibly (#84)", {
   expect_identical(dictionary, file.path("data-raw", "dictionary.csv"))
   expect_identical(basename(roxygen), "trips.R")
   expect_identical(description, file.path(".", "DESCRIPTION"))
-  expect_identical(citation, c("CITATION.cff", file.path("inst", "CITATION")))
+  expect_identical(citation, c("CITATION.cff", file.path("inst", "CITATION"), ".zenodo.json"))
   expect_identical(readme, "README.Rmd")
   expect_true(all(file.exists(c(rawdata, dictionary, roxygen, description, citation, readme))))
 })

@@ -44,6 +44,7 @@ Before: \code{\link[=setup_roxygen]{setup_roxygen()}}. Next: \code{\link[=update
 
 Other metadata functions:
 \code{\link[=update_citation]{update_citation()}},
-\code{\link[=update_metadata]{update_metadata()}}
+\code{\link[=update_metadata]{update_metadata()}},
+\code{\link[=update_zenodo_json]{update_zenodo_json()}}
 }
 \concept{metadata functions}
