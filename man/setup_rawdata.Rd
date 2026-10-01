@@ -27,6 +27,7 @@ Before: \code{\link[=setup_ci]{setup_ci()}}. Next: \code{\link[=setup_dictionary
 Other setup functions:
 \code{\link[=setup_ci]{setup_ci()}},
 \code{\link[=setup_dictionary]{setup_dictionary()}},
-\code{\link[=setup_roxygen]{setup_roxygen()}}
+\code{\link[=setup_roxygen]{setup_roxygen()}},
+\code{\link[=update_dictionary]{update_dictionary()}}
 }
 \concept{setup functions}
