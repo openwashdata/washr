@@ -248,23 +248,39 @@ mime_type <- function(file) {
   )
 }
 
+# The DESCRIPTION License values washr knows, each with its URL (schema.org
+# license in the JSON-LD) and its Zenodo identifier (.zenodo.json, #56). The
+# identifiers are the lower case SPDX ids of Zenodo's license vocabulary.
+license_map <- list(
+  "CC BY 4.0" = c(url = "https://creativecommons.org/licenses/by/4.0/", zenodo = "cc-by-4.0"),
+  "CC BY-SA 4.0" = c(url = "https://creativecommons.org/licenses/by-sa/4.0/", zenodo = "cc-by-sa-4.0"),
+  "CC BY-NC 4.0" = c(url = "https://creativecommons.org/licenses/by-nc/4.0/", zenodo = "cc-by-nc-4.0"),
+  "CC BY-NC-SA 4.0" = c(url = "https://creativecommons.org/licenses/by-nc-sa/4.0/", zenodo = "cc-by-nc-sa-4.0"),
+  "CC0" = c(url = "https://creativecommons.org/publicdomain/zero/1.0/", zenodo = "cc0-1.0"),
+  "MIT" = c(url = "https://opensource.org/license/mit", zenodo = "mit"),
+  "Apache License (>= 2)" = c(url = "https://www.apache.org/licenses/LICENSE-2.0", zenodo = "apache-2.0"),
+  "GPL-2" = c(url = "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html", zenodo = "gpl-2.0-only"),
+  "GPL-3" = c(url = "https://www.gnu.org/licenses/gpl-3.0.html", zenodo = "gpl-3.0-only"),
+  "GPL (>= 2)" = c(url = "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html", zenodo = "gpl-2.0-or-later"),
+  "GPL (>= 3)" = c(url = "https://www.gnu.org/licenses/gpl-3.0.html", zenodo = "gpl-3.0-or-later")
+)
+
+# The License field without the "+ file LICENSE" suffix.
+license_key <- function(license) {
+  trimws(sub("\\+\\s*file\\s+LICEN[CS]E", "", license))
+}
+
 # Map the DESCRIPTION License field to a URL; unknown licenses pass through.
 license_url <- function(license) {
-  key <- trimws(sub("\\+\\s*file\\s+LICEN[CS]E", "", license))
-  map <- c(
-    "CC BY 4.0" = "https://creativecommons.org/licenses/by/4.0/",
-    "CC BY-SA 4.0" = "https://creativecommons.org/licenses/by-sa/4.0/",
-    "CC BY-NC 4.0" = "https://creativecommons.org/licenses/by-nc/4.0/",
-    "CC BY-NC-SA 4.0" = "https://creativecommons.org/licenses/by-nc-sa/4.0/",
-    "CC0" = "https://creativecommons.org/publicdomain/zero/1.0/",
-    "MIT" = "https://opensource.org/license/mit",
-    "Apache License (>= 2)" = "https://www.apache.org/licenses/LICENSE-2.0",
-    "GPL-2" = "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
-    "GPL-3" = "https://www.gnu.org/licenses/gpl-3.0.html",
-    "GPL (>= 2)" = "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
-    "GPL (>= 3)" = "https://www.gnu.org/licenses/gpl-3.0.html"
-  )
-  if (key %in% names(map)) unname(map[[key]]) else license
+  key <- license_key(license)
+  if (key %in% names(license_map)) license_map[[key]][["url"]] else license
+}
+
+# Map the DESCRIPTION License field to its Zenodo identifier; NULL when
+# washr does not know the license.
+license_zenodo <- function(license) {
+  key <- license_key(license)
+  if (key %in% names(license_map)) license_map[[key]][["zenodo"]] else NULL
 }
 
 # The pkgdown template that carries the JSON-LD. The first line keeps the

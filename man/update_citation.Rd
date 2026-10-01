@@ -18,11 +18,12 @@ recorded and no badge is added.}
 \item{type}{The CFF \code{type} of the work: \code{"dataset"} (the default, a data
 package) or \code{"software"}. Before 1.1.1 the file always said software,
 the cffr default. Zenodo's GitHub integration ignores this field; the
-resource type of a deposit comes from a \code{.zenodo.json} (#56).}
+resource type of a deposit comes from \code{.zenodo.json}, which always says
+dataset.}
 }
 \value{
-The paths of the two citation files, \code{CITATION.cff} and
-\code{inst/CITATION}, invisibly.
+The paths of the three files written, \code{CITATION.cff},
+\code{inst/CITATION} and \code{.zenodo.json}, invisibly.
 }
 \description{
 Create a citation *.cff file for the dataset from a given DOI (Digital
@@ -30,6 +31,10 @@ Object Identifier). When a DOI is supplied, it adds the DOI badge to the
 README RMarkdown file and re-builds the README.md and pkgdown website if
 they exist. Before a release exists, call it without arguments to generate
 the citation files without a DOI or badge.
+
+The same run writes \code{.zenodo.json} through \code{\link[=update_zenodo_json]{update_zenodo_json()}}, so the
+metadata Zenodo reads at release time comes from the same DESCRIPTION as
+the citation files.
 }
 \details{
 When the data comes from a published article, list the article DOI in
@@ -53,10 +58,11 @@ DESCRIPTION is their canonical source (#134).
 
 }
 \seealso{
-Before: \code{\link[=setup_website]{setup_website()}}. Run again with the DOI after the Zenodo release; \code{\link[=update_metadata]{update_metadata()}} then picks the DOI up.
+Before: \code{\link[=setup_website]{setup_website()}}. Run again with the DOI after the Zenodo release; \code{\link[=update_metadata]{update_metadata()}} then picks the DOI up. \code{\link[=update_zenodo_json]{update_zenodo_json()}} for the Zenodo metadata file alone.
 
 Other metadata functions:
 \code{\link[=update_description]{update_description()}},
-\code{\link[=update_metadata]{update_metadata()}}
+\code{\link[=update_metadata]{update_metadata()}},
+\code{\link[=update_zenodo_json]{update_zenodo_json()}}
 }
 \concept{metadata functions}

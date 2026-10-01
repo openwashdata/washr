@@ -7,6 +7,10 @@
 #' they exist. Before a release exists, call it without arguments to generate
 #' the citation files without a DOI or badge.
 #'
+#' The same run writes `.zenodo.json` through [update_zenodo_json()], so the
+#' metadata Zenodo reads at release time comes from the same DESCRIPTION as
+#' the citation files.
+#'
 #' @details
 #' When the data comes from a published article, list the article DOI in
 #' DESCRIPTION as `X-schema.org-isBasedOn`, e.g.,
@@ -29,11 +33,12 @@
 #' @param type The CFF `type` of the work: `"dataset"` (the default, a data
 #'   package) or `"software"`. Before 1.1.1 the file always said software,
 #'   the cffr default. Zenodo's GitHub integration ignores this field; the
-#'   resource type of a deposit comes from a `.zenodo.json` (#56).
+#'   resource type of a deposit comes from `.zenodo.json`, which always says
+#'   dataset.
 #'
-#' @returns The paths of the two citation files, `CITATION.cff` and
-#'   `inst/CITATION`, invisibly.
-#' @seealso Before: [setup_website()]. Run again with the DOI after the Zenodo release; [update_metadata()] then picks the DOI up.
+#' @returns The paths of the three files written, `CITATION.cff`,
+#'   `inst/CITATION` and `.zenodo.json`, invisibly.
+#' @seealso Before: [setup_website()]. Run again with the DOI after the Zenodo release; [update_metadata()] then picks the DOI up. [update_zenodo_json()] for the Zenodo metadata file alone.
 #'
 #' @family metadata functions
 #'
@@ -121,6 +126,10 @@ update_citation <- function(doi = NULL, build = TRUE,
   if (length(backups) > 0) {
     unlink(backups)
   }
+  ui_done("Wrote {.path {cff_path}} and {.path {path_cit}}")
+
+  # The Zenodo metadata from the same DESCRIPTION (#56)
+  zenodo_path <- write_zenodo_json(sources = sources)
 
   # Modify README and pkgdown
   badge_missing <- !is.null(doi) && file.exists("README.Rmd") &&
@@ -140,9 +149,8 @@ update_citation <- function(doi = NULL, build = TRUE,
   }
 
   # By last, read the citation
-  ui_done("Wrote {.path {cff_path}} and {.path {path_cit}}")
   ui_todo("Proofread your citation file at {.path {path_cit}}.")
-  invisible(c(cff_path, path_cit))
+  invisible(c(cff_path, path_cit, zenodo_path))
 }
 
 add_citation_badge<- function(doi){
