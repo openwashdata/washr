@@ -30,3 +30,4 @@ reference:
   - use_brand
   - update_citation
   - update_zenodo_json
+  - check_publication_readiness

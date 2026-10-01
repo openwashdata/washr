@@ -19,6 +19,7 @@
 #' | metadata | `citation_cff` | `CITATION.cff` is present |
 #' | metadata | `citation_version` | the `version` in `CITATION.cff` equals `Version` in DESCRIPTION |
 #' | metadata | `citation_authors` | `CITATION.cff` and `inst/CITATION` carry real authors, not "Firstname Lastname" |
+#' | metadata | `zenodo_json` | `.zenodo.json` is present and equals what DESCRIPTION gives now |
 #' | metadata | `keywords` | DESCRIPTION carries `X-schema.org-keywords`; the detail says whether `CITATION.cff` agrees |
 #' | metadata | `coverage` | DESCRIPTION carries `X-schema.org-spatialCoverage` and `X-schema.org-temporalCoverage` |
 #' | metadata | `title_length` | `Title` has at most 65 characters |
@@ -260,6 +261,9 @@ readiness_checks <- function() {
           "Citation files carry real authors, not template placeholders",
           "Write the authors in Authors@R in DESCRIPTION, then run update_citation().",
           readiness_citation_authors),
+    check("zenodo_json", "metadata", ".zenodo.json present and in line with DESCRIPTION",
+          "Run update_citation(), which writes .zenodo.json from DESCRIPTION.",
+          readiness_zenodo_json),
     check("keywords", "metadata", "DESCRIPTION carries X-schema.org-keywords",
           "Set X-schema.org-keywords in DESCRIPTION (comma separated), then run update_citation().",
           readiness_keywords),
@@ -278,7 +282,7 @@ readiness_checks <- function() {
           readiness_dictionary_present),
     check("dictionary_coverage", "data",
           "Dictionary covers every variable in every dataset",
-          "Add a row for each missing variable to data-raw/dictionary.csv.",
+          "Run update_dictionary(), which adds a row for each missing variable, then write the descriptions.",
           readiness_dictionary_coverage),
     check("dictionary_descriptions", "data",
           "Dictionary descriptions present (no empty or placeholder)",
@@ -383,6 +387,16 @@ readiness_citation_authors <- function(ctx) {
     any(grepl("Firstname|Lastname", ctx$lines("inst", "CITATION")))
   readiness_result(!placeholder,
                    if (placeholder) "\"Firstname Lastname\" found in citation files" else "")
+}
+
+# Zenodo takes the record of a release from .zenodo.json, version included,
+# so a file that lags behind DESCRIPTION files the release under old values.
+readiness_zenodo_json <- function(ctx) {
+  if (!ctx$has(".zenodo.json")) return(readiness_result(FALSE, "file missing"))
+  current <- paste(ctx$lines(".zenodo.json"), collapse = "\n")
+  expected <- suppressMessages(zenodo_json_text(build_zenodo_json(ctx$path)))
+  same <- identical(current, expected)
+  readiness_result(same, if (same) "" else "differs from what DESCRIPTION gives now")
 }
 
 # Keywords live in DESCRIPTION; agreement with CITATION.cff is reported in

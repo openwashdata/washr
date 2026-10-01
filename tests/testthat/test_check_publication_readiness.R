@@ -88,7 +88,7 @@ test_that("the report goes through cli, can be silenced and prints again (#82)",
   expect_no_message(quiet_check())
   expect_invisible(quiet_check())
   expect_output(print(result), "Publication readiness")
-  expect_output(print(result), "24 pass, 0 fail, 3 not applicable", fixed = TRUE)
+  expect_output(print(result), "25 pass, 0 fail, 3 not applicable", fixed = TRUE)
   expect_identical(length(format(result)) > nrow(result), TRUE)
 })
 
@@ -270,4 +270,15 @@ test_that("bytes that are not UTF-8 in the dictionary fail the schema item only 
 test_that("check_publication_readiness() aborts outside a package root (#82)", {
   dir <- withr::local_tempdir()
   expect_error(check_publication_readiness(dir), "not the root of a package")
+})
+
+test_that("the .zenodo.json item follows DESCRIPTION", {
+  readiness_fixture()
+  expect_identical(status_of(quiet_check(), "zenodo_json"), "pass")
+  desc::desc_set(Version = "9.9.9")
+  stale <- quiet_check()
+  expect_identical(status_of(stale, "zenodo_json"), "fail")
+  expect_match(stale$detail[stale$id == "zenodo_json"], "differs")
+  unlink(".zenodo.json")
+  expect_match(quiet_check()$detail[quiet_check()$id == "zenodo_json"], "file missing")
 })

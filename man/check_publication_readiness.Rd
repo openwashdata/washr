@@ -52,6 +52,7 @@ a review tool can pick the rows it needs.\tabular{lll}{
    metadata \tab \code{citation_cff} \tab \code{CITATION.cff} is present \cr
    metadata \tab \code{citation_version} \tab the \code{version} in \code{CITATION.cff} equals \code{Version} in DESCRIPTION \cr
    metadata \tab \code{citation_authors} \tab \code{CITATION.cff} and \code{inst/CITATION} carry real authors, not "Firstname Lastname" \cr
+   metadata \tab \code{zenodo_json} \tab \code{.zenodo.json} is present and equals what DESCRIPTION gives now \cr
    metadata \tab \code{keywords} \tab DESCRIPTION carries \code{X-schema.org-keywords}; the detail says whether \code{CITATION.cff} agrees \cr
    metadata \tab \code{coverage} \tab DESCRIPTION carries \code{X-schema.org-spatialCoverage} and \code{X-schema.org-temporalCoverage} \cr
    metadata \tab \code{title_length} \tab \code{Title} has at most 65 characters \cr

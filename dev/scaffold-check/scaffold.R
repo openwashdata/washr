@@ -126,3 +126,10 @@ if (length(changed) > 0) {
        paste(changed, collapse = ", "))
 }
 message("scaffold check: second run changed no file")
+
+# The package's own gate agrees: no item of the readiness report fails.
+readiness <- washr::check_publication_readiness()
+if (!isTRUE(attr(readiness, "ready"))) {
+  stop("check_publication_readiness() reports failing items: ",
+       paste(readiness$id[readiness$status == "fail"], collapse = ", "))
+}

@@ -1,5 +1,13 @@
 # washr (development version)
 
+- `check_publication_readiness()` reads the package and reports, item by
+  item, whether it is ready for publication: metadata, data dictionary,
+  documentation and the check workflow. Each gap names the step and the
+  washr function that closes it. The result is a data frame with one row
+  per item (`id`, `area`, `check`, `status`, `detail`, `fix`), so review
+  tools such as pkgreview can consume it. Nothing is written to the package
+  (#82).
+
 - `update_dictionary()` brings `data-raw/dictionary.csv` in line with the
   data after it changed. It adds a row for each new variable, removes the
   row of a variable that no longer exists, refreshes the types, and keeps

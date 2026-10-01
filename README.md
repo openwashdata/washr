@@ -67,6 +67,9 @@ step, in the order you run them:
   is one, and the `.zenodo.json` that files the release on Zenodo as a
   dataset.
 
+`check_publication_readiness()` then reports, item by item, what is in
+place and what is still missing before the release.
+
 The FAIR layer is one experimental function. `update_metadata()` derives
 a schema.org description of the dataset from the files above and embeds
 it in the site, where dataset search engines read it.
