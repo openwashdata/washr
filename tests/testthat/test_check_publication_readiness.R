@@ -36,7 +36,7 @@ readiness_fixture <- function(env = parent.frame()) {
                       "/raw/main/inst/extdata/trips.csv)")),
              "README.md")
   usethis::use_template("_pkgdown.yml", save_as = "_pkgdown.yml",
-                        data = list(name = pkg, datasets = "trips", has_datasets = TRUE),
+                        data = pkgdown_template_data(),
                         package = "washr")
   invisible(pkg)
 }
@@ -73,9 +73,8 @@ test_that("a package taken through the workflow passes every applicable item (#8
   expect_setequal(unique(result$area), c("metadata", "data", "docs", "tests"))
   expect_true(all(result$status %in% c("pass", "fail", "na")))
   expect_identical(result$id[result$status == "fail"], character())
-  # no organisation funding text or brand was given, and no pkgdown workflow
-  expect_setequal(result$id[result$status == "na"],
-                  c("pkgdown_funding", "pkgdown_brand", "docs_untracked"))
+  # the package is held to its own Config/washr values; no pkgdown workflow
+  expect_identical(result$id[result$status == "na"], "docs_untracked")
 
   expect_true(attr(result, "ready"))
   expect_identical(attr(result, "washr_version"), as.character(utils::packageVersion("washr")))
@@ -88,7 +87,7 @@ test_that("the report goes through cli, can be silenced and prints again (#82)",
   expect_no_message(quiet_check())
   expect_invisible(quiet_check())
   expect_output(print(result), "Publication readiness")
-  expect_output(print(result), "25 pass, 0 fail, 3 not applicable", fixed = TRUE)
+  expect_output(print(result), "27 pass, 0 fail, 1 not applicable", fixed = TRUE)
   expect_identical(length(format(result)) > nrow(result), TRUE)
 })
 

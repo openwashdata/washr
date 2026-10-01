@@ -9,7 +9,18 @@
 #' sync with the central definition.
 #'
 #' Brand values are never edited locally: change them in
-#' openwashdata/brand first, then refresh consumers with `use_brand()`.
+#' openwashdata/brand first and cut a release tag there, then refresh
+#' consumers with `use_brand()`. After a brand release the order is the
+#' Quarto extension, the website, then the data packages.
+#'
+#' By default the brand is copied at the latest release tag of the brand
+#' repository, and the tag is recorded in DESCRIPTION as
+#' `Config/washr/brand`, so the package says which brand it carries. A
+#' second run with no new tag changes no file. The brand repository is the
+#' `Config/washr/brand-source` field that [update_description()] writes
+#' (`openwashdata/brand` for openwashdata packages); a group with its own
+#' brand names its repository there, and `none` means there is no brand to
+#' install.
 #'
 #' The brand file and the logo directory are added to `.Rbuildignore`, so
 #' they stay out of the built package and `R CMD check` does not report them
@@ -28,13 +39,14 @@
 #' brand.yml package (bslib asks for it at build time); it is listed in
 #' Suggests and installed on demand.
 #'
-#' @param ref Character. Git reference (branch or tag) of
-#'   openwashdata/brand to copy from. Defaults to `"main"`.
+#' @param ref Character. Git reference (branch or tag) of the brand
+#'   repository to copy from. Defaults to the latest release tag. Pass
+#'   `"main"` to try brand changes that are not released yet.
 #' @param pkgdown Logical. Should `_pkgdown.yml` be wired to use the
 #'   brand via bslib? Defaults to `TRUE`.
 #' @param source Character. Advanced: an alternative source for the
 #'   brand files, either a local directory or a URL prefix. When `NULL`
-#'   (the default), the raw GitHub content of openwashdata/brand at
+#'   (the default), the raw GitHub content of the brand repository at
 #'   `ref` is used. Mainly useful for tests and offline work.
 #'
 #' @returns Invisibly, a character vector of the files written or
@@ -57,25 +69,31 @@
 #' # Refresh later, without touching _pkgdown.yml
 #' use_brand(pkgdown = FALSE)
 #' }
-use_brand <- function(ref = "main", pkgdown = TRUE, source = NULL) {
+use_brand <- function(ref = NULL, pkgdown = TRUE, source = NULL) {
+  local_quiet()
+  repo <- NULL
   if (is.null(source)) {
-    source <- paste0(
-      "https://raw.githubusercontent.com/openwashdata/brand/", ref
-    )
+    repo <- if (file.exists("DESCRIPTION")) pkg_config("brand-source") else "openwashdata/brand"
+    if (!is_set(repo)) {
+      ui_info("No brand repository is configured, so there is nothing to install.")
+      ui_todo("Set {.field Config/washr/brand-source} in DESCRIPTION to the GitHub repository of your brand, e.g. {.val openwashdata/brand}.")
+      return(invisible(character(0)))
+    }
+    if (is.null(ref)) ref <- latest_brand_ref(repo)
+    source <- brand_base_url(repo, ref)
   }
 
-  local_quiet()
   changed <- character(0)
 
   # The brand definition itself.
-  brand_tmp <- fetch_brand_file(source, "_brand.yml")
+  brand_tmp <- fetch_brand_file(source, "_brand.yml", repo, ref)
   changed <- c(changed, place_brand_file(brand_tmp, "_brand.yml"))
 
   # The logo files the brand definition references.
   brand <- yaml::read_yaml("_brand.yml")
   logo_paths <- brand_logo_paths(brand)
   for (path in logo_paths) {
-    fetched <- fetch_brand_file(source, path)
+    fetched <- fetch_brand_file(source, path, repo, ref)
     changed <- c(changed, place_brand_file(fetched, path))
   }
   ignore_brand_files(logo_paths)
@@ -84,10 +102,78 @@ use_brand <- function(ref = "main", pkgdown = TRUE, source = NULL) {
     changed <- c(changed, wire_pkgdown_brand())
   }
 
-  if (length(changed) == 0) {
-    ui_done("Brand is up to date; nothing to change.")
+  previous <- record_brand_ref(ref)
+  if (is.null(ref)) {
+    if (length(changed) == 0) ui_done("Brand is up to date; nothing to change.")
+  } else if (!is.null(previous) && !identical(previous, ref)) {
+    ui_done("Brand moved from {.val {previous}} to {.val {ref}}.")
+  } else if (length(changed) == 0) {
+    ui_done("Brand is up to date at {.val {ref}}; nothing to change.")
+  } else {
+    ui_done("Brand installed at {.val {ref}}.")
   }
   invisible(changed)
+}
+
+# The latest release tag of the brand repository (#128): the tag of the
+# latest GitHub release, else the highest v* tag. A package then carries a
+# brand that a release describes, and not whatever sits on the main branch.
+latest_brand_ref <- function(repo) {
+  release <- latest_release_tag(repo)
+  if (!is.null(release)) return(release)
+  tags <- github_api(paste0("repos/", repo, "/tags?per_page=100"))
+  names <- unlist(lapply(tags, function(tag) tag$name))
+  versions <- names[grepl("^v[0-9]+(\\.[0-9]+)*$", names)]
+  if (length(versions) > 0) {
+    return(versions[order(numeric_version(sub("^v", "", versions)), decreasing = TRUE)][[1]])
+  }
+  cli::cli_abort(c(
+    "Could not find the latest release tag of {.val {repo}}.",
+    "i" = "Check the network connection, or name a ref, e.g. {.code use_brand(ref = \"main\")}."
+  ))
+}
+
+# The tag of the latest GitHub release, read from the redirect of the
+# releases/latest page. That page needs no API call, so the rate limit of
+# the GitHub API, which a shared network address exhausts quickly, does not
+# apply. NULL when the repository has no release or cannot be reached.
+latest_release_tag <- function(repo) {
+  headers <- tryCatch(
+    curlGetHeaders(paste0("https://github.com/", repo, "/releases/latest"),
+                   redirect = FALSE),
+    error = function(e) character(), warning = function(w) character()
+  )
+  location <- grep("^location:.*/releases/tag/", headers, ignore.case = TRUE, value = TRUE)
+  if (length(location) == 0) return(NULL)
+  utils::URLdecode(trimws(sub("^.*/releases/tag/", "", location[[1]])))
+}
+
+# One GitHub API response as a list, or NULL when the request fails. A token
+# in GITHUB_PAT or GITHUB_TOKEN is sent along, which lifts the rate limit.
+github_api <- function(endpoint) {
+  token <- Sys.getenv("GITHUB_PAT", Sys.getenv("GITHUB_TOKEN", ""))
+  headers <- c(Accept = "application/vnd.github+json")
+  if (nzchar(token)) headers <- c(headers, Authorization = paste("Bearer", token))
+  tryCatch({
+    con <- url(paste0("https://api.github.com/", endpoint), headers = headers)
+    on.exit(close(con), add = TRUE)
+    jsonlite::fromJSON(paste(readLines(con, warn = FALSE), collapse = "\n"),
+                       simplifyVector = FALSE)
+  }, error = function(e) NULL, warning = function(w) NULL)
+}
+
+# Where the files of a brand repository are read from at a ref.
+brand_base_url <- function(repo, ref) {
+  paste0("https://raw.githubusercontent.com/", repo, "/", ref)
+}
+
+# Record the installed ref in Config/washr/brand, so the package says which
+# brand it carries. Returns the ref recorded before, or NULL.
+record_brand_ref <- function(ref) {
+  if (is.null(ref) || !file.exists("DESCRIPTION")) return(NULL)
+  previous <- washr_config("brand")
+  if (!identical(previous, ref)) desc::desc_set("Config/washr/brand", ref)
+  previous
 }
 
 # Keep the brand files out of the built package (#133). R CMD check lists
@@ -101,7 +187,7 @@ ignore_brand_files <- function(logo_paths) {
 }
 
 # Download or copy one brand file into a tempfile.
-fetch_brand_file <- function(base, path) {
+fetch_brand_file <- function(base, path, repo = NULL, ref = NULL) {
   tmp <- tempfile()
   if (dir.exists(base)) {
     src <- file.path(base, path)
@@ -120,9 +206,11 @@ fetch_brand_file <- function(base, path) {
       warning = function(w) FALSE
     )
     if (!ok) {
+      where <- if (is.null(repo)) "the source" else repo
+      at <- if (is.null(ref)) "" else paste0(" at the ref ", encodeString(ref, quote = '"'))
       cli::cli_abort(c(
         "Could not download {.url {url}}.",
-        "i" = "Check the network connection and that openwashdata/brand carries the file on this ref."
+        "i" = "Check the network connection and that {where} carries the file{at}."
       ))
     }
   }

@@ -20,4 +20,10 @@
       LazyData: true
       Date: YYYY-MM-DD
       BugReports: https://github.com/openwashdata/PKGNAME/issues
+      Config/washr/funding: This project was funded by the [Open Research Data Program of the ETH Board](https://ethrat.ch/en/eth-domain/open-research-data/).
+      Config/washr/analytics-domain: openwashdata.github.io
+      Config/washr/doi-provider: zenodo
+      Config/washr/zenodo-community: openwashdata
+      Config/washr/brand-source: openwashdata/brand
+      Config/washr/version: WASHR_VERSION
 

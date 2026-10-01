@@ -52,7 +52,8 @@ build_dataset_jsonld <- function(path = ".") {
 
   # Repository and site from the DESCRIPTION URL field
   repo_url <- github_repo_url(path)
-  site_url <- urls[grepl("github\\.io", urls)]
+  pages_domain <- washr_config("pages-domain", default = "github.io", file = desc_file)
+  site_url <- urls[grepl(pages_domain, urls, fixed = TRUE)]
   site_url <- if (length(site_url)) site_url[[1]] else repo_url
   if (is.null(repo_url)) {
     note_blank("url", "add the GitHub repository to URL in DESCRIPTION (update_description() does this)")

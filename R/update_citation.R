@@ -3,7 +3,8 @@
 #' @description
 #' Create a citation *.cff file for the dataset from a given DOI (Digital
 #' Object Identifier). When a DOI is supplied, it adds the DOI badge to the
-#' README RMarkdown file and re-builds the README.md and pkgdown website if
+#' README RMarkdown file (the Zenodo badge, or a generic DOI badge when
+#' `Config/washr/doi-provider` in DESCRIPTION names another provider) and re-builds the README.md and pkgdown website if
 #' they exist. Before a release exists, call it without arguments to generate
 #' the citation files without a DOI or badge.
 #'
@@ -133,7 +134,7 @@ update_citation <- function(doi = NULL, build = TRUE,
 
   # Modify README and pkgdown
   badge_missing <- !is.null(doi) && file.exists("README.Rmd") &&
-    !any(grepl(paste0("zenodo.org/badge/DOI/", doi, ".svg"), readLines("README.Rmd", warn = FALSE), fixed = TRUE))
+    !any(grepl(doi_badge(doi), readLines("README.Rmd", warn = FALSE), fixed = TRUE))
   if(badge_missing){
     add_citation_badge(doi)
     if (build) {
@@ -153,10 +154,24 @@ update_citation <- function(doi = NULL, build = TRUE,
   invisible(c(cff_path, path_cit, zenodo_path))
 }
 
+# The DOI badge of the README. Zenodo serves its own badge; any other DOI
+# provider (Config/washr/doi-provider) gets a generic badge that links to
+# doi.org.
+doi_badge <- function(doi, provider = pkg_config("doi-provider")) {
+  if (identical(tolower(provider), "zenodo")) {
+    icon <- paste0("https://zenodo.org/badge/DOI/", doi, ".svg")
+    link <- paste0("https://zenodo.org/doi/", doi)
+  } else {
+    label <- gsub("_", "__", gsub("-", "--", doi, fixed = TRUE), fixed = TRUE)
+    icon <- paste0("https://img.shields.io/badge/DOI-",
+                   utils::URLencode(label, reserved = TRUE), "-blue.svg")
+    link <- paste0("https://doi.org/", doi)
+  }
+  sprintf("[![DOI](%s)](%s)", icon, link)
+}
+
 add_citation_badge<- function(doi){
-  badge_icon <- paste0("https://zenodo.org/badge/DOI/", doi, ".svg")
-  zenodo_link <- paste0("https://zenodo.org/doi/", doi)
-  badge_str <- sprintf("[![DOI](%s)](%s)", badge_icon, zenodo_link)
+  badge_str <- doi_badge(doi)
   readme_rmd_path <- file.path("README.Rmd")
   readme_rmd <- readLines(readme_rmd_path)
 
@@ -168,7 +183,7 @@ add_citation_badge<- function(doi){
     ))
   }
 
-  existing <- which(grepl("[![DOI](https://zenodo.org/badge/DOI/", readme_rmd, fixed = TRUE))
+  existing <- which(grepl("[![DOI](", readme_rmd, fixed = TRUE))
   if (length(existing) > 0) {
     # Replace the existing badge in place so re-runs stay idempotent
     readme_rmd[existing[1]] <- badge_str

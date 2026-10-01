@@ -4,18 +4,19 @@
 \alias{use_brand}
 \title{Install or refresh the openwashdata brand in the active package}
 \usage{
-use_brand(ref = "main", pkgdown = TRUE, source = NULL)
+use_brand(ref = NULL, pkgdown = TRUE, source = NULL)
 }
 \arguments{
-\item{ref}{Character. Git reference (branch or tag) of
-openwashdata/brand to copy from. Defaults to \code{"main"}.}
+\item{ref}{Character. Git reference (branch or tag) of the brand
+repository to copy from. Defaults to the latest release tag. Pass
+\code{"main"} to try brand changes that are not released yet.}
 
 \item{pkgdown}{Logical. Should \verb{_pkgdown.yml} be wired to use the
 brand via bslib? Defaults to \code{TRUE}.}
 
 \item{source}{Character. Advanced: an alternative source for the
 brand files, either a local directory or a URL prefix. When \code{NULL}
-(the default), the raw GitHub content of openwashdata/brand at
+(the default), the raw GitHub content of the brand repository at
 \code{ref} is used. Mainly useful for tests and offline work.}
 }
 \value{
@@ -31,7 +32,18 @@ copy and reports which files changed, so consuming packages stay in
 sync with the central definition.
 
 Brand values are never edited locally: change them in
-openwashdata/brand first, then refresh consumers with \code{use_brand()}.
+openwashdata/brand first and cut a release tag there, then refresh
+consumers with \code{use_brand()}. After a brand release the order is the
+Quarto extension, the website, then the data packages.
+
+By default the brand is copied at the latest release tag of the brand
+repository, and the tag is recorded in DESCRIPTION as
+\code{Config/washr/brand}, so the package says which brand it carries. A
+second run with no new tag changes no file. The brand repository is the
+\code{Config/washr/brand-source} field that \code{\link[=update_description]{update_description()}} writes
+(\code{openwashdata/brand} for openwashdata packages); a group with its own
+brand names its repository there, and \code{none} means there is no brand to
+install.
 
 The brand file and the logo directory are added to \code{.Rbuildignore}, so
 they stay out of the built package and \verb{R CMD check} does not report them

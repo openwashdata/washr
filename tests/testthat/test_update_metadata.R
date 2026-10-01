@@ -152,7 +152,7 @@ test_that("the JSON-LD parses and the embedded site head carries it (#68)", {
   parsed <- jsonlite::fromJSON(paste(json, collapse = "\n"))
   expect_identical(parsed[["@type"]], "Dataset")
   usethis::use_template("_pkgdown.yml", save_as = "_pkgdown.yml",
-                        data = list(name = desc::desc_get("Package")[[1]]),
+                        data = pkgdown_template_data(),
                         ignore = FALSE, open = FALSE, package = "washr")
   writeLines("# Fixture", "README.md")
   # the home page alone proves the head template; a full build would try to

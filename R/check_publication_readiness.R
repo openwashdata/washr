@@ -51,8 +51,10 @@
 #' @param path Path to the root of the data package. Defaults to the working
 #'   directory.
 #' @param profile A named list with what the organisation expects of its
-#'   packages, or `NULL` for the openwashdata defaults. All entries are
-#'   optional:
+#'   packages. With `NULL`, the default, the package is held to its own
+#'   values: the `Config/washr/` fields in its DESCRIPTION that
+#'   [update_description()] writes. A review tool passes the profile of the
+#'   organisation instead. All entries are optional:
 #'   * `analytics`: `"plausible"` (the default) or `"none"`. With `"none"`
 #'     the analytics item is not applicable.
 #'   * `site_url_pattern`: the Pages URL of a package, with `<package>` in
@@ -97,7 +99,7 @@ check_publication_readiness <- function(path = ".", profile = NULL) {
       "i" = "Point {.arg path} at the directory that holds DESCRIPTION and NAMESPACE."
     ))
   }
-  ctx <- readiness_context(path, readiness_profile(profile))
+  ctx <- readiness_context(path, readiness_profile(profile, path))
   out <- run_readiness_checks(ctx)
   attr(out, "ready") <- !any(out$status == "fail")
   attr(out, "washr_version") <- as.character(utils::packageVersion("washr"))
@@ -151,8 +153,8 @@ print.washr_readiness <- function(x, ...) {
 }
 
 # The organisation profile with its defaults filled in.
-readiness_profile <- function(profile) {
-  if (is.null(profile)) profile <- list()
+readiness_profile <- function(profile, path = ".") {
+  if (is.null(profile)) profile <- package_profile(path)
   if (!is.list(profile)) {
     cli::cli_abort("{.arg profile} must be a named list or {.code NULL}.")
   }
@@ -161,6 +163,22 @@ readiness_profile <- function(profile) {
     cli::cli_abort("The {.field analytics} entry of {.arg profile} must be {.val plausible} or {.val none}, not {.val {analytics}}.")
   }
   profile$analytics <- analytics
+  profile
+}
+
+# What the package says about its own organisation in the Config/washr
+# fields of DESCRIPTION (#81), in the keys of a review profile. A package
+# checked without a profile is held to its own values.
+package_profile <- function(path = ".") {
+  analytics <- pkg_config("analytics-domain", path)
+  funding <- pkg_config("funding", path)
+  brand <- pkg_config("brand-source", path)
+  profile <- list(
+    analytics = if (is_set(analytics)) "plausible" else "none",
+    site_url_pattern = paste0("https://", pkg_pages_domain(path), "/<package>/"),
+    brand = if (is_set(brand)) brand else "none"
+  )
+  if (is_set(funding)) profile$funding_text <- funding
   profile
 }
 
