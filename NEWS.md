@@ -1,4 +1,59 @@
-# washr (development version)
+# washr 1.2.0
+
+The release that makes washr the engine of a guided workflow. Every
+function now reports through cli and returns what it wrote, a readiness
+report says what a package still lacks before publication, and the values
+that were fixed to openwashdata live in DESCRIPTION, so another group can
+publish with its own. Three exports are new: `check_publication_readiness()`,
+`update_dictionary()` and `update_zenodo_json()`. This release also brings
+the changes of 1.1.1 to CRAN, which was released on GitHub only.
+
+## New
+
+- `check_publication_readiness()` reads the package and reports, item by
+  item, whether it is ready for publication: metadata, data dictionary,
+  documentation and the check workflow. Each gap names the step and the
+  washr function that closes it. The result is a data frame with one row
+  per item (`id`, `area`, `check`, `status`, `detail`, `fix`), so review
+  tools such as pkgreview can consume it. Nothing is written to the package
+  (#82).
+
+- `update_dictionary()` brings `data-raw/dictionary.csv` in line with the
+  data after it changed. It adds a row for each new variable, removes the
+  row of a variable that no longer exists, refreshes the types, and keeps
+  every description and every column you added yourself, such as `unit` or
+  `allowed_values`. A file whose content is current is left untouched. The
+  "already exists" error of `setup_dictionary()` now points to it (#13).
+
+- `update_zenodo_json()` writes `.zenodo.json` from DESCRIPTION, and
+  `update_citation()` calls it. Zenodo reads the file when it archives a
+  GitHub release, so a data package is filed as a Dataset in the
+  openwashdata community, with its creators, ORCID iDs, license and
+  keywords, without edits by hand. Set `Config/washr/zenodo-community` in
+  DESCRIPTION for another community (#56).
+
+- `update_citation()` cites the source article of a package that republishes
+  data from a publication. List the article DOI in DESCRIPTION as
+  `X-schema.org-isBasedOn`, and separate several DOIs with commas. Each DOI
+  is looked up at doi.org and written as a `references` entry in
+  CITATION.cff, with a message that asks users to cite both the data package
+  and the article. `inst/CITATION` holds both entries under the same header,
+  so `citation()` prints both. The package stays the work that GitHub's
+  "Cite this repository" shows. A DOI that cannot be looked up keeps its
+  entry from the existing CITATION.cff, so a run without a network
+  connection changes nothing. References that do not come from the field
+  are dropped, because DESCRIPTION is their canonical source. Before, the
+  function had no way to keep such a reference, and a hand-written second
+  entry in `inst/CITATION` was lost on the second run (#134).
+
+- `update_metadata()` writes the same DOIs as schema.org `isBasedOn` in the
+  JSON-LD (#134).
+
+- `options(washr.quiet = TRUE)` silences the messages of washr and of the
+  usethis helpers it calls, for use in scripts. Warnings and errors are
+  never silenced (#84).
+
+## Changed
 
 - washr reads the facts of a package from DESCRIPTION, so a group other
   than openwashdata publishes with its own values by editing that file.
@@ -26,8 +81,20 @@
   run after a brand release reports the old and the new tag. Pass
   `ref = "main"` to try unreleased brand changes (#128).
 
-- The vignette explains packages with more than one dataset, and how a
-  group outside openwashdata sets its own values (#81, #103).
+- Messages now go through cli in every function, with three kinds of lines:
+  a success line for a file that was written, an info line for something
+  that was kept or skipped, and an arrow line for the next step that is left
+  to the user. Errors name the function that was called and carry a hint on
+  how to fix the cause. washr no longer calls the `usethis::ui_*()`
+  functions, which usethis has superseded (#84).
+
+- Every function returns what it wrote, invisibly, and the documentation
+  says so. `setup_rawdata()`, `setup_dictionary()`, `setup_readme()`,
+  `setup_website()` and `update_description()` return the path of their
+  file, `setup_roxygen()` and `update_citation()` return the paths of
+  theirs. Before, most of them returned `NULL` or an internal object (#84).
+
+## Fixed
 
 - Every function acts on the package in the working directory. Before,
   the usethis helpers wrote into the package of an earlier call when only
@@ -42,45 +109,6 @@
   it can write the new one. Before, it deleted the file and then stopped
   when `data/` held no data object.
 
-- `check_publication_readiness()` reads the package and reports, item by
-  item, whether it is ready for publication: metadata, data dictionary,
-  documentation and the check workflow. Each gap names the step and the
-  washr function that closes it. The result is a data frame with one row
-  per item (`id`, `area`, `check`, `status`, `detail`, `fix`), so review
-  tools such as pkgreview can consume it. Nothing is written to the package
-  (#82).
-
-- `update_dictionary()` brings `data-raw/dictionary.csv` in line with the
-  data after it changed. It adds a row for each new variable, removes the
-  row of a variable that no longer exists, refreshes the types, and keeps
-  every description and every column you added yourself, such as `unit` or
-  `allowed_values`. A file whose content is current is left untouched. The
-  "already exists" error of `setup_dictionary()` now points to it (#13).
-
-- `update_zenodo_json()` writes `.zenodo.json` from DESCRIPTION, and
-  `update_citation()` calls it. Zenodo reads the file when it archives a
-  GitHub release, so a data package is filed as a Dataset in the
-  openwashdata community, with its creators, ORCID iDs, license and
-  keywords, without edits by hand. Set `Config/washr/zenodo-community` in
-  DESCRIPTION for another community (#56).
-
-- Messages now go through cli in every function, with three kinds of lines:
-  a success line for a file that was written, an info line for something
-  that was kept or skipped, and an arrow line for the next step that is left
-  to the user. Errors name the function that was called and carry a hint on
-  how to fix the cause. washr no longer calls the `usethis::ui_*()`
-  functions, which usethis has superseded (#84).
-
-- Every function returns what it wrote, invisibly, and the documentation
-  says so. `setup_rawdata()`, `setup_dictionary()`, `setup_readme()`,
-  `setup_website()` and `update_description()` return the path of their
-  file, `setup_roxygen()` and `update_citation()` return the paths of
-  theirs. Before, most of them returned `NULL` or an internal object (#84).
-
-- `options(washr.quiet = TRUE)` silences the messages of washr and of the
-  usethis helpers it calls, for use in scripts. Warnings and errors are
-  never silenced (#84).
-
 - `use_brand()` adds `_brand.yml` and the logo directory to `.Rbuildignore`.
   Before, `R CMD check` reported both as non-standard top-level files after
   the brand was installed (#133).
@@ -92,32 +120,25 @@
   longer found it. The rewrite remains as the fallback for a `template`
   block that already carries bslib settings (#129).
 
-- A new workflow, `scaffold-check`, builds a fixture data package with every
-  washr step on each push, runs the steps a second time to confirm that no
-  file changes, and runs the pkgreview check script on the result. The
-  pkgreview version it checks against is recorded in `PKGREVIEW_FLOOR`
-  (#129).
+## Dependencies
+
+- cli is a new import. washr uses it for every message and no longer calls
+  the `usethis::ui_*()` functions, which usethis has superseded (#84).
+
+## Documentation and tests
+
+- The vignette explains packages with more than one dataset, and how a
+  group outside openwashdata sets its own values (#81, #103).
 
 - The README and the vignette name the openwashdata R-universe as a third
   way to install washr, next to CRAN and GitHub, and say what each source
   gives you (#131).
 
-- `update_citation()` cites the source article of a package that republishes
-  data from a publication. List the article DOI in DESCRIPTION as
-  `X-schema.org-isBasedOn`, and separate several DOIs with commas. Each DOI
-  is looked up at doi.org and written as a `references` entry in
-  CITATION.cff, with a message that asks users to cite both the data package
-  and the article. `inst/CITATION` holds both entries under the same header,
-  so `citation()` prints both. The package stays the work that GitHub's
-  "Cite this repository" shows. A DOI that cannot be looked up keeps its
-  entry from the existing CITATION.cff, so a run without a network
-  connection changes nothing. References that do not come from the field
-  are dropped, because DESCRIPTION is their canonical source. Before, the
-  function had no way to keep such a reference, and a hand-written second
-  entry in `inst/CITATION` was lost on the second run (#134).
-
-- `update_metadata()` writes the same DOIs as schema.org `isBasedOn` in the
-  JSON-LD (#134).
+- A new workflow, `scaffold-check`, builds a fixture data package with every
+  washr step on each push, runs the steps a second time to confirm that no
+  file changes, and runs the pkgreview check script on the result. The
+  pkgreview version it checks against is recorded in `PKGREVIEW_FLOOR`
+  (#129).
 
 # washr 1.1.1
 
