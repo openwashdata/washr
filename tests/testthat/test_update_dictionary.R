@@ -171,7 +171,9 @@ test_that("update_dictionary() carries awkward text through a rewrite (#13)", {
   expect_false(any(bytes == as.raw(0x0d)))
   reference <- withr::local_tempfile()
   utils::write.csv(after, reference, row.names = FALSE, fileEncoding = "UTF-8", eol = "\n")
-  expect_identical(readBin(reference, "raw", file.size(reference)), bytes)
+  # on Windows write.csv() turns every line end into CRLF, whatever eol says
+  expected <- readBin(reference, "raw", file.size(reference))
+  expect_identical(expected[expected != as.raw(0x0d)], bytes)
 
   # the rename hint prints such a description without tripping over the braces
   trips$place <- trips$site
