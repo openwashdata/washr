@@ -27,13 +27,19 @@ washr turns a cleaned dataset into a documented R data package that follows the 
 
 ## Installation
 
-From CRAN:
+The stable release, from CRAN:
 
 ```{r, eval=FALSE}
 install.packages("washr")
 ```
 
-Or the development version from [GitHub](https://github.com/openwashdata/washr):
+The current development build, from the [openwashdata R-universe](https://openwashdata.r-universe.dev). It is rebuilt on every push and installs like any other package, with no compiler toolchain:
+
+```{r, eval=FALSE}
+install.packages("washr", repos = c("https://openwashdata.r-universe.dev", getOption("repos")))
+```
+
+The same development source from [GitHub](https://github.com/openwashdata/washr), built on your machine:
 
 ```{r, eval=FALSE}
 # install.packages("remotes")

@@ -32,6 +32,10 @@ sync with the central definition.
 
 Brand values are never edited locally: change them in
 openwashdata/brand first, then refresh consumers with \code{use_brand()}.
+
+The brand file and the logo directory are added to \code{.Rbuildignore}, so
+they stay out of the built package and \verb{R CMD check} does not report them
+as non-standard top-level files.
 }
 \details{
 With \code{pkgdown = TRUE} (the default), an existing \verb{_pkgdown.yml} is

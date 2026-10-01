@@ -21,13 +21,19 @@ The [publishing guide](https://global-health-engineering.github.io/ghedatapublis
 
 ## Install
 
-From CRAN:
+The stable release, from CRAN:
 
 ```{r}
 install.packages("washr")
 ```
 
-Or the development version from GitHub:
+The current development build, from the [openwashdata R-universe](https://openwashdata.r-universe.dev). It is rebuilt on every push and installs like any other package, with no compiler toolchain:
+
+```{r}
+install.packages("washr", repos = c("https://openwashdata.r-universe.dev", getOption("repos")))
+```
+
+The same development source from GitHub, built on your machine:
 
 ```{r}
 # install.packages("remotes")

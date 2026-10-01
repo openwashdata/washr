@@ -11,6 +11,10 @@
 #' Brand values are never edited locally: change them in
 #' openwashdata/brand first, then refresh consumers with `use_brand()`.
 #'
+#' The brand file and the logo directory are added to `.Rbuildignore`, so
+#' they stay out of the built package and `R CMD check` does not report them
+#' as non-standard top-level files.
+#'
 #' @details
 #' With `pkgdown = TRUE` (the default), an existing `_pkgdown.yml` is
 #' pointed at the brand through bslib (`template.bslib.brand`), so the
@@ -58,6 +62,7 @@ use_brand <- function(ref = "main", pkgdown = TRUE, source = NULL) {
     )
   }
 
+  local_quiet()
   changed <- character(0)
 
   # The brand definition itself.
@@ -66,10 +71,12 @@ use_brand <- function(ref = "main", pkgdown = TRUE, source = NULL) {
 
   # The logo files the brand definition references.
   brand <- yaml::read_yaml("_brand.yml")
-  for (path in brand_logo_paths(brand)) {
+  logo_paths <- brand_logo_paths(brand)
+  for (path in logo_paths) {
     fetched <- fetch_brand_file(source, path)
     changed <- c(changed, place_brand_file(fetched, path))
   }
+  ignore_brand_files(logo_paths)
 
   if (isTRUE(pkgdown)) {
     changed <- c(changed, wire_pkgdown_brand())
@@ -79,6 +86,16 @@ use_brand <- function(ref = "main", pkgdown = TRUE, source = NULL) {
     ui_done("Brand is up to date; nothing to change.")
   }
   invisible(changed)
+}
+
+# Keep the brand files out of the built package (#133). R CMD check lists
+# them as non-standard top-level files otherwise. The directory names come
+# from the logo paths, in case the brand repository moves the files.
+ignore_brand_files <- function(logo_paths) {
+  if (!file.exists("DESCRIPTION")) return(invisible(FALSE))
+  top <- vapply(strsplit(logo_paths, "/", fixed = TRUE), `[[`, character(1), 1L)
+  usethis::use_build_ignore(unique(c("_brand.yml", top)))
+  invisible(TRUE)
 }
 
 # Download or copy one brand file into a tempfile.

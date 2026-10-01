@@ -22,14 +22,22 @@ package.
 
 ## Installation
 
-From CRAN:
+The stable release, from CRAN:
 
 ``` r
 install.packages("washr")
 ```
 
-Or the development version from
-[GitHub](https://github.com/openwashdata/washr):
+The current development build, from the [openwashdata
+R-universe](https://openwashdata.r-universe.dev). It is rebuilt on every
+push and installs like any other package, with no compiler toolchain:
+
+``` r
+install.packages("washr", repos = c("https://openwashdata.r-universe.dev", getOption("repos")))
+```
+
+The same development source from
+[GitHub](https://github.com/openwashdata/washr), built on your machine:
 
 ``` r
 # install.packages("remotes")

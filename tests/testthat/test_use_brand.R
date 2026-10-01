@@ -109,3 +109,15 @@ test_that("use_brand errors clearly on a missing source file", {
   dir.create(src)
   expect_error(use_brand(source = src, pkgdown = FALSE), "not found")
 })
+
+test_that("use_brand build ignores the brand file and the logo directory (#133)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  src <- make_brand_source()
+  use_brand(source = src, pkgdown = FALSE)
+  ignored <- readLines(".Rbuildignore")
+  expect_true("^_brand\\.yml$" %in% ignored)
+  expect_true("^logos$" %in% ignored)
+  use_brand(source = src, pkgdown = FALSE)
+  expect_identical(readLines(".Rbuildignore"), ignored)
+})
