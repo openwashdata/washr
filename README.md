@@ -72,6 +72,12 @@ it in the site, where dataset search engines read it.
 Every function reads what is there, merges its changes, and is safe to
 run again.
 
+A package scaffolded with washr meets the required tier of the
+openwashdata review standard,
+[pkgreview](https://github.com/openwashdata/pkgreview). A workflow
+builds a fixture package on every push and checks it against the
+pkgreview version recorded in `PKGREVIEW_FLOOR`.
+
 ## How to use washr
 
 The [Get

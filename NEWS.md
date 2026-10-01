@@ -21,6 +21,19 @@
   Before, `R CMD check` reported both as non-standard top-level files after
   the brand was installed (#133).
 
+- `use_brand()` wires `_pkgdown.yml` to the brand by adding its lines to
+  the file. Comments and long values stay as they were written. Before, the
+  file was rewritten through the yaml package, which dropped the comments
+  and folded the funding text over two lines, so the review standard no
+  longer found it. The rewrite remains as the fallback for a `template`
+  block that already carries bslib settings (#129).
+
+- A new workflow, `scaffold-check`, builds a fixture data package with every
+  washr step on each push, runs the steps a second time to confirm that no
+  file changes, and runs the pkgreview check script on the result. The
+  pkgreview version it checks against is recorded in `PKGREVIEW_FLOOR`
+  (#129).
+
 - The README and the vignette name the openwashdata R-universe as a third
   way to install washr, next to CRAN and GitHub, and say what each source
   gives you (#131).

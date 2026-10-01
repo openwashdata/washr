@@ -19,8 +19,10 @@
 #' With `pkgdown = TRUE` (the default), an existing `_pkgdown.yml` is
 #' pointed at the brand through bslib (`template.bslib.brand`), so the
 #' next [pkgdown::build_site()] renders the site with the brand fonts
-#' and colors. The wiring rewrites `_pkgdown.yml` through the yaml
-#' package, which does not preserve comments in that file. When no
+#' and colors. The wiring adds its lines to `_pkgdown.yml` and leaves the
+#' rest of the file, comments included, as it is. Only when the `template`
+#' block already carries other bslib settings is the file rewritten through
+#' the yaml package, which does not preserve comments. When no
 #' `_pkgdown.yml` exists, the wiring is skipped with a hint to run
 #' [setup_website()] first. Building the wired site requires the
 #' brand.yml package (bslib asks for it at build time); it is listed in
@@ -172,6 +174,43 @@ brand_logo_paths <- function(brand) {
   unique(c(images, direct))
 }
 
+# The lines of _pkgdown.yml with the brand wiring added as text, so comments
+# and long values stay as they were written. A rewrite through the yaml
+# package drops the comments and folds long lines, which broke the verbatim
+# funding text that the review standard looks for. Returns NULL when the
+# layout does not allow a safe line edit (a template block that already
+# carries bslib settings, or a result that does not parse to `wired`); the
+# caller then falls back to the yaml rewrite.
+insert_brand_lines <- function(lines, config, wired) {
+  if (!is.null(config$template$bslib)) return(NULL)
+  top <- grep("^template:\\s*(#.*)?$", lines)
+  if (length(top) > 1) return(NULL)
+  if (length(top) == 0) {
+    if (!is.null(config$template)) return(NULL)
+    out <- c(lines, "template:", "  bootstrap: 5", "  bslib:", "    brand: _brand.yml")
+  } else {
+    after <- lines[seq_along(lines) > top]
+    child <- after[grepl("^\\s+[^#[:space:]]", after)][1]
+    indent <- if (is.na(child)) "  " else sub("^(\\s+).*$", "\\1", child)
+    add <- c(paste0(indent, "bslib:"), paste0(indent, indent, "brand: _brand.yml"))
+    if (is.null(config$template$bootstrap)) {
+      add <- c(paste0(indent, "bootstrap: 5"), add)
+    }
+    out <- append(lines, add, after = top)
+  }
+  parsed <- tryCatch(yaml::yaml.load(paste(out, collapse = "\n")), error = function(e) NULL)
+  if (!identical(sort_keys(parsed), sort_keys(wired))) return(NULL)
+  out
+}
+
+# A nested list with its named levels in alphabetical order, so two parsed
+# YAML documents compare equal whatever the order of their keys.
+sort_keys <- function(x) {
+  if (!is.list(x)) return(x)
+  if (!is.null(names(x))) x <- x[order(names(x))]
+  lapply(x, sort_keys)
+}
+
 # Point an existing _pkgdown.yml at the brand through bslib. Returns the
 # config path when it changed, or an empty vector.
 wire_pkgdown_brand <- function() {
@@ -185,11 +224,17 @@ wire_pkgdown_brand <- function() {
   if (identical(config$template$bslib$brand, "_brand.yml")) {
     return(character(0))
   }
-  config$template$bslib$brand <- "_brand.yml"
-  if (is.null(config$template$bootstrap)) {
-    config$template$bootstrap <- 5
+  wired <- config
+  wired$template$bslib$brand <- "_brand.yml"
+  if (is.null(wired$template$bootstrap)) {
+    wired$template$bootstrap <- 5L
   }
-  yaml::write_yaml(config, configpath)
+  lines <- insert_brand_lines(readLines(configpath, warn = FALSE), config, wired)
+  if (is.null(lines)) {
+    yaml::write_yaml(wired, configpath)
+  } else {
+    writeLines(lines, configpath)
+  }
   ui_done("{.path {configpath}} wired to the brand via bslib.")
   ui_todo("Rebuild the site with {.code pkgdown::build_site()} to apply the brand.")
   configpath
