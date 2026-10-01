@@ -4,15 +4,15 @@
 \alias{update_description}
 \title{Update the DESCRIPTION file to conform with openwashdata standards}
 \usage{
-update_description(
-  file = ".",
-  github_user = "https://github.com/openwashdata/"
-)
+update_description(file = ".", github_user = NULL)
 }
 \arguments{
 \item{file}{Character. The file path to the DESCRIPTION file of the R package. Defaults to the current working directory.}
 
-\item{github_user}{Character. The URL path to the GitHub user or organization that hosts the current package. Defaults to "https://github.com/openwashdata".}
+\item{github_user}{Character. The URL of the GitHub user or organization
+that hosts the package, e.g., \code{"https://github.com/yourorg"}. Defaults
+to the organisation of the repository already listed in \code{URL}, and to
+\code{"https://github.com/openwashdata"} when \code{URL} lists none.}
 }
 \value{
 The path of the DESCRIPTION file, invisibly. The fields are
@@ -24,6 +24,30 @@ It ensures that fields such as \code{License}, \code{Language}, \code{Date}, \co
 Existing \code{URL} and \code{Config/Needs/website} entries are preserved and merged
 with the openwashdata defaults. A CC BY 4.0 license is only set when the
 package does not have a license yet; an existing license is left untouched.
+}
+\details{
+DESCRIPTION is where the other functions read the facts of the package:
+the GitHub organisation and the repository from \code{URL}, the license from
+\code{License}, the people from \code{Authors@R}. The values that DESCRIPTION has no
+standard field for are written as \verb{Config/washr/} fields, and every other
+function reads them from there:\tabular{lll}{
+   Field \tab Used for \tab openwashdata default \cr
+   \code{Config/washr/funding} \tab the funding sentence in the sidebar of the site \tab the ETH Board Open Research Data Program \cr
+   \code{Config/washr/analytics-domain} \tab the Plausible analytics header of the site \tab \code{openwashdata.github.io} \cr
+   \code{Config/washr/doi-provider} \tab the DOI badge of the README \tab \code{zenodo} \cr
+   \code{Config/washr/zenodo-community} \tab the community in \code{.zenodo.json} \tab \code{openwashdata} \cr
+   \code{Config/washr/brand-source} \tab the GitHub repository \code{\link[=use_brand]{use_brand()}} copies from \tab \code{openwashdata/brand} \cr
+   \code{Config/washr/version} \tab the washr version that last ran this function \tab  \cr
+}
+
+
+A field that is already set is never overwritten, so a group other than
+openwashdata publishes with its own values by editing them. Set a field
+to \code{none} to switch its feature off. For a package under another GitHub
+organisation the funding, analytics, community and brand fields are
+written as \code{none}, because the openwashdata values would be wrong there.
+One more field is only ever written by hand: \code{Config/washr/pages-domain},
+for a site that is not served from \verb{<organisation>.github.io}.
 }
 \examples{
 \dontrun{

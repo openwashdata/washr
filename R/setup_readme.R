@@ -3,7 +3,8 @@
 #' @description
 #' `setup_readme()` uses the openwashdata README template to generate README files based on datasets
 #' retrieved from the `data/` directory. It helps in creating consistent and informative README documentation
-#' for your data packages.
+#' for your data packages. The repository links, the install line and the
+#' license come from DESCRIPTION, so run [update_description()] first.
 #'
 #' The template documents the first data object in `data/` (alphabetically);
 #' add a section per further object by hand. It stops when `data/` holds no
@@ -34,6 +35,7 @@
 #' setup_readme(has_example = TRUE)
 #' }
 setup_readme <- function(force = FALSE, has_example = FALSE){
+  local_quiet()
   # Get metadata
   readmermd_path <- file.path("README.Rmd")
   if (file.exists(readmermd_path)) {
@@ -58,16 +60,45 @@ setup_readme <- function(force = FALSE, has_example = FALSE){
     ui_info("data/ holds {length(datasets)} data objects; the template documents {.val {dataname}}. Add a section for each of the others.")
   }
   # Create README RMarkdown with a template
-  local_quiet()
   usethis::use_readme_rmd(open = FALSE)
   file.remove(readmermd_path)
   usethis::use_template(template = "README.Rmd",
                         save_as = readmermd_path,
-                        data = list(packagename = pkgname,
-                                    dataname = dataname,
-                                    has_example = has_example),
+                        data = c(list(packagename = pkgname,
+                                      dataname = dataname,
+                                      has_example = has_example),
+                                 readme_template_data()),
                         open = rlang::is_interactive(),
                         package = "washr")
   ui_todo("Finish writing {.path {readmermd_path}}, then run {.code devtools::build_readme()}.")
   invisible(readmermd_path)
+}
+
+# The repository and license values of the README template, read from
+# DESCRIPTION (#81). CC BY 4.0, the license update_description() sets, keeps
+# the badge and the label the template has always carried.
+readme_template_data <- function(file = ".") {
+  repo <- pkg_repo_url(file)
+  license <- license_key(desc::desc_get_field("License", default = "", file = file))
+  if (identical(license, "") || grepl("use_mit_license", license, fixed = TRUE)) {
+    license <- "CC BY 4.0"
+  }
+  if (identical(license, "CC BY 4.0")) {
+    badge <- paste0("[![License: CC BY\n4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)]",
+                    "(https://creativecommons.org/licenses/by/4.0/)")
+    label <- "CC-BY"
+  } else {
+    shield <- gsub(" ", "_", gsub("_", "__", gsub("-", "--", license, fixed = TRUE), fixed = TRUE), fixed = TRUE)
+    target <- license_url(license)
+    if (identical(target, license)) target <- paste0(repo, "/blob/main/LICENSE.md")
+    badge <- sprintf("[![License: %s](https://img.shields.io/badge/License-%s-lightgrey.svg)](%s)",
+                     license, utils::URLencode(shield, reserved = TRUE), target)
+    label <- license
+  }
+  list(
+    repo_url = repo,
+    repo_slug = sub("^https?://github\\.com/", "", repo),
+    license_badge = badge,
+    license_label = label
+  )
 }

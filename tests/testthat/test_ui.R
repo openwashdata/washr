@@ -36,7 +36,7 @@ test_that("every function returns the path it wrote, invisibly (#84)", {
 
 test_that("messages are cli conditions that name the file written (#84)", {
   ui_fixture()
-  expect_message(update_description(), "Updated the openwashdata fields", class = "cliMessage")
+  expect_message(update_description(), "Updated", class = "cliMessage")
   expect_message(setup_ci(), "R-CMD-check.yaml", class = "cliMessage")
 })
 

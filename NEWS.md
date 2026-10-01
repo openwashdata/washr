@@ -1,5 +1,34 @@
 # washr (development version)
 
+- washr reads the facts of a package from DESCRIPTION, so a group other
+  than openwashdata publishes with its own values by editing that file.
+  The organisation and the repository come from `URL`, the license from
+  `License`. The values with no standard field are `Config/washr/` fields
+  that `update_description()` writes once and never overwrites: `funding`,
+  `analytics-domain`, `doi-provider`, `zenodo-community` and
+  `brand-source`, plus `pages-domain` for a site that is not served from
+  `<organisation>.github.io`. A field set to `none` switches its feature
+  off. The README template, the `_pkgdown.yml` template, the DOI badge,
+  `.zenodo.json`, `use_brand()` and `check_publication_readiness()` read
+  them. For an openwashdata package the output is unchanged (#81).
+
+- `update_description()` takes the GitHub organisation from the repository
+  already listed in `URL` when `github_user` is not given, and no longer
+  adds a second repository under openwashdata. It records the washr
+  version that ran in `Config/washr/version`. For a package under another
+  organisation it writes the funding, analytics, community and brand
+  fields as `none` and lists them (#81).
+
+- `use_brand()` installs the brand at the latest release tag of the brand
+  repository and records the tag in DESCRIPTION as `Config/washr/brand`.
+  Before, it copied from the main branch, which can carry changes no
+  release describes. A second run with no new tag changes no file, and a
+  run after a brand release reports the old and the new tag. Pass
+  `ref = "main"` to try unreleased brand changes (#128).
+
+- The vignette explains packages with more than one dataset, and how a
+  group outside openwashdata sets its own values (#81, #103).
+
 - `check_publication_readiness()` reads the package and reports, item by
   item, whether it is ready for publication: metadata, data dictionary,
   documentation and the check workflow. Each gap names the step and the

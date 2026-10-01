@@ -124,9 +124,7 @@ build_zenodo_json <- function(path = ".", sources = NULL) {
   }
 
   keywords <- split_field(field("X-schema.org-keywords"))
-  communities <- split_field(washr_config("zenodo-community",
-                                          default = "openwashdata",
-                                          file = desc_file))
+  communities <- split_field(pkg_config("zenodo-community", desc_file))
   if (identical(tolower(communities), "none")) communities <- character()
 
   # A related_identifiers key replaces the link to the release tag that

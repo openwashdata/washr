@@ -11,8 +11,10 @@ check_publication_readiness(path = ".", profile = NULL)
 directory.}
 
 \item{profile}{A named list with what the organisation expects of its
-packages, or \code{NULL} for the openwashdata defaults. All entries are
-optional:
+packages. With \code{NULL}, the default, the package is held to its own
+values: the \verb{Config/washr/} fields in its DESCRIPTION that
+\code{\link[=update_description]{update_description()}} writes. A review tool passes the profile of the
+organisation instead. All entries are optional:
 \itemize{
 \item \code{analytics}: \code{"plausible"} (the default) or \code{"none"}. With \code{"none"}
 the analytics item is not applicable.

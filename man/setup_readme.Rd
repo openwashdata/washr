@@ -21,7 +21,8 @@ The path of README.Rmd, invisibly.
 \description{
 \code{setup_readme()} uses the openwashdata README template to generate README files based on datasets
 retrieved from the \verb{data/} directory. It helps in creating consistent and informative README documentation
-for your data packages.
+for your data packages. The repository links, the install line and the
+license come from DESCRIPTION, so run \code{\link[=update_description]{update_description()}} first.
 
 The template documents the first data object in \verb{data/} (alphabetically);
 add a section per further object by hand. It stops when \verb{data/} holds no

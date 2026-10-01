@@ -26,9 +26,8 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 
-[![License: CC BY
-4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
-[![R-CMD-check](https://github.com/openwashdata/{{{packagename}}}/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/openwashdata/{{{packagename}}}/actions/workflows/R-CMD-check.yaml)
+{{{license_badge}}}
+[![R-CMD-check]({{{repo_url}}}/actions/workflows/R-CMD-check.yaml/badge.svg)]({{{repo_url}}}/actions/workflows/R-CMD-check.yaml)
 
 <!-- badges: end -->
 
@@ -41,7 +40,7 @@ You can install the development version of {{{packagename}}} from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("openwashdata/{{{packagename}}}")
+devtools::install_github("{{{repo_slug}}}")
 ```
 
 ```{r}
@@ -65,7 +64,7 @@ file from the table below.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
-extdata_path <- "https://github.com/openwashdata/{{{packagename}}}/raw/main/inst/extdata/"
+extdata_path <- "{{{repo_url}}}/raw/main/inst/extdata/"
 
 read_csv("data-raw/dictionary.csv") |> 
   distinct(file_name) |> 
@@ -134,7 +133,7 @@ library({{{packagename}}})
 ## License
 
 Data are available as
-[CC-BY](https://github.com/openwashdata/{{{packagename}}}/blob/main/LICENSE.md).
+[{{{license_label}}}]({{{repo_url}}}/blob/main/LICENSE.md).
 
 ## Citation
 
