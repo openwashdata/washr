@@ -29,6 +29,19 @@
 - The vignette explains packages with more than one dataset, and how a
   group outside openwashdata sets its own values (#81, #103).
 
+- Every function acts on the package in the working directory. Before,
+  the usethis helpers wrote into the package of an earlier call when only
+  the working directory had changed since, so files of one package could
+  land in another within the same R session.
+
+- The repository in `URL` is recognised in every common form: with a
+  trailing slash, a `.git` suffix, a fragment or a `www.` prefix. Before,
+  such a URL gave a wrong bug report link or a second repository entry.
+
+- `setup_readme(force = TRUE)` removes the existing `README.Rmd` only once
+  it can write the new one. Before, it deleted the file and then stopped
+  when `data/` held no data object.
+
 - `check_publication_readiness()` reads the package and reports, item by
   item, whether it is ready for publication: metadata, data dictionary,
   documentation and the check workflow. Each gap names the step and the

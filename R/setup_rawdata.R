@@ -21,7 +21,7 @@
 #'
 setup_rawdata <- function(){
   check_pkg_root()
-  local_quiet()
+  local_session()
   usethis::use_directory("data-raw", ignore = TRUE)
   r_path <- file.path("data-raw", "data_processing.R")
   name <- basename(getwd())

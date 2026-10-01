@@ -27,7 +27,7 @@
 #' }
 setup_ci <- function() {
   check_pkg_root()
-  local_quiet()
+  local_session()
   target <- file.path(".github", "workflows", "R-CMD-check.yaml")
   if (file.exists(target)) {
     ui_info("{.path {target}} exists and is kept as it is.")

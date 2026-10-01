@@ -61,7 +61,7 @@ update_metadata <- function(quiet = FALSE) {
     ))
   }
   if (isTRUE(quiet)) rlang::local_options(washr.quiet = TRUE)
-  local_quiet()
+  local_session()
 
   dataset <- build_dataset_jsonld(".")
   html <- jsonld_template(dataset)

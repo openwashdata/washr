@@ -41,8 +41,11 @@ function reads them from there:\tabular{lll}{
 }
 
 
-A field that is already set is never overwritten, so a group other than
-openwashdata publishes with its own values by editing them. Set a field
+A field that you edited is never overwritten, so a group other than
+openwashdata publishes with its own values by editing them. When
+\code{github_user} names another organisation than the one in \code{URL}, the
+repository in \code{URL} is replaced and the fields that still hold the
+defaults of the old organisation follow. Set a field
 to \code{none} to switch its feature off. For a package under another GitHub
 organisation the funding, analytics, community and brand fields are
 written as \code{none}, because the openwashdata values would be wrong there.

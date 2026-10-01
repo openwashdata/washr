@@ -46,7 +46,7 @@ setup_website <- function(has_example = FALSE, track_docs = NULL){
       "i" = "Set up and write the README first, with {.fun setup_readme} and {.code devtools::build_readme()}."
     ))
   }
-  local_quiet()
+  local_session()
   name <- desc::desc_get("Package")[[1]]
   configpath <- "_pkgdown.yml"
   if (file.exists(configpath)) {

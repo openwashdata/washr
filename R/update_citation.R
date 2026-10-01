@@ -26,11 +26,11 @@
 #' DESCRIPTION is their canonical source (#134).
 #'
 #' @param doi DOI (Digital Object Identifier), e.g., 10.5281/zenodo.11185699.
+#'   Defaults to `NULL` for the call before the release, in which case no
+#'   DOI is recorded and no badge is added.
 #' @param build Logical. Rebuild README.md and the pkgdown site after the
 #'   citation files change? Defaults to `TRUE`. Set to `FALSE` to regenerate
 #'   the citation files alone, e.g., in scripts and tests.
-#'   Defaults to NULL for the pre-release call, in which case no DOI is
-#'   recorded and no badge is added.
 #' @param type The CFF `type` of the work: `"dataset"` (the default, a data
 #'   package) or `"software"`. Before 1.1.1 the file always said software,
 #'   the cffr default. Zenodo's GitHub integration ignores this field; the
@@ -55,7 +55,7 @@
 update_citation <- function(doi = NULL, build = TRUE,
                             type = c("dataset", "software")){
   type <- match.arg(type)
-  local_quiet()
+  local_session()
   cff_path <- "CITATION.cff"
   existing <- if (file.exists(cff_path)) cffr::cff_read(cff_path) else NULL
 
@@ -73,9 +73,9 @@ update_citation <- function(doi = NULL, build = TRUE,
   if (!is.null(doi)) {
     keys$doi <- doi
   }
-  mod_cff <- cffr::cff_create("DESCRIPTION",
-                        dependencies = FALSE,
-                        keys = keys)
+  mod_cff <- quietly(cffr::cff_create("DESCRIPTION",
+                                      dependencies = FALSE,
+                                      keys = keys))
 
   # Remove the preferred-citation key
   mod_cff$`preferred-citation` <- NULL
@@ -99,7 +99,7 @@ update_citation <- function(doi = NULL, build = TRUE,
   }
 
   # Writes the CFF file
-  cffr::cff_write(mod_cff)
+  quietly(cffr::cff_write(mod_cff, verbose = !is_quiet()))
 
   # cffr adds CITATION.cff to .Rbuildignore only when cff_write() is given a
   # path; for a cff object it returns early, so do it here (idempotent).
@@ -116,9 +116,10 @@ update_citation <- function(doi = NULL, build = TRUE,
     dir.create("inst", showWarnings = FALSE)
     writeLines(sprintf("citHeader(%s)", encodeString(a_cff$message, quote = '"')),
                path_cit, useBytes = TRUE)
-    cffr::cff_write_citation(a_cff, file = path_cit, append = TRUE, what = "all")
+    quietly(cffr::cff_write_citation(a_cff, file = path_cit, append = TRUE,
+                                     what = "all", verbose = !is_quiet()))
   } else {
-    cffr::cff_write_citation(a_cff, file = path_cit)
+    quietly(cffr::cff_write_citation(a_cff, file = path_cit, verbose = !is_quiet()))
   }
 
   # cffr backs up an existing file as *.bk1 before overwriting; drop the

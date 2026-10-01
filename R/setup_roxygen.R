@@ -39,7 +39,7 @@ setup_roxygen <- function() {
       "i" = "Set up the raw data and create the dictionary with {.fun setup_dictionary} first."
     ))
   }
-  local_quiet()
+  local_session()
   # Check R/ existence
   output_file_dir <- file.path(getwd(), "R")
   if (!dir.exists(output_file_dir)) {

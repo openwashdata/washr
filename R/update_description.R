@@ -24,8 +24,11 @@
 #' | `Config/washr/brand-source` | the GitHub repository [use_brand()] copies from | `openwashdata/brand` |
 #' | `Config/washr/version` | the washr version that last ran this function | |
 #'
-#' A field that is already set is never overwritten, so a group other than
-#' openwashdata publishes with its own values by editing them. Set a field
+#' A field that you edited is never overwritten, so a group other than
+#' openwashdata publishes with its own values by editing them. When
+#' `github_user` names another organisation than the one in `URL`, the
+#' repository in `URL` is replaced and the fields that still hold the
+#' defaults of the old organisation follow. Set a field
 #' to `none` to switch its feature off. For a package under another GitHub
 #' organisation the funding, analytics, community and brand fields are
 #' written as `none`, because the openwashdata values would be wrong there.
@@ -64,14 +67,16 @@ update_description <- function(file = ".", github_user = NULL){
   if(!file.exists(desc_path)){
     cli::cli_abort("No DESCRIPTION file found at {.path {desc_path}}.")
   }
-  local_quiet()
+  local_session()
   pkgname <- desc::desc_get("Package", file = file)[[1]]
   # author
 
   # license: set CC BY 4.0 only when no license is present yet; the usethis
-  # call acts on the active project, so it only runs for the default file
+  # call acts on the active project, so it only runs for the package in the
+  # working directory
   license <- desc::desc_get_field("License", default = "", file = file)
-  if (file == "." && (identical(license, "") || grepl("use_mit_license", license, fixed = TRUE))) {
+  in_wd <- identical(normalizePath(dirname(desc_path)), normalizePath(getwd()))
+  if (in_wd && (identical(license, "") || grepl("use_mit_license", license, fixed = TRUE))) {
     usethis::use_ccby_license()
   }
 
@@ -95,12 +100,22 @@ update_description <- function(file = ".", github_user = NULL){
   # The repository: the one under the GitHub user given, else the one URL
   # already lists, else the conventional one under openwashdata. URL entries
   # are merged, never replaced.
+  urls <- desc::desc_get_urls(file = file)
+  listed <- normalise_github_url(urls)
+  previous <- if (any(!is.na(listed))) listed[!is.na(listed)][[1]] else NULL
   if (is.null(github_user)) {
-    repo <- pkg_repo_url(file)
+    repo <- if (is.null(previous)) paste0("https://github.com/openwashdata/", pkgname) else previous
   } else {
-    repo <- paste0(sub("/+$", "", github_user), "/", pkgname)
+    repo <- normalise_github_url(paste0(sub("/+$", "", github_user), "/", pkgname))
+    if (is.na(repo)) {
+      cli::cli_abort("{.arg github_user} must be the URL of a GitHub user or organisation, e.g. {.val https://github.com/yourorg}, not {.val {github_user}}.")
+    }
+    # The repository of this package under another account gives way to the
+    # one named, so the organisation changes everywhere it is read
+    urls <- urls[is.na(listed) | basename(listed) != pkgname | listed == repo]
+    listed <- normalise_github_url(urls)
   }
-  urls <- union(desc::desc_get_urls(file = file), repo)
+  if (!repo %in% listed) urls <- c(urls, repo)
   desc::desc_set_urls(urls = urls,
                       file = file)
   # Bug Reports
@@ -111,9 +126,16 @@ update_description <- function(file = ".", github_user = NULL){
   # The Config/washr fields (#81): written once with the defaults of the
   # organisation, then left to the group that owns the package. Config/
   # entries washr does not own are never touched.
-  defaults <- washr_defaults(basename(dirname(repo)))
+  # When the organisation changes, a field that still holds the default of
+  # the old organisation follows; a field someone edited stays.
+  org <- basename(dirname(repo))
+  old_org <- if (is.null(previous)) "openwashdata" else basename(dirname(previous))
+  org_changed <- !identical(tolower(org), tolower(old_org))
+  defaults <- washr_defaults(org)
+  old_defaults <- washr_defaults(old_org)
   for (key in names(defaults)) {
-    if (is.null(washr_config(key, file = file))) {
+    current <- washr_config(key, file = file)
+    if (is.null(current) || (org_changed && identical(current, old_defaults[[key]]))) {
       desc::desc_set(paste0("Config/washr/", key), defaults[[key]], file = file)
     }
   }

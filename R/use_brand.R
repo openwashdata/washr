@@ -32,8 +32,9 @@
 #' next [pkgdown::build_site()] renders the site with the brand fonts
 #' and colors. The wiring adds its lines to `_pkgdown.yml` and leaves the
 #' rest of the file, comments included, as it is. Only when the `template`
-#' block already carries other bslib settings is the file rewritten through
-#' the yaml package, which does not preserve comments. When no
+#' block already carries other bslib settings, or is written on one line,
+#' is the file rewritten through the yaml package, which does not preserve
+#' comments. When no
 #' `_pkgdown.yml` exists, the wiring is skipped with a hint to run
 #' [setup_website()] first. Building the wired site requires the
 #' brand.yml package (bslib asks for it at build time); it is listed in
@@ -70,7 +71,7 @@
 #' use_brand(pkgdown = FALSE)
 #' }
 use_brand <- function(ref = NULL, pkgdown = TRUE, source = NULL) {
-  local_quiet()
+  local_session()
   repo <- NULL
   if (is.null(source)) {
     repo <- if (file.exists("DESCRIPTION")) pkg_config("brand-source") else "openwashdata/brand"

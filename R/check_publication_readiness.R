@@ -14,7 +14,7 @@
 #'
 #' | Area | `id` | Passes when |
 #' |---|---|---|
-#' | metadata | `license` | `License` in DESCRIPTION is CC BY 4.0 |
+#' | metadata | `license` | `License` in DESCRIPTION is CC BY 4.0, the license of the standard |
 #' | metadata | `description_complete` | `Title`, `Description` and `Authors@R` no longer hold the placeholder text of a new package |
 #' | metadata | `citation_cff` | `CITATION.cff` is present |
 #' | metadata | `citation_version` | the `version` in `CITATION.cff` equals `Version` in DESCRIPTION |
@@ -55,6 +55,9 @@
 #'   values: the `Config/washr/` fields in its DESCRIPTION that
 #'   [update_description()] writes. A review tool passes the profile of the
 #'   organisation instead. All entries are optional:
+#'   * `license`: the license the package has to carry, `"CC BY 4.0"` by
+#'     default, or `"any"` to accept every license that is set. A package of
+#'     another organisation that is held to its own values gets `"any"`.
 #'   * `analytics`: `"plausible"` (the default) or `"none"`. With `"none"`
 #'     the analytics item is not applicable.
 #'   * `site_url_pattern`: the Pages URL of a package, with `<package>` in
@@ -152,6 +155,20 @@ print.washr_readiness <- function(x, ...) {
   invisible(x)
 }
 
+# A subset is a plain data frame: the report and its verdict describe the
+# whole package, and a few rows or columns of it would print a wrong one.
+#' @export
+`[.washr_readiness` <- function(x, ...) {
+  class(x) <- setdiff(class(x), "washr_readiness")
+  out <- x[...]
+  if (is.data.frame(out)) {
+    attr(out, "ready") <- NULL
+    attr(out, "washr_version") <- NULL
+    attr(out, "package") <- NULL
+  }
+  out
+}
+
 # The organisation profile with its defaults filled in.
 readiness_profile <- function(profile, path = ".") {
   if (is.null(profile)) profile <- package_profile(path)
@@ -163,6 +180,7 @@ readiness_profile <- function(profile, path = ".") {
     cli::cli_abort("The {.field analytics} entry of {.arg profile} must be {.val plausible} or {.val none}, not {.val {analytics}}.")
   }
   profile$analytics <- analytics
+  if (!length(profile$license)) profile$license <- "CC BY 4.0"
   profile
 }
 
@@ -174,6 +192,7 @@ package_profile <- function(path = ".") {
   funding <- pkg_config("funding", path)
   brand <- pkg_config("brand-source", path)
   profile <- list(
+    license = if (identical(tolower(pkg_org(path)), "openwashdata")) "CC BY 4.0" else "any",
     analytics = if (is_set(analytics)) "plausible" else "none",
     site_url_pattern = paste0("https://", pkg_pages_domain(path), "/<package>/"),
     brand = if (is_set(brand)) brand else "none"
@@ -188,7 +207,12 @@ readiness_context <- function(path, profile) {
   dcf <- read.dcf(file.path(path, "DESCRIPTION"))
   file <- function(...) file.path(path, ...)
   has <- function(...) file.exists(file(...))
-  lines <- function(...) if (has(...)) readLines(file(...), warn = FALSE) else character()
+  # Bytes that are not valid UTF-8 are made printable, so a line that holds
+  # one is still matched by the items that read the file.
+  lines <- function(...) {
+    if (!has(...)) return(character())
+    iconv(readLines(file(...), warn = FALSE), from = "UTF-8", to = "UTF-8", sub = "byte")
+  }
   field <- function(name) {
     if (name %in% colnames(dcf)) unname(dcf[1, name]) else NA_character_
   }
@@ -362,10 +386,17 @@ readiness_checks <- function() {
 
 # metadata -------------------------------------------------------------------
 
+# The standard asks for CC BY 4.0. A package checked against its own values
+# under another organisation passes with any license that is set.
 readiness_license <- function(ctx) {
   lic <- ctx$field("License")
-  readiness_result(!is.na(lic) && grepl("CC BY 4.0", lic, fixed = TRUE),
-                   paste("License field:", if (is.na(lic)) "missing" else lic))
+  expected <- ctx$profile$license
+  ok <- if (identical(expected, "any")) {
+    !is.na(lic) && nzchar(trimws(lic)) && !grepl("use_mit_license", lic, fixed = TRUE)
+  } else {
+    !is.na(lic) && grepl(expected, lic, fixed = TRUE)
+  }
+  readiness_result(ok, paste("License field:", if (is.na(lic)) "missing" else lic))
 }
 
 # The placeholder text usethis::create_package() writes into a new package.
@@ -509,8 +540,14 @@ readiness_dictionary <- function(ctx) {
 readiness_dictionary_coverage <- function(ctx) {
   dict <- readiness_dictionary(ctx)
   if (!is.data.frame(dict)) return(dict)
-  all_vars <- unique(unlist(lapply(ctx$datasets, names)))
-  missing <- setdiff(all_vars, dict$variable_name)
+  # A variable counts as covered by the row of its own data object. Without
+  # a file_name column the names alone are compared.
+  by_object <- "file_name" %in% names(dict)
+  missing <- unlist(lapply(names(ctx$datasets), function(nm) {
+    rows <- if (by_object) tools::file_path_sans_ext(dict$file_name) == nm else TRUE
+    setdiff(names(ctx$datasets[[nm]]), dict$variable_name[rows])
+  }))
+  missing <- unique(missing)
   readiness_result(length(missing) == 0,
                    if (length(missing)) paste("missing:", paste(missing, collapse = ", ")) else "")
 }
@@ -646,7 +683,13 @@ readiness_pkgdown_funding <- function(ctx) {
   if (length(config) == 0) return(readiness_na("_pkgdown.yml missing"))
   funding <- ctx$profile$funding_text
   if (!length(funding)) return(readiness_na("org profile defines no funding text"))
-  found <- any(grepl(funding[[1]], config, fixed = TRUE))
+  # The text as written on one line, or as YAML reads it: a quoted value
+  # and a value folded over two lines carry the same text.
+  squish <- function(x) trimws(gsub("\\s+", " ", x))
+  parsed <- tryCatch(yaml::yaml.load(paste(config, collapse = "\n")), error = function(e) NULL)
+  text <- parsed$home$sidebar$components$custom$text
+  found <- any(grepl(funding[[1]], config, fixed = TRUE)) ||
+    (is.character(text) && grepl(squish(funding[[1]]), squish(text[[1]]), fixed = TRUE))
   readiness_result(found,
                    if (found) "" else "the profile's funding text was not found verbatim")
 }

@@ -55,8 +55,9 @@ pointed at the brand through bslib (\code{template.bslib.brand}), so the
 next \code{\link[pkgdown:build_site]{pkgdown::build_site()}} renders the site with the brand fonts
 and colors. The wiring adds its lines to \verb{_pkgdown.yml} and leaves the
 rest of the file, comments included, as it is. Only when the \code{template}
-block already carries other bslib settings is the file rewritten through
-the yaml package, which does not preserve comments. When no
+block already carries other bslib settings, or is written on one line,
+is the file rewritten through the yaml package, which does not preserve
+comments. When no
 \verb{_pkgdown.yml} exists, the wiring is skipped with a hint to run
 \code{\link[=setup_website]{setup_website()}} first. Building the wired site requires the
 brand.yml package (bslib asks for it at build time); it is listed in

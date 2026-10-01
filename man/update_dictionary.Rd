@@ -23,8 +23,9 @@ of every other column, including columns you added yourself, such as
 \code{unit} or \code{allowed_values}. Only \code{variable_type} is refreshed from the
 data. A new variable gets a row with empty cells to fill in. The row of a
 variable that no longer exists is removed, and the function names it.
-A renamed variable cannot be told from one removed and one added, so what
-you wrote in its row is printed for you to copy into the new row.
+A renamed variable or data object cannot be told from one removed and one
+added, so what you wrote in the removed rows is printed for you to copy
+into the new rows.
 
 The columns keep the order they have in the file. The rows follow the
 data: data objects in alphabetical order, variables in the order of the

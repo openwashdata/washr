@@ -281,3 +281,26 @@ test_that("the .zenodo.json item follows DESCRIPTION", {
   unlink(".zenodo.json")
   expect_match(quiet_check()$detail[quiet_check()$id == "zenodo_json"], "file missing")
 })
+
+test_that("a subset of the report is a plain data frame (#82)", {
+  readiness_fixture()
+  unlink("CITATION.cff")
+  result <- quiet_check()
+  failing <- result[result$status == "fail", c("id", "detail", "fix")]
+  expect_s3_class(failing, "data.frame", exact = TRUE)
+  expect_identical(failing$id[1], "citation_cff")
+  expect_null(attr(failing, "ready"))
+  expect_output(print(failing), "citation_cff")
+  expect_s3_class(result[result$area == "docs", ], "data.frame", exact = TRUE)
+  expect_identical(result[["id"]], result$id)
+})
+
+test_that("a text file with invalid UTF-8 bytes is still read (#82)", {
+  readiness_fixture()
+  con <- file("README.md", open = "ab")
+  writeBin(as.raw(c(0x47, 0x65, 0x6e, 0xe8, 0x76, 0x65, 0x0a)), con)
+  close(con)
+  result <- quiet_check()
+  expect_identical(status_of(result, "readme_extdata_links"), "pass")
+  expect_false(any(grepl("stopped with an error", result$detail)))
+})

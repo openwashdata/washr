@@ -23,9 +23,22 @@ is_pkg <- function(){
   )
 }
 
+# GitHub repository URLs in their canonical form,
+# https://github.com/org/repo, and NA for a URL that is not one. A trailing
+# slash, a .git suffix, a fragment or query and a www. prefix are dropped,
+# so every way of writing the repository gives the same organisation.
+normalise_github_url <- function(urls) {
+  urls <- sub("[#?].*$", "", trimws(urls))
+  urls <- sub("\\.git$", "", sub("/+$", "", urls))
+  parts <- regmatches(urls, regexec("^https?://(www\\.)?github\\.com/([^/]+)/([^/]+)$", urls))
+  vapply(parts, function(x) {
+    if (length(x)) paste0("https://github.com/", x[[3]], "/", x[[4]]) else NA_character_
+  }, character(1))
+}
+
 # The GitHub repository URL from the URL field of DESCRIPTION, or NULL.
 github_repo_url <- function(file = ".") {
-  urls <- desc::desc_get_urls(file = file)
-  repo <- urls[grepl("^https?://github\\.com/[^/]+/[^/]+/?$", urls)]
-  if (length(repo)) sub("/$", "", repo[[1]]) else NULL
+  repos <- normalise_github_url(desc::desc_get_urls(file = file))
+  repos <- repos[!is.na(repos)]
+  if (length(repos)) repos[[1]] else NULL
 }
