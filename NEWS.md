@@ -1,5 +1,19 @@
 # washr (development version)
 
+- `update_dictionary()` brings `data-raw/dictionary.csv` in line with the
+  data after it changed. It adds a row for each new variable, removes the
+  row of a variable that no longer exists, refreshes the types, and keeps
+  every description and every column you added yourself, such as `unit` or
+  `allowed_values`. A file whose content is current is left untouched. The
+  "already exists" error of `setup_dictionary()` now points to it (#13).
+
+- `update_zenodo_json()` writes `.zenodo.json` from DESCRIPTION, and
+  `update_citation()` calls it. Zenodo reads the file when it archives a
+  GitHub release, so a data package is filed as a Dataset in the
+  openwashdata community, with its creators, ORCID iDs, license and
+  keywords, without edits by hand. Set `Config/washr/zenodo-community` in
+  DESCRIPTION for another community (#56).
+
 - Messages now go through cli in every function, with three kinds of lines:
   a success line for a file that was written, an info line for something
   that was kept or skipped, and an arrow line for the next step that is left

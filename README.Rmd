@@ -52,13 +52,13 @@ The stable core scaffolds and documents the package, one function per step, in t
 
 - `setup_ci()` adds the R CMD check workflow the review standard requires.
 - `setup_rawdata()` creates `data-raw/` and the processing script.
-- `setup_dictionary()` writes the variable dictionary from the data objects.
+- `setup_dictionary()` writes the variable dictionary from the data objects, and `update_dictionary()` brings it in line with the data after a change.
 - `setup_roxygen()` writes the roxygen documentation from the dictionary.
 - `update_description()` completes `DESCRIPTION` to the openwashdata standard.
 - `setup_readme()` writes the README from the template.
 - `setup_website()` writes the pkgdown configuration and builds the site.
 - `use_brand()` installs the openwashdata brand for the site.
-- `update_citation()` writes the citation files, with the DOI once there is one.
+- `update_citation()` writes the citation files, with the DOI once there is one, and the `.zenodo.json` that files the release on Zenodo as a dataset.
 
 The FAIR layer is one experimental function. `update_metadata()` derives a schema.org description of the dataset from the files above and embeds it in the site, where dataset search engines read it.
 

@@ -108,6 +108,7 @@ tree_md5 <- function() {
 before <- tree_md5()
 washr::setup_ci()
 washr::setup_rawdata()
+washr::update_dictionary()
 washr::setup_roxygen()
 washr::update_description()
 washr::update_metadata()

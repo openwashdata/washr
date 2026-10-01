@@ -53,7 +53,8 @@ step, in the order you run them:
   requires.
 - `setup_rawdata()` creates `data-raw/` and the processing script.
 - `setup_dictionary()` writes the variable dictionary from the data
-  objects.
+  objects, and `update_dictionary()` brings it in line with the data
+  after a change.
 - `setup_roxygen()` writes the roxygen documentation from the
   dictionary.
 - `update_description()` completes `DESCRIPTION` to the openwashdata
@@ -63,7 +64,8 @@ step, in the order you run them:
   site.
 - `use_brand()` installs the openwashdata brand for the site.
 - `update_citation()` writes the citation files, with the DOI once there
-  is one.
+  is one, and the `.zenodo.json` that files the release on Zenodo as a
+  dataset.
 
 The FAIR layer is one experimental function. `update_metadata()` derives
 a schema.org description of the dataset from the files above and embeds
