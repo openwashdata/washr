@@ -60,6 +60,7 @@ the openwashdata Quarto extension
 \href{https://github.com/openwashdata/quarto-owd}{quarto-owd}.
 
 Other publishing functions:
+\code{\link[=check_publication_readiness]{check_publication_readiness()}},
 \code{\link[=setup_readme]{setup_readme()}},
 \code{\link[=setup_website]{setup_website()}}
 }
