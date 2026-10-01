@@ -31,7 +31,8 @@
 #'   the cffr default. Zenodo's GitHub integration ignores this field; the
 #'   resource type of a deposit comes from a `.zenodo.json` (#56).
 #'
-#' @returns NULL. A citation .cff file is written under the root directory.
+#' @returns The paths of the two citation files, `CITATION.cff` and
+#'   `inst/CITATION`, invisibly.
 #' @seealso Before: [setup_website()]. Run again with the DOI after the Zenodo release; [update_metadata()] then picks the DOI up.
 #'
 #' @family metadata functions
@@ -48,13 +49,14 @@
 update_citation <- function(doi = NULL, build = TRUE,
                             type = c("dataset", "software")){
   type <- match.arg(type)
+  local_quiet()
   cff_path <- "CITATION.cff"
   existing <- if (file.exists(cff_path)) cffr::cff_read(cff_path) else NULL
 
   # Read-merge-write: a re-run without a doi keeps the DOI already on file
   if (is.null(doi) && !is.null(existing$doi)) {
     doi <- existing$doi
-    usethis::ui_info("Keeping the DOI {usethis::ui_value(doi)} from the existing CITATION.cff")
+    ui_info("Keeping the DOI {.val {doi}} from the existing CITATION.cff")
   }
   # Keywords live in DESCRIPTION (X-schema.org-keywords), where cffr reads
   # them; keywords typed into CITATION.cff by hand move there once
@@ -82,7 +84,7 @@ update_citation <- function(doi = NULL, build = TRUE,
   sources <- source_dois()
   dropped <- derived[!tolower(derived) %in% tolower(sources)]
   if (length(dropped) > 0) {
-    usethis::ui_info("Dropping {usethis::ui_value(dropped)} from the references: list source DOIs in X-schema.org-isBasedOn in DESCRIPTION")
+    ui_info("Dropping {.val {dropped}} from the references: list source DOIs in X-schema.org-isBasedOn in DESCRIPTION")
   }
   refs <- if (length(sources) > 0) source_references(sources, existing) else list()
   if (length(refs) > 0) {
@@ -138,7 +140,9 @@ update_citation <- function(doi = NULL, build = TRUE,
   }
 
   # By last, read the citation
-  usethis::ui_todo("Proofread your citation file at {usethis::ui_value(path_cit)}")
+  ui_done("Wrote {.path {cff_path}} and {.path {path_cit}}")
+  ui_todo("Proofread your citation file at {.path {path_cit}}.")
+  invisible(c(cff_path, path_cit))
 }
 
 add_citation_badge<- function(doi){
@@ -150,8 +154,10 @@ add_citation_badge<- function(doi){
 
   end_marker <- which(startsWith(readme_rmd, "<!-- badges: end -->"))
   if (length(end_marker) == 0) {
-    usethis::ui_stop("No '<!-- badges: end -->' marker found in README.Rmd.
-                      Please add the badge markers before updating the citation.")
+    cli::cli_abort(c(
+      "No {.code <!-- badges: end -->} marker found in {.path README.Rmd}.",
+      "i" = "Add the badge markers before updating the citation."
+    ))
   }
 
   existing <- which(grepl("[![DOI](https://zenodo.org/badge/DOI/", readme_rmd, fixed = TRUE))
@@ -177,6 +183,6 @@ migrate_cff_keywords <- function(existing) {
   if (!identical(current, "")) return(invisible(FALSE))
   keywords <- unique(trimws(unlist(existing$keywords)))
   desc::desc_set("X-schema.org-keywords", paste(keywords, collapse = ", "))
-  usethis::ui_done("Moved {length(keywords)} keyword(s) from CITATION.cff to X-schema.org-keywords in DESCRIPTION, their canonical home")
+  ui_done("Moved {length(keywords)} keyword{?s} from CITATION.cff to X-schema.org-keywords in DESCRIPTION, their canonical home")
   invisible(TRUE)
 }

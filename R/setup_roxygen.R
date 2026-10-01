@@ -14,8 +14,8 @@
 #' in the Roxygen documentation files within R/ directory. The title and description fields remain
 #' unchanged.
 #'
-#' @returns NULL. This function creates documentation files inside "R/". Error if
-#' tidy data cannot be found.
+#' @returns The paths of the documentation files inside "R/", invisibly, one
+#'   per data set. Error if tidy data cannot be found.
 #'
 #' @seealso Before: [setup_dictionary()]. Next: [update_description()].
 #'
@@ -34,8 +34,12 @@ setup_roxygen <- function() {
   # Check dictionary existence
   input_file_path <- file.path(getwd(), "data-raw", "dictionary.csv")
   if (!file.exists(input_file_path)) {
-    usethis::ui_stop("Data dictionary does not exist in the data-raw/ directory. Please set up the raw data or create a dictionary first.")
+    cli::cli_abort(c(
+      "Data dictionary does not exist in the data-raw/ directory.",
+      "i" = "Set up the raw data and create the dictionary with {.fun setup_dictionary} first."
+    ))
   }
+  local_quiet()
   # Check R/ existence
   output_file_dir <- file.path(getwd(), "R")
   if (!dir.exists(output_file_dir)) {
@@ -46,19 +50,23 @@ setup_roxygen <- function() {
   num_tidy_datasets <- length(tidy_datasets)
   # Write roxygen doc for each tidy dataset
   if (num_tidy_datasets == 0){
-    usethis::ui_stop("No tidy data sets are available in the data/ directory.
-                     Please complete data processing and export tidy data first.")
-  } else {
-    for (d in tidy_datasets){
-      # Update output_file_path to have the same name as df_name with .R extension
-      df_name <- strsplit(basename(file.path(d)), ".rda", fixed = TRUE)[[1]]
-      output_file_path <- file.path(output_file_dir, paste0(df_name, ".R"))
-      generate_roxygen_docs(input_file_path = input_file_path,
-                            output_file_path = output_file_path,
-                            df_name = df_name)
-      usethis::ui_todo("Please write the title and description for \n {usethis::ui_value(output_file_path)}")
-    }
+    cli::cli_abort(c(
+      "No tidy data sets are available in the data/ directory.",
+      "i" = "Complete the data processing and export the tidy data first."
+    ))
   }
+  written <- character()
+  for (d in tidy_datasets){
+    # Update output_file_path to have the same name as df_name with .R extension
+    df_name <- strsplit(basename(file.path(d)), ".rda", fixed = TRUE)[[1]]
+    output_file_path <- file.path(output_file_dir, paste0(df_name, ".R"))
+    generate_roxygen_docs(input_file_path = input_file_path,
+                          output_file_path = output_file_path,
+                          df_name = df_name)
+    ui_todo("Write the title and description in {.path {output_file_path}}.")
+    written <- c(written, output_file_path)
+  }
+  invisible(written)
 }
 
 #' Generate roxygen2 documentation from a CSV file
@@ -85,7 +93,11 @@ generate_roxygen_docs <- function(input_file_path, output_file_path, df_name=NUL
   dict <- utils::read.csv(input_file_path)
   dict <- subset(dict, dict$file_name == paste0(df_name, ".rda"))
   if (nrow(dict) == 0) {
-    usethis::ui_stop("The dictionary has no rows for {usethis::ui_value(paste0(df_name, '.rda'))}. Update data-raw/dictionary.csv first.")
+    file_name <- paste0(df_name, ".rda")
+    cli::cli_abort(c(
+      "The dictionary has no rows for {.val {file_name}}.",
+      "i" = "Update {.path data-raw/dictionary.csv} first."
+    ))
   }
   body <- create_roxygen_body(dict)
   label <- paste0('"', df_name, '"')
@@ -119,7 +131,11 @@ split_roxygen_file <- function(roxygen_file_path, df_name){
   lines <- readLines(roxygen_file_path, warn = FALSE)
   fmt <- which(startsWith(lines, "#' @format"))
   if (length(fmt) == 0) {
-    usethis::ui_stop("{usethis::ui_path(roxygen_file_path)} has no {usethis::ui_code(\"#' @format\")} line, so the generated block cannot be told from your text. Add the line back, or delete the file and run setup_roxygen() again.")
+    tag <- "#' @format"
+    cli::cli_abort(c(
+      "{.path {roxygen_file_path}} has no {.code {tag}} line, so the generated block cannot be told from your text.",
+      "i" = "Add the line back, or delete the file and run {.fun setup_roxygen} again."
+    ))
   }
   fmt <- fmt[1]
   closing <- which(trimws(lines) == "#' }")

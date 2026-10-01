@@ -17,7 +17,8 @@
 #'
 #' @export
 #'
-#' @returns NULL. Update fields directly in DESCRIPTION file.
+#' @returns The path of the DESCRIPTION file, invisibly. The fields are
+#'   updated in the file.
 #' @examples
 #' \dontrun{
 #'  # Update DESCRIPTION file in the current package
@@ -34,8 +35,9 @@
 update_description <- function(file = ".", github_user = "https://github.com/openwashdata/"){
   desc_path <- if (dir.exists(file)) file.path(file, "DESCRIPTION") else file
   if(!file.exists(desc_path)){
-    usethis::ui_stop("No DESCRIPTION file found!")
+    cli::cli_abort("No DESCRIPTION file found at {.path {desc_path}}.")
   }
+  local_quiet()
   pkgname <- desc::desc_get("Package", file = file)[[1]]
   # author
 
@@ -71,4 +73,6 @@ update_description <- function(file = ".", github_user = "https://github.com/ope
   desc::desc_set("BugReports",
                  paste0(github_user, pkgname, "/issues"),
                  file = file)
+  ui_done("Updated the openwashdata fields in {.path {desc_path}}")
+  invisible(desc_path)
 }

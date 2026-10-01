@@ -13,7 +13,7 @@ source_dois <- function(file = "DESCRIPTION") {
   dois <- sub("^(https?://(dx\\.)?doi\\.org/|doi:\\s*)", "", raw, ignore.case = TRUE)
   is_doi <- grepl("^10\\.[0-9]{4,}/\\S+$", dois)
   if (any(!is_doi)) {
-    usethis::ui_info("Skipping {usethis::ui_value(raw[!is_doi])} in X-schema.org-isBasedOn: only DOIs are supported")
+    ui_info("Skipping {.val {raw[!is_doi]}} in X-schema.org-isBasedOn: only DOIs are supported")
   }
   unique(dois[is_doi])
 }
@@ -78,10 +78,10 @@ source_references <- function(dois, existing = NULL) {
     if (!is.null(csl)) return(csl_to_reference(csl))
     kept <- match(tolower(doi), on_file_dois)
     if (!is.na(kept)) {
-      usethis::ui_info("Could not look up {usethis::ui_value(doi)}; keeping its reference from the existing CITATION.cff")
+      ui_info("Could not look up {.val {doi}}; keeping its reference from the existing CITATION.cff")
       return(on_file[[kept]])
     }
-    usethis::ui_warn("Could not look up {usethis::ui_value(doi)}; it is left out of CITATION.cff until a run with a network connection")
+    cli::cli_warn("Could not look up {.val {doi}}; it is left out of CITATION.cff until a run with a network connection")
     NULL
   })
   refs[!vapply(refs, is.null, logical(1))]

@@ -7,8 +7,8 @@
 setup_roxygen()
 }
 \value{
-NULL. This function creates documentation files inside "R/". Error if
-tidy data cannot be found.
+The paths of the documentation files inside "R/", invisibly, one
+per data set. Error if tidy data cannot be found.
 }
 \description{
 Creates or updates Roxygen documentation for all tidy data sets found

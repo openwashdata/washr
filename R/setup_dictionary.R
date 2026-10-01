@@ -13,7 +13,8 @@
 #'
 #' @export
 #'
-#' @returns NULL. Error if raw data is not found or not in a package directory.
+#' @returns The path of the dictionary file, invisibly. Error if raw data is
+#'   not found or not in a package directory.
 #'
 #' @examples
 #' \dontrun{
@@ -24,24 +25,20 @@
 #'
 setup_dictionary <- function() {
   # Check working directory
-  correct_wd <- is_pkg()
-  has_dataraw <- dir.exists(file.path(getwd(), "data-raw"))
-  if(correct_wd) {
-    if(!has_dataraw){
-      usethis::ui_stop("You have not set up the raw data.
-                        Please run setup_rawdata() and import raw data files first.")
-    }
-  } else {
-    usethis::ui_stop("You are not in the correct working directory for developing the data package.
-                          Please check your working directory.")
+  check_pkg_root()
+  if (!dir.exists(file.path(getwd(), "data-raw"))) {
+    cli::cli_abort(c(
+      "You have not set up the raw data.",
+      "i" = "Run {.fun setup_rawdata} and import the raw data files first."
+    ))
   }
   # Check dictionary csvfile existence
   dict_path <- file.path("data-raw", "dictionary.csv")
-  if(no_dict(dict_path)){
-    dictionary <- fill_dictionary(dict_path, "data/")
-  } else {
-    usethis::ui_stop(paste("The dictionary CSV file", dict_path, "already exists!"))
+  if (!no_dict(dict_path)) {
+    cli::cli_abort("The dictionary CSV file {.path {dict_path}} already exists!")
   }
+  fill_dictionary(dict_path, "data/")
+  invisible(dict_path)
 }
 
 #' Fill in the dictionary file based on the tidy data information
@@ -64,7 +61,10 @@ fill_dictionary <- function(dict_path, data_dir){
     tidydata_info <- collect_tidydata_info(data_dir)
   } else {
     # Error because tidy data is not yet available, should complete that first
-    usethis::ui_stop("There is no tidy data available. Please use devtools::use_data() to store the tidy data as an R data object first.")
+    cli::cli_abort(c(
+      "There is no tidy data available.",
+      "i" = "Store the tidy data as an R data object with {.fun usethis::use_data} first."
+    ))
   }
   # Fill in dictionary
   dictionary <- data.frame(directory = data_dir,
@@ -75,7 +75,8 @@ fill_dictionary <- function(dict_path, data_dir){
   # Export dictionary
   utils::write.csv(x = dictionary, file = dict_path, na = "", row.names = FALSE)
   # Prompt to complete variable description
-  usethis::ui_todo("To complete the dictionary at {dict_path}, please provide the variable descriptions.")
+  ui_done("Wrote {.path {dict_path}}")
+  ui_todo("Write the variable descriptions in {.path {dict_path}}.")
   return(dictionary)
   }
 

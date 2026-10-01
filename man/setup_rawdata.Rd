@@ -7,7 +7,8 @@
 setup_rawdata()
 }
 \value{
-NULL. This function will create a directory "data-raw" under the package directory.
+The path of the processing script, invisibly. The function creates
+the directory "data-raw" under the package directory.
 }
 \description{
 \code{setup_rawdata()} creates a directory for raw data and an example script

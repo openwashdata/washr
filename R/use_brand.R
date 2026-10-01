@@ -76,7 +76,7 @@ use_brand <- function(ref = "main", pkgdown = TRUE, source = NULL) {
   }
 
   if (length(changed) == 0) {
-    usethis::ui_done("Brand is up to date; nothing to change.")
+    ui_done("Brand is up to date; nothing to change.")
   }
   invisible(changed)
 }
@@ -87,7 +87,7 @@ fetch_brand_file <- function(base, path) {
   if (dir.exists(base)) {
     src <- file.path(base, path)
     if (!file.exists(src)) {
-      usethis::ui_stop("Brand source file not found: {src}")
+      cli::cli_abort("Brand source file not found: {.path {src}}")
     }
     file.copy(src, tmp)
   } else {
@@ -101,9 +101,10 @@ fetch_brand_file <- function(base, path) {
       warning = function(w) FALSE
     )
     if (!ok) {
-      usethis::ui_stop(
-        "Could not download {url}. Check the network connection and that openwashdata/brand carries the file on this ref."
-      )
+      cli::cli_abort(c(
+        "Could not download {.url {url}}.",
+        "i" = "Check the network connection and that openwashdata/brand carries the file on this ref."
+      ))
     }
   }
   tmp
@@ -129,7 +130,7 @@ place_brand_file <- function(tmp, dest) {
     return(character(0))
   }
   file.copy(tmp, dest, overwrite = TRUE)
-  usethis::ui_done("{usethis::ui_path(dest)} {status}.")
+  ui_done("{.path {dest}} {status}.")
   dest
 }
 
@@ -159,9 +160,8 @@ brand_logo_paths <- function(brand) {
 wire_pkgdown_brand <- function() {
   configpath <- "_pkgdown.yml"
   if (!file.exists(configpath)) {
-    usethis::ui_info(
-      "No _pkgdown.yml found; skipping the pkgdown wiring. Run washr::setup_website() first, then use_brand() again."
-    )
+    ui_info("No _pkgdown.yml found; skipping the pkgdown wiring.")
+    ui_todo("Run {.fun setup_website} first, then {.fun use_brand} again.")
     return(character(0))
   }
   config <- yaml::read_yaml(configpath)
@@ -173,7 +173,7 @@ wire_pkgdown_brand <- function() {
     config$template$bootstrap <- 5
   }
   yaml::write_yaml(config, configpath)
-  usethis::ui_done("{usethis::ui_path(configpath)} wired to the brand via bslib.")
-  usethis::ui_info("Rebuild the site with pkgdown::build_site() to apply the brand.")
+  ui_done("{.path {configpath}} wired to the brand via bslib.")
+  ui_todo("Rebuild the site with {.code pkgdown::build_site()} to apply the brand.")
   configpath
 }

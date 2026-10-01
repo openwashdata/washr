@@ -26,13 +26,11 @@
 #' setup_ci()
 #' }
 setup_ci <- function() {
-  if (!is_pkg()) {
-    usethis::ui_stop("You are not in the correct working directory for developing the data package.
-                          Please check your working directory.")
-  }
+  check_pkg_root()
+  local_quiet()
   target <- file.path(".github", "workflows", "R-CMD-check.yaml")
   if (file.exists(target)) {
-    usethis::ui_info("{usethis::ui_path(target)} exists and is kept as it is.")
+    ui_info("{.path {target}} exists and is kept as it is.")
   } else {
     dir.create(dirname(target), recursive = TRUE, showWarnings = FALSE)
     # Copied, not rendered. usethis::use_template() runs the file through
@@ -41,11 +39,12 @@ setup_ci <- function() {
     # The template carries no variables, so there is nothing to interpolate.
     file.copy(system.file("templates", "R-CMD-check.yaml", package = "washr"),
               target, overwrite = FALSE)
-    usethis::ui_done("Writing {usethis::ui_path(target)}")
+    ui_done("Wrote {.path {target}}")
   }
   usethis::use_build_ignore(".github")
   if (add_check_badge()) {
-    usethis::ui_done("Added the R CMD check badge to README.Rmd; rebuild it with devtools::build_readme()")
+    ui_done("Added the R CMD check badge to {.path README.Rmd}")
+    ui_todo("Rebuild the README with {.code devtools::build_readme()}.")
   }
   invisible(target)
 }

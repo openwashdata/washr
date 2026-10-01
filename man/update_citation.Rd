@@ -21,7 +21,8 @@ the cffr default. Zenodo's GitHub integration ignores this field; the
 resource type of a deposit comes from a \code{.zenodo.json} (#56).}
 }
 \value{
-NULL. A citation .cff file is written under the root directory.
+The paths of the two citation files, \code{CITATION.cff} and
+\code{inst/CITATION}, invisibly.
 }
 \description{
 Create a citation *.cff file for the dataset from a given DOI (Digital
