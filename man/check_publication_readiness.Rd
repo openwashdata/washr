@@ -16,6 +16,9 @@ values: the \verb{Config/washr/} fields in its DESCRIPTION that
 \code{\link[=update_description]{update_description()}} writes. A review tool passes the profile of the
 organisation instead. All entries are optional:
 \itemize{
+\item \code{license}: the license the package has to carry, \code{"CC BY 4.0"} by
+default, or \code{"any"} to accept every license that is set. A package of
+another organisation that is held to its own values gets \code{"any"}.
 \item \code{analytics}: \code{"plausible"} (the default) or \code{"none"}. With \code{"none"}
 the analytics item is not applicable.
 \item \code{site_url_pattern}: the Pages URL of a package, with \verb{<package>} in
@@ -49,7 +52,7 @@ standard for the metadata, the data dictionary, the documentation and the
 check workflow of a package. Each item has a stable \code{id}, so a script or
 a review tool can pick the rows it needs.\tabular{lll}{
    Area \tab \code{id} \tab Passes when \cr
-   metadata \tab \code{license} \tab \code{License} in DESCRIPTION is CC BY 4.0 \cr
+   metadata \tab \code{license} \tab \code{License} in DESCRIPTION is CC BY 4.0, the license of the standard \cr
    metadata \tab \code{description_complete} \tab \code{Title}, \code{Description} and \code{Authors@R} no longer hold the placeholder text of a new package \cr
    metadata \tab \code{citation_cff} \tab \code{CITATION.cff} is present \cr
    metadata \tab \code{citation_version} \tab the \code{version} in \code{CITATION.cff} equals \code{Version} in DESCRIPTION \cr

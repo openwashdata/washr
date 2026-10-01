@@ -12,8 +12,9 @@
 #' `unit` or `allowed_values`. Only `variable_type` is refreshed from the
 #' data. A new variable gets a row with empty cells to fill in. The row of a
 #' variable that no longer exists is removed, and the function names it.
-#' A renamed variable cannot be told from one removed and one added, so what
-#' you wrote in its row is printed for you to copy into the new row.
+#' A renamed variable or data object cannot be told from one removed and one
+#' added, so what you wrote in the removed rows is printed for you to copy
+#' into the new rows.
 #'
 #' The columns keep the order they have in the file. The rows follow the
 #' data: data objects in alphabetical order, variables in the order of the
@@ -180,12 +181,13 @@ report_dictionary_changes <- function(merged) {
   if (nrow(removed) > 0) {
     labels <- variable_label(removed$file_name, removed$variable_name)
     ui_info("Removed {length(labels)} variable{?s}: {.val {labels}}")
-    # A rename shows up as one variable removed and one added in the same
-    # data object; what the user wrote in the removed row is worth keeping then
+    # A rename shows up as rows removed and rows added, of a variable or of
+    # a whole data object; what the user wrote in a removed row is worth
+    # keeping then
     written <- vapply(seq_len(nrow(removed)), function(i) written_cells(removed[i, ]), character(1))
-    candidate <- removed$file_name %in% merged$added$file_name & written != ""
+    candidate <- nrow(merged$added) > 0 & written != ""
     if (any(candidate)) {
-      ui_todo("If a removed variable was renamed, copy what you wrote about it to the new row:")
+      ui_todo("If a removed variable or its data object was renamed, copy what you wrote about it to the new row:")
       for (i in which(candidate)) {
         label <- labels[i]
         cells <- written[i]

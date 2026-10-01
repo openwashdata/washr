@@ -208,4 +208,4 @@ From then on the organisation, the repository URL, the license and the people ar
 
 For a package under another organisation, `update_description()` writes the funding, analytics, community and brand fields as `none` and lists them, because the openwashdata values would be wrong there. Edit them, then run the steps as above. A field that is set is never overwritten. `check_publication_readiness()` holds the package to these values.
 
-A license other than CC BY 4.0 is set in `License` before the first `update_description()`, for example with `usethis::use_ccby_license()` or another `usethis::use_*_license()` function.
+A license other than CC BY 4.0 is set in `License` before the first `update_description()`, for example with `usethis::use_cc0_license()` or another `usethis::use_*_license()` function. `update_description()` leaves a license that is set as it is.

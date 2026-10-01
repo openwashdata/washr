@@ -7,13 +7,13 @@
 update_citation(doi = NULL, build = TRUE, type = c("dataset", "software"))
 }
 \arguments{
-\item{doi}{DOI (Digital Object Identifier), e.g., 10.5281/zenodo.11185699.}
+\item{doi}{DOI (Digital Object Identifier), e.g., 10.5281/zenodo.11185699.
+Defaults to \code{NULL} for the call before the release, in which case no
+DOI is recorded and no badge is added.}
 
 \item{build}{Logical. Rebuild README.md and the pkgdown site after the
 citation files change? Defaults to \code{TRUE}. Set to \code{FALSE} to regenerate
-the citation files alone, e.g., in scripts and tests.
-Defaults to NULL for the pre-release call, in which case no DOI is
-recorded and no badge is added.}
+the citation files alone, e.g., in scripts and tests.}
 
 \item{type}{The CFF \code{type} of the work: \code{"dataset"} (the default, a data
 package) or \code{"software"}. Before 1.1.1 the file always said software,

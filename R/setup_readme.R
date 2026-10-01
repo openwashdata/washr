@@ -35,17 +35,14 @@
 #' setup_readme(has_example = TRUE)
 #' }
 setup_readme <- function(force = FALSE, has_example = FALSE){
-  local_quiet()
+  local_session()
   # Get metadata
   readmermd_path <- file.path("README.Rmd")
-  if (file.exists(readmermd_path)) {
-    if (!force) {
-      cli::cli_abort(c(
-        "{.path README.Rmd} already exists.",
-        "i" = "Call {.code setup_readme(force = TRUE)} to overwrite it."
-      ))
-    }
-    file.remove(readmermd_path)
+  if (file.exists(readmermd_path) && !force) {
+    cli::cli_abort(c(
+      "{.path README.Rmd} already exists.",
+      "i" = "Call {.code setup_readme(force = TRUE)} to overwrite it."
+    ))
   }
   pkgname <- desc::desc_get("Package")[[1]]
   datasets <- dataset_names()
@@ -55,6 +52,8 @@ setup_readme <- function(force = FALSE, has_example = FALSE){
       "i" = "Export the tidy data with {.fun usethis::use_data} first. The README documents it."
     ))
   }
+  # Only now, with everything in place for the new file, the old one goes
+  if (file.exists(readmermd_path)) file.remove(readmermd_path)
   dataname <- datasets[[1]]
   if (length(datasets) > 1) {
     ui_info("data/ holds {length(datasets)} data objects; the template documents {.val {dataname}}. Add a section for each of the others.")

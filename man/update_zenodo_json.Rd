@@ -30,7 +30,7 @@ The sources are:\tabular{ll}{
    creators \tab \code{Authors@R} roles \code{aut} and \code{cre}; ORCID and affiliation from the \code{comment} field \cr
    license \tab \code{License} in DESCRIPTION, as the identifier Zenodo uses (e.g., \code{cc-by-4.0}) \cr
    keywords \tab \code{X-schema.org-keywords} in DESCRIPTION, comma separated \cr
-   communities \tab \code{Config/washr/zenodo-community} in DESCRIPTION, default \code{openwashdata} \cr
+   communities \tab \code{Config/washr/zenodo-community} in DESCRIPTION: \code{openwashdata} for an openwashdata package, none for another organisation until it sets one \cr
    related_identifiers \tab the source article DOIs in \code{X-schema.org-isBasedOn} in DESCRIPTION \cr
 }
 }

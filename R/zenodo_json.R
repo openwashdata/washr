@@ -23,7 +23,7 @@
 #' | creators | `Authors@R` roles `aut` and `cre`; ORCID and affiliation from the `comment` field |
 #' | license | `License` in DESCRIPTION, as the identifier Zenodo uses (e.g., `cc-by-4.0`) |
 #' | keywords | `X-schema.org-keywords` in DESCRIPTION, comma separated |
-#' | communities | `Config/washr/zenodo-community` in DESCRIPTION, default `openwashdata` |
+#' | communities | `Config/washr/zenodo-community` in DESCRIPTION: `openwashdata` for an openwashdata package, none for another organisation until it sets one |
 #' | related_identifiers | the source article DOIs in `X-schema.org-isBasedOn` in DESCRIPTION |
 #'
 #' @details
@@ -63,7 +63,7 @@ update_zenodo_json <- function() {
       "i" = "Run this from the root of the data package."
     ))
   }
-  local_quiet()
+  local_session()
   write_zenodo_json()
 }
 
