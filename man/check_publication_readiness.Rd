@@ -70,12 +70,14 @@ a review tool can pick the rows it needs.\tabular{lll}{
    docs \tab \code{readme} \tab \code{README.Rmd} and the rendered \code{README.md} are present \cr
    docs \tab \code{rd_source} \tab at least one help page in \verb{man/} carries a source \cr
    docs \tab \code{readme_extdata_links} \tab \code{README.md} links a \code{.csv} or \code{.xlsx} file under \verb{inst/extdata/} \cr
+   docs \tab \code{readme_citation} \tab \code{README.md} names the DOI that \code{CITATION.cff} carries \cr
    docs \tab \code{vignettes_location} \tab no \code{.Rmd} or \code{.qmd} file sits directly in \verb{vignettes/} \cr
    docs \tab \code{pkgdown_config} \tab \verb{_pkgdown.yml} is present \cr
    docs \tab \code{pkgdown_analytics} \tab \verb{_pkgdown.yml} carries the analytics header \cr
    docs \tab \code{pkgdown_url} \tab \code{url} in \verb{_pkgdown.yml} is the Pages URL, not the repository URL \cr
    docs \tab \code{pkgdown_funding} \tab \verb{_pkgdown.yml} carries the funding text of the organisation \cr
    docs \tab \code{pkgdown_brand} \tab the brand entry in \verb{_pkgdown.yml} matches the organisation \cr
+   docs \tab \code{pkgdown_llm_docs} \tab \verb{_pkgdown.yml} does not switch off the \code{llms.txt} of the site (\code{llm-docs: false}) \cr
    docs \tab \code{docs_untracked} \tab git tracks no file under \verb{docs/} while the pkgdown workflow deploys the site \cr
    tests \tab \code{check_workflow} \tab \code{.github/workflows/R-CMD-check.yaml} is present \cr
    tests \tab \code{check_workflow_dev} \tab every \verb{branches:} list in that workflow includes \code{dev} \cr

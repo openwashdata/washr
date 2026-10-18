@@ -53,6 +53,17 @@ the changes of 1.1.1 to CRAN, which was released on GitHub only.
   usethis helpers it calls, for use in scripts. Warnings and errors are
   never silenced (#84).
 
+- The README of `setup_readme()` says in plain text which version to cite
+  with which DOI, links the authors page of the site and `CITATION.cff`,
+  and names the source article of republished data. Its download links
+  point at the release tag of the version in DESCRIPTION, so a citation of
+  a version leads to the same files later; a development version links the
+  main branch. pkgdown 2.2.0 builds the `llms.txt` of a site from the
+  README, so AI tools now read the same. `check_publication_readiness()`
+  gains two items: `readme_citation` (README.md names the DOI of
+  CITATION.cff) and `pkgdown_llm_docs` (`_pkgdown.yml` keeps the
+  `llms.txt` of the site) (#137).
+
 ## Changed
 
 - washr reads the facts of a package from DESCRIPTION, so a group other

@@ -76,3 +76,55 @@ test_that("setup_readme() omits the Example section by default and documents the
   expect_true(any(grepl("### apple", readme, fixed = TRUE)))
   expect_false(any(grepl("{{{", readme, fixed = TRUE)))
 })
+
+# The plain text citation chunk of the template, run as knitr would run it.
+citation_chunk <- function(readme = readLines("README.Rmd")) {
+  start <- grep("^```\\{r, echo=FALSE, results='asis'\\}", readme)
+  stopifnot(length(start) == 1)
+  end <- start + which(readme[(start + 1):length(readme)] == "```")[1]
+  paste(capture.output(eval(parse(text = readme[(start + 1):(end - 1)]), envir = new.env())),
+        collapse = "\n")
+}
+
+test_that("setup_readme() states the DOI, the version and the source article in plain text (#137)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  d1 <- data.frame(id = 1:3, name = c("A", "B", "C"))
+  usethis::use_data(d1)
+  setup_readme()
+  readme <- readLines("README.Rmd")
+  pkg <- desc::desc_get("Package")[[1]]
+  expect_false(any(grepl("{{{", readme, fixed = TRUE)))
+  expect_true(any(grepl(paste0("https://openwashdata.github.io/", pkg, "/authors.html"), readme, fixed = TRUE)))
+
+  # Before the first DOI: only the pointers
+  text <- citation_chunk(readme)
+  expect_false(grepl("Cite version", text, fixed = TRUE))
+  expect_match(text, "authors page", fixed = TRUE)
+
+  writeLines(c("cff-version: 1.2.0", "version: 1.0.0", "doi: 10.5281/zenodo.1234567",
+               "references:", "- type: article", "  doi: 10.1000/source"), "CITATION.cff")
+  desc::desc_set(`X-schema.org-isBasedOn` = "https://doi.org/10.1000/source")
+  text <- citation_chunk(readme)
+  expect_match(text, "Cite version 1.0.0 of", fixed = TRUE)
+  expect_match(text, "[10.5281/zenodo.1234567](https://doi.org/10.5281/zenodo.1234567)", fixed = TRUE)
+  expect_match(text, "first published in <https://doi.org/10.1000/source>", fixed = TRUE)
+})
+
+test_that("the download links follow the release tag, and main for a development version (#137)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  d1 <- data.frame(id = 1:3, name = c("A", "B", "C"))
+  usethis::use_data(d1)
+  setup_readme()
+  readme <- readLines("README.Rmd")
+  start <- grep("^version <- read.dcf", readme)
+  ref_code <- readme[start + 0:1]
+  env <- new.env()
+  eval(parse(text = ref_code), envir = env)
+  expect_identical(env$ref, "main")
+  desc::desc_set(Version = "1.2.0")
+  eval(parse(text = ref_code), envir = env)
+  expect_identical(env$ref, "v1.2.0")
+  expect_true(any(grepl('/raw/", ref, "/inst/extdata/"', readme, fixed = TRUE)))
+})
