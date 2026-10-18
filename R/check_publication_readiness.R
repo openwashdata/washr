@@ -32,12 +32,14 @@
 #' | docs | `readme` | `README.Rmd` and the rendered `README.md` are present |
 #' | docs | `rd_source` | at least one help page in `man/` carries a source |
 #' | docs | `readme_extdata_links` | `README.md` links a `.csv` or `.xlsx` file under `inst/extdata/` |
+#' | docs | `readme_citation` | `README.md` names the DOI that `CITATION.cff` carries |
 #' | docs | `vignettes_location` | no `.Rmd` or `.qmd` file sits directly in `vignettes/` |
 #' | docs | `pkgdown_config` | `_pkgdown.yml` is present |
 #' | docs | `pkgdown_analytics` | `_pkgdown.yml` carries the analytics header |
 #' | docs | `pkgdown_url` | `url` in `_pkgdown.yml` is the Pages URL, not the repository URL |
 #' | docs | `pkgdown_funding` | `_pkgdown.yml` carries the funding text of the organisation |
 #' | docs | `pkgdown_brand` | the brand entry in `_pkgdown.yml` matches the organisation |
+#' | docs | `pkgdown_llm_docs` | `_pkgdown.yml` does not switch off the `llms.txt` of the site (`llm-docs: false`) |
 #' | docs | `docs_untracked` | git tracks no file under `docs/` while the pkgdown workflow deploys the site |
 #' | tests | `check_workflow` | `.github/workflows/R-CMD-check.yaml` is present |
 #' | tests | `check_workflow_dev` | every `branches:` list in that workflow includes `dev` |
@@ -347,6 +349,10 @@ readiness_checks <- function() {
           "README links the CSV/XLSX exports in inst/extdata/ for non-R users",
           "Export CSV and XLSX files to inst/extdata/, keep the download table of the setup_readme() template, then run devtools::build_readme().",
           readiness_readme_extdata_links),
+    check("readme_citation", "docs",
+          "README names the DOI to cite, also for readers of llms.txt",
+          "Keep the Citation section of the setup_readme() template, then run devtools::build_readme().",
+          readiness_readme_citation),
     check("vignettes_location", "docs",
           "No vignettes directly in vignettes/ (they belong in vignettes/articles/)",
           "Move the files to vignettes/articles/, where usethis::use_article() puts them.",
@@ -367,6 +373,10 @@ readiness_checks <- function() {
     check("pkgdown_brand", "docs", "_pkgdown.yml brand wiring matches the org profile",
           "Remove the brand entry from _pkgdown.yml, or run use_brand() when the organisation has a brand.",
           readiness_pkgdown_brand),
+    check("pkgdown_llm_docs", "docs",
+          "_pkgdown.yml keeps the llms.txt of the site",
+          "Remove llm-docs: false from _pkgdown.yml.",
+          readiness_pkgdown_llm_docs),
     check("docs_untracked", "docs",
           "docs/ untracked while the pkgdown workflow deploys the site",
           "Run git rm -r --cached docs and add docs to .gitignore.",
@@ -632,6 +642,17 @@ readiness_readme_extdata_links <- function(ctx) {
                    })
 }
 
+readiness_readme_citation <- function(ctx) {
+  cff <- ctx$lines("CITATION.cff")
+  if (length(cff) == 0) return(readiness_na("CITATION.cff missing"))
+  doi_line <- grep("^doi:", cff, value = TRUE)
+  doi <- if (length(doi_line)) gsub("^doi:\\s*['\"]?|['\"]?\\s*$", "", doi_line[[1]]) else ""
+  if (!nzchar(doi)) return(readiness_na("CITATION.cff carries no DOI yet"))
+  found <- any(grepl(doi, ctx$lines("README.md"), fixed = TRUE))
+  readiness_result(found,
+                   if (found) "" else sprintf("README.md does not name the DOI %s", doi))
+}
+
 readiness_vignettes_location <- function(ctx) {
   vignettes <- if (dir.exists(ctx$file("vignettes"))) {
     list.files(ctx$file("vignettes"), "\\.(Rmd|qmd)$")
@@ -692,6 +713,15 @@ readiness_pkgdown_funding <- function(ctx) {
     (is.character(text) && grepl(squish(funding[[1]]), squish(text[[1]]), fixed = TRUE))
   readiness_result(found,
                    if (found) "" else "the profile's funding text was not found verbatim")
+}
+
+# pkgdown 2.2.0 and later build llms.txt and a Markdown copy of every page
+# unless the configuration switches them off (#137).
+readiness_pkgdown_llm_docs <- function(ctx) {
+  config <- ctx$lines("_pkgdown.yml")
+  if (length(config) == 0) return(readiness_na("_pkgdown.yml missing"))
+  off <- grep("^llm-docs:\\s*(false|no)\\s*$", config, ignore.case = TRUE, value = TRUE)
+  readiness_result(length(off) == 0, if (length(off)) off[[1]] else "")
 }
 
 readiness_pkgdown_brand <- function(ctx) {

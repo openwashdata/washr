@@ -74,7 +74,8 @@ test_that("a package taken through the workflow passes every applicable item (#8
   expect_true(all(result$status %in% c("pass", "fail", "na")))
   expect_identical(result$id[result$status == "fail"], character())
   # the package is held to its own Config/washr values; no pkgdown workflow
-  expect_identical(result$id[result$status == "na"], "docs_untracked")
+  # no DOI yet
+  expect_identical(result$id[result$status == "na"], c("readme_citation", "docs_untracked"))
 
   expect_true(attr(result, "ready"))
   expect_identical(attr(result, "washr_version"), as.character(utils::packageVersion("washr")))
@@ -87,7 +88,7 @@ test_that("the report goes through cli, can be silenced and prints again (#82)",
   expect_no_message(quiet_check())
   expect_invisible(quiet_check())
   expect_output(print(result), "Publication readiness")
-  expect_output(print(result), "27 pass, 0 fail, 1 not applicable", fixed = TRUE)
+  expect_output(print(result), "28 pass, 0 fail, 2 not applicable", fixed = TRUE)
   expect_identical(length(format(result)) > nrow(result), TRUE)
 })
 
@@ -126,6 +127,9 @@ test_that("each item fails on its own gap and names the step that closes it (#82
       rewrite(file.path(p, "man", "trips.Rd"), function(x) x[!grepl("source", x)])
     },
     readme_extdata_links = function(p) writeLines("# fixture", file.path(p, "README.md")),
+    readme_citation = function(p) {
+      cat("doi: 10.5281/zenodo.1234567\n", file = file.path(p, "CITATION.cff"), append = TRUE)
+    },
     vignettes_location = function(p) {
       dir.create(file.path(p, "vignettes"))
       writeLines("---", file.path(p, "vignettes", "analysis.Rmd"))
@@ -137,6 +141,9 @@ test_that("each item fails on its own gap and names the step that closes it (#82
     pkgdown_url = function(p) {
       rewrite(file.path(p, "_pkgdown.yml"),
               function(x) sub("^url: .*$", "url: https://github.com/openwashdata/fixture", x))
+    },
+    pkgdown_llm_docs = function(p) {
+      cat("llm-docs: false\n", file = file.path(p, "_pkgdown.yml"), append = TRUE)
     },
     check_workflow = function(p) unlink(file.path(p, ".github", "workflows", "R-CMD-check.yaml")),
     check_workflow_dev = function(p) {
@@ -179,8 +186,8 @@ test_that("items that cannot be decided are not applicable, with the reason (#82
   result <- quiet_check(target)
   na_ids <- c("citation_version", "citation_authors", "dictionary_coverage",
               "dictionary_descriptions", "dictionary_schema", "roxygen_docs",
-              "pkgdown_analytics", "pkgdown_url", "pkgdown_funding", "pkgdown_brand",
-              "docs_untracked", "check_workflow_dev")
+              "readme_citation", "pkgdown_analytics", "pkgdown_url", "pkgdown_funding",
+              "pkgdown_brand", "pkgdown_llm_docs", "docs_untracked", "check_workflow_dev")
   expect_identical(unname(result$status[match(na_ids, result$id)]), rep("na", length(na_ids)))
   expect_true(all(nzchar(result$detail[match(na_ids, result$id)])))
   expect_identical(status_of(result, "citation_cff"), "fail")
@@ -303,4 +310,13 @@ test_that("a text file with invalid UTF-8 bytes is still read (#82)", {
   result <- quiet_check()
   expect_identical(status_of(result, "readme_extdata_links"), "pass")
   expect_false(any(grepl("stopped with an error", result$detail)))
+})
+
+test_that("readme_citation passes once README.md names the DOI of CITATION.cff (#137)", {
+  readiness_fixture()
+  cat("doi: 10.5281/zenodo.1234567\n", file = "CITATION.cff", append = TRUE)
+  expect_identical(status_of(quiet_check(), "readme_citation"), "fail")
+  cat("Cite version 0.0.0.9000 with the DOI [10.5281/zenodo.1234567](https://doi.org/10.5281/zenodo.1234567).\n",
+      file = "README.md", append = TRUE)
+  expect_identical(status_of(quiet_check(), "readme_citation"), "pass")
 })

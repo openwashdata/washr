@@ -108,8 +108,9 @@ test_that("the README template reads the repository and the license from DESCRIP
   other <- readLines("README.Rmd")
   expect_false(any(grepl("openwashdata", other, fixed = TRUE)))
   expect_true(any(grepl(paste0('install_github("exampleorg/', pkg, '")'), other, fixed = TRUE)))
-  expect_true(any(grepl(paste0("https://github.com/exampleorg/", pkg, "/raw/main/inst/extdata/"),
+  expect_true(any(grepl(paste0('"https://github.com/exampleorg/', pkg, '/raw/", ref, "/inst/extdata/"'),
                         other, fixed = TRUE)))
+  expect_true(any(grepl(paste0("https://exampleorg.github.io/", pkg, "/authors.html"), other, fixed = TRUE)))
   expect_true(any(grepl("[![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC_BY--SA_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)",
                         other, fixed = TRUE)))
   expect_true(any(grepl("[CC BY-SA 4.0](", other, fixed = TRUE)))
