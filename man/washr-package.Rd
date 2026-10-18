@@ -8,6 +8,18 @@
 \description{
 A toolkit to set up an R data package in a consistent structure. Automates tasks like tidy data export, data dictionary documentation, README and website creation, and citation management.
 }
+\section{Messages and return values}{
+
+Every function reports through cli with three kinds of lines: a success
+line for a file it wrote, an info line for something it kept or skipped,
+and an arrow line for the next step that is left to you. Each function
+returns what it wrote, invisibly: the path of the file, or the paths when
+there are several. \code{\link[=update_metadata]{update_metadata()}} returns the metadata as a list.
+
+Set \code{options(washr.quiet = TRUE)} to silence these lines, for example in
+scripts. Warnings and errors are never silenced.
+}
+
 \seealso{
 Useful links:
 \itemize{

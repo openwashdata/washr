@@ -1,26 +1,31 @@
-# Standard openwashdata _pkgdown.yml, written by washr::setup_website().
+# Standard _pkgdown.yml, written by washr::setup_website() from DESCRIPTION.
 # `url` is the site base URL (canonical links, sitemap.xml, redirects), so it
 # is the Pages URL, never the GitHub repository URL; the repository link lives
-# in home.links below. The in_header block is the openwashdata analytics
-# header. washr keeps this file as it is on every later run.
-url: https://openwashdata.github.io/{{{name}}}/
+# in home.links below. The analytics header and the funding text come from
+# the Config/washr fields in DESCRIPTION. washr keeps this file as it is on
+# every later run.
+url: {{{pages_url}}}
 template:
   bootstrap: 5
+{{#has_analytics}}
   includes:
     in_header: |
-      <script defer data-domain="openwashdata.github.io" src="https://plausible.io/js/script.js"></script>
+      <script defer data-domain="{{{analytics_domain}}}" src="https://plausible.io/js/script.js"></script>
+{{/has_analytics}}
 
 home:
   links:
     - icon: github
       text: GitHub repository
-      href: https://github.com/openwashdata/{{{name}}}
+      href: {{{repo_url}}}
+{{#has_funding}}
   sidebar:
     structure: [links, citation, authors, dev, custom]
     components:
       custom:
         title: Funding
-        text: This project was funded by the [Open Research Data Program of the ETH Board](https://ethrat.ch/en/eth-domain/open-research-data/).
+        text: {{{funding}}}
+{{/has_funding}}
 
 authors:
   footer:

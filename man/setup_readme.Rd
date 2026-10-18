@@ -16,12 +16,21 @@ to FALSE. Pairs with the \code{has_example} argument of \code{\link[=setup_websi
 which adds the matching article to the site.}
 }
 \value{
-NULL. This function creates a README.Rmd under the package directory.
+The path of README.Rmd, invisibly.
 }
 \description{
 \code{setup_readme()} uses the openwashdata README template to generate README files based on datasets
 retrieved from the \verb{data/} directory. It helps in creating consistent and informative README documentation
-for your data packages.
+for your data packages. The repository links, the install line and the
+license come from DESCRIPTION, so run \code{\link[=update_description]{update_description()}} first.
+
+The Citation section states in plain text which version to cite with
+which DOI, links the authors page of the site and \code{CITATION.cff}, and
+names the source article of republished data from
+\code{X-schema.org-isBasedOn}. The download links point at the release tag of
+the version in DESCRIPTION, and at the main branch for a development
+version. pkgdown builds the \code{llms.txt} of the site from the README, so
+this is also what AI tools read about the package.
 
 The template documents the first data object in \verb{data/} (alphabetically);
 add a section per further object by hand. It stops when \verb{data/} holds no
@@ -41,6 +50,7 @@ setup_readme(has_example = TRUE)
 Before: \code{\link[=update_description]{update_description()}}. Next: \code{\link[=setup_website]{setup_website()}}, which builds the site from README.md.
 
 Other publishing functions:
+\code{\link[=check_publication_readiness]{check_publication_readiness()}},
 \code{\link[=setup_website]{setup_website()}},
 \code{\link[=use_brand]{use_brand()}}
 }
