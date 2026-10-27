@@ -130,3 +130,106 @@ test_that("update_citation() declares the work as a dataset in CITATION.cff (#56
   suppressMessages(update_citation(type = "software"))
   expect_equal(cffr::cff_read("CITATION.cff")$type, "software")
 })
+
+# TEST source articles (#134) --------------------------------------------------
+# CSL JSON as doi.org returns it for a Crossref journal article, with the
+# markup and line breaks Crossref titles carry
+csl_fixture <- function(doi = "10.2166/wh.2026.173") {
+  list(type = "journal-article", DOI = doi,
+       title = "Seasonal changes in <i>water</i> quality\n  properties",
+       author = list(list(given = "Thulfiqar", family = "Al-Graiti",
+                          ORCID = "http://orcid.org/0000-0002-5514-690X"),
+                     list(given = "Hasan A.", family = "Qazmooz")),
+       `container-title` = "Journal of Water and Health",
+       volume = "24", issue = "4", page = "518-534",
+       issued = list(`date-parts` = list(list(2026, 3, 18))))
+}
+
+test_that("update_citation() cites the source article from X-schema.org-isBasedOn (#134)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  local_mocked_bindings(fetch_doi_csl = function(doi) csl_fixture(doi))
+  desc::desc_set("Date", "2026-07-23")
+  desc::desc_set("X-schema.org-isBasedOn", "https://doi.org/10.2166/wh.2026.173")
+  suppressMessages(update_citation(build = FALSE))
+  expect_true(cffr::cff_validate("CITATION.cff", verbose = FALSE))
+  cff <- cffr::cff_read("CITATION.cff")
+  expect_null(cff$`preferred-citation`)
+  expect_match(cff$message, "cite both the data package and the original article", fixed = TRUE)
+  expect_length(cff$references, 1)
+  ref <- cff$references[[1]]
+  expect_identical(ref$type, "article")
+  expect_identical(ref$doi, "10.2166/wh.2026.173")
+  expect_identical(ref$title, "Seasonal changes in water quality properties")
+  expect_identical(ref$journal, "Journal of Water and Health")
+  expect_identical(ref$authors[[1]]$orcid, "https://orcid.org/0000-0002-5514-690X")
+  # inst/CITATION holds the package and the article under the same header
+  cit <- utils::readCitationFile(file.path("inst", "CITATION"), meta = list(Encoding = "UTF-8"))
+  expect_length(cit, 2)
+  expect_match(paste(readLines(file.path("inst", "CITATION")), collapse = "\n"),
+               "citHeader(", fixed = TRUE)
+})
+
+test_that("update_citation() with a source article is idempotent and keeps the reference offline (#134)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  desc::desc_set("Date", "2026-07-23")
+  desc::desc_set("X-schema.org-isBasedOn", "10.2166/wh.2026.173")
+  local_mocked_bindings(fetch_doi_csl = function(doi) csl_fixture(doi))
+  suppressMessages(update_citation(doi = "10.5281/zenodo.11185699", build = FALSE))
+  first <- readLines("CITATION.cff")
+  first_cit <- readLines(file.path("inst", "CITATION"))
+  suppressMessages(update_citation(build = FALSE))
+  expect_identical(readLines("CITATION.cff"), first)
+  expect_identical(readLines(file.path("inst", "CITATION")), first_cit)
+  # the lookup fails: the entry on file stays
+  local_mocked_bindings(fetch_doi_csl = function(doi) NULL)
+  suppressMessages(update_citation(build = FALSE))
+  expect_identical(readLines("CITATION.cff"), first)
+})
+
+test_that("update_citation() leaves a source out when it cannot be looked up and nothing is on file (#134)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  desc::desc_set("Date", "2026-07-23")
+  desc::desc_set("X-schema.org-isBasedOn", "10.2166/wh.2026.173")
+  local_mocked_bindings(fetch_doi_csl = function(doi) NULL)
+  expect_warning(suppressMessages(update_citation(build = FALSE)), "Could not look up")
+  cff <- cffr::cff_read("CITATION.cff")
+  expect_null(cff$references)
+  expect_match(cff$message, "To cite package", fixed = TRUE)
+})
+
+test_that("update_citation() drops references that do not come from X-schema.org-isBasedOn (#134)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  desc::desc_set("Date", "2026-07-23")
+  suppressMessages(update_citation(build = FALSE))
+  # a hand-written second entry, as glaas carried one
+  cat('\nbibentry(bibtype = "Misc", title = "GLAAS dataset", author = person("World Health Organization"), year = "2025")\n',
+      file = file.path("inst", "CITATION"), append = TRUE)
+  suppressMessages(update_citation(build = FALSE))
+  expect_null(cffr::cff_read("CITATION.cff")$references)
+  expect_length(utils::readCitationFile(file.path("inst", "CITATION"),
+                                        meta = list(Encoding = "UTF-8")), 1)
+})
+
+test_that("source_dois() normalises DOI forms and skips values that are not DOIs (#134)", {
+  create_local_package()
+  desc::desc_set("X-schema.org-isBasedOn",
+                 "doi:10.1371/journal.pwat.0000123, https://dx.doi.org/10.2166/wh.2026.173, glaas.who.int, 10.2166/wh.2026.173")
+  expect_identical(suppressMessages(source_dois()),
+                   c("10.1371/journal.pwat.0000123", "10.2166/wh.2026.173"))
+})
+
+test_that("csl_to_reference() maps a DataCite dataset to a CFF reference of type data (#134)", {
+  csl <- list(type = "dataset", DOI = "10.5281/zenodo.11185699",
+              title = "washopenresearch", publisher = "Zenodo",
+              author = list(list(given = "Mian", family = "Zhong")),
+              issued = list(`date-parts` = list(list(2024))))
+  ref <- csl_to_reference(csl)
+  expect_identical(ref$type, "data")
+  expect_identical(ref$doi, "10.5281/zenodo.11185699")
+  expect_identical(source_message(list(ref)),
+                   "If you use this dataset, please cite both the data package and the original work listed under references.")
+})

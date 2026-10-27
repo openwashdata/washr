@@ -26,13 +26,11 @@
 #' setup_ci()
 #' }
 setup_ci <- function() {
-  if (!is_pkg()) {
-    usethis::ui_stop("You are not in the correct working directory for developing the data package.
-                          Please check your working directory.")
-  }
+  check_pkg_root()
+  local_session()
   target <- file.path(".github", "workflows", "R-CMD-check.yaml")
   if (file.exists(target)) {
-    usethis::ui_info("{usethis::ui_path(target)} exists and is kept as it is.")
+    ui_info("{.path {target}} exists and is kept as it is.")
   } else {
     dir.create(dirname(target), recursive = TRUE, showWarnings = FALSE)
     # Copied, not rendered. usethis::use_template() runs the file through
@@ -41,11 +39,12 @@ setup_ci <- function() {
     # The template carries no variables, so there is nothing to interpolate.
     file.copy(system.file("templates", "R-CMD-check.yaml", package = "washr"),
               target, overwrite = FALSE)
-    usethis::ui_done("Writing {usethis::ui_path(target)}")
+    ui_done("Wrote {.path {target}}")
   }
   usethis::use_build_ignore(".github")
   if (add_check_badge()) {
-    usethis::ui_done("Added the R CMD check badge to README.Rmd; rebuild it with devtools::build_readme()")
+    ui_done("Added the R CMD check badge to {.path README.Rmd}")
+    ui_todo("Rebuild the README with {.code devtools::build_readme()}.")
   }
   invisible(target)
 }
@@ -58,8 +57,7 @@ add_check_badge <- function(path = "README.Rmd") {
   if (any(grepl("workflows/R-CMD-check.yaml/badge.svg", lines, fixed = TRUE))) return(invisible(FALSE))
   end <- which(trimws(lines) == "<!-- badges: end -->")
   if (length(end) == 0) return(invisible(FALSE))
-  repo <- github_repo_url()
-  if (is.null(repo)) repo <- paste0("https://github.com/openwashdata/", desc::desc_get("Package")[[1]])
+  repo <- pkg_repo_url()
   badge <- sprintf("[![R-CMD-check](%s/actions/workflows/R-CMD-check.yaml/badge.svg)](%s/actions/workflows/R-CMD-check.yaml)", repo, repo)
   lines <- append(lines, badge, after = end[1] - 1)
   writeLines(lines, path)

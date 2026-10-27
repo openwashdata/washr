@@ -26,9 +26,8 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 
-[![License: CC BY
-4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
-[![R-CMD-check](https://github.com/openwashdata/{{{packagename}}}/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/openwashdata/{{{packagename}}}/actions/workflows/R-CMD-check.yaml)
+{{{license_badge}}}
+[![R-CMD-check]({{{repo_url}}}/actions/workflows/R-CMD-check.yaml/badge.svg)]({{{repo_url}}}/actions/workflows/R-CMD-check.yaml)
 
 <!-- badges: end -->
 
@@ -41,7 +40,7 @@ You can install the development version of {{{packagename}}} from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("openwashdata/{{{packagename}}}")
+devtools::install_github("{{{repo_slug}}}")
 ```
 
 ```{r}
@@ -65,7 +64,11 @@ file from the table below.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
-extdata_path <- "https://github.com/openwashdata/{{{packagename}}}/raw/main/inst/extdata/"
+# A release links the files of its own tag, so a citation of that version
+# gets the same files later; a development version links the main branch.
+version <- read.dcf("DESCRIPTION", fields = "Version")[[1]]
+ref <- if (grepl("^[0-9]+\\.[0-9]+\\.[0-9]+$", version)) paste0("v", version) else "main"
+extdata_path <- paste0("{{{repo_url}}}/raw/", ref, "/inst/extdata/")
 
 read_csv("data-raw/dictionary.csv") |> 
   distinct(file_name) |> 
@@ -134,9 +137,36 @@ library({{{packagename}}})
 ## License
 
 Data are available as
-[CC-BY](https://github.com/openwashdata/{{{packagename}}}/blob/main/LICENSE.md).
+[{{{license_label}}}]({{{repo_url}}}/blob/main/LICENSE.md).
 
 ## Citation
+
+```{r, echo=FALSE, results='asis'}
+# How to cite in plain text, so the DOI and the version also reach readers
+# of README.md and the llms.txt that pkgdown builds from it.
+cff <- if (file.exists("CITATION.cff")) readLines("CITATION.cff", warn = FALSE) else character()
+cff_value <- function(key) {
+  line <- grep(paste0("^", key, ":"), cff, value = TRUE)
+  if (length(line)) gsub("^[^:]+:\\s*['\"]?|['\"]?\\s*$", "", line[[1]]) else ""
+}
+doi <- cff_value("doi")
+if (nzchar(doi)) {
+  cat("Cite version ", cff_value("version"), " of {{{packagename}}} with the DOI ",
+      "[", doi, "](https://doi.org/", doi, "). ", sep = "")
+}
+cat("The full citation with BibTeX and the authors with their ORCID iDs are on the ",
+    "[authors page]({{{pages_url}}}authors.html), and ",
+    "[CITATION.cff]({{{repo_url}}}/blob/main/CITATION.cff) holds the same in ",
+    "machine readable form.\n\n", sep = "")
+based_on <- read.dcf("DESCRIPTION", fields = "X-schema.org-isBasedOn")[[1]]
+if (!is.na(based_on)) {
+  sources <- sub("^(https?://(dx\\.)?doi\\.org/|doi:\\s*)", "",
+                 trimws(strsplit(based_on, ",")[[1]]), ignore.case = TRUE)
+  cat("The data were first published in ",
+      paste0("<https://doi.org/", sources, ">", collapse = ", "),
+      ". Please cite that source as well.\n\n", sep = "")
+}
+```
 
 Please cite this package using:
 

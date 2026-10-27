@@ -76,5 +76,8 @@ test_that("DESCRIPTION full-file snapshot (#65)", {
   # which differs between machines and CI runners, so neither line belongs
   # in the snapshot
   lines <- lines[!grepl("^(RoxygenNote|Config/roxygen2/version):", lines)]
+  # Config/washr/version records the washr version that ran, which changes
+  # with every release
+  lines <- sub("^(Config/washr/version:).*$", "\\1 WASHR_VERSION", lines)
   expect_snapshot(cat(lines, sep = "\n"))
 })

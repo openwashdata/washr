@@ -8,7 +8,8 @@ update_metadata(quiet = FALSE)
 }
 \arguments{
 \item{quiet}{Logical. Suppress the messages and the report of blank
-fields. Defaults to \code{FALSE}.}
+fields. Defaults to \code{FALSE}, or to \code{TRUE} when \code{options(washr.quiet = TRUE)}
+is set.}
 }
 \value{
 The Dataset description as a list, invisibly. The \code{"blank"}
@@ -31,6 +32,7 @@ The sources are:\tabular{ll}{
    url \tab the pkgdown site (a \code{github.io} entry in \code{URL}), else the repository \cr
    keywords \tab \code{X-schema.org-keywords} in DESCRIPTION, comma separated \cr
    spatialCoverage, temporalCoverage \tab \code{X-schema.org-spatialCoverage} and \code{X-schema.org-temporalCoverage} in DESCRIPTION \cr
+   isBasedOn \tab the source article DOIs in \code{X-schema.org-isBasedOn} in DESCRIPTION, comma separated \cr
    creator, maintainer, funder, publisher \tab \code{Authors@R} roles \code{aut}/\code{cre}, \code{cre}, \code{fnd}, \code{cph}; ORCID from the \code{comment} field \cr
    identifier, sameAs \tab the DOI in \code{CITATION.cff}, written by \code{\link[=update_citation]{update_citation()}} \cr
    variableMeasured \tab \code{data-raw/dictionary.csv} \cr
@@ -53,6 +55,7 @@ Before: \code{\link[=update_description]{update_description()}}, which writes th
 
 Other metadata functions:
 \code{\link[=update_citation]{update_citation()}},
-\code{\link[=update_description]{update_description()}}
+\code{\link[=update_description]{update_description()}},
+\code{\link[=update_zenodo_json]{update_zenodo_json()}}
 }
 \concept{metadata functions}

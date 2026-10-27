@@ -1,3 +1,39 @@
+## Version 1.2.0
+
+Minor release. The maintainer is unchanged. It includes the changes of
+1.1.1, which was released on GitHub only; the version on CRAN is 1.1.0.
+
+### Changes
+
+- Three new exports: `check_publication_readiness()` (a read-only report of
+  what a data package still lacks before publication), `update_dictionary()`
+  and `update_zenodo_json()`.
+- Messages go through cli, which is a new import. washr no longer calls the
+  superseded `usethis::ui_*()` functions.
+- Every exported function returns the path or paths it wrote, invisibly.
+  Before, most returned `NULL`. The documentation states the new values.
+- Two argument defaults changed: `use_brand(ref = )` from `"main"` to the
+  latest release tag of the brand repository, and
+  `update_description(github_user = )` from the openwashdata URL to the
+  organisation already listed in `URL`.
+- The values that were fixed to one organisation are read from DESCRIPTION
+  (`URL`, `License`, and `Config/washr/` fields).
+- From 1.1.1: `setup_ci()` writes the workflow file unchanged, `use_brand()`
+  reads logo entries written as a list, and `update_citation()` gains a
+  `type` argument.
+
+`use_brand()` and `update_citation()` reach the network (GitHub, doi.org)
+only when the user calls them. No test, example or vignette needs the
+network, and every test writes under `tempdir()`.
+
+### R CMD check results
+
+0 errors | 0 warnings | 0 notes
+
+### Reverse dependencies
+
+None on CRAN.
+
 ## Version 1.1.1
 
 Patch release: three fixes and one new argument with a default. Nothing is
