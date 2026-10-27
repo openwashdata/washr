@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">washr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,11 +57,14 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>From CRAN:</p>
+<p>The stable release, from CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"washr"</span><span class="op">)</span></span></code></pre></div>
-<p>Or the development version from <a href="https://github.com/openwashdata/washr" class="external-link">GitHub</a>:</p>
+<p>The current development build, from the <a href="https://openwashdata.r-universe.dev" class="external-link">openwashdata R-universe</a>. It is rebuilt on every push and installs like any other package, with no compiler toolchain:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"washr"</span>, repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://openwashdata.r-universe.dev"</span>, <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"repos"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>The same development source from <a href="https://github.com/openwashdata/washr" class="external-link">GitHub</a>, built on your machine:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"openwashdata/washr"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -75,7 +78,7 @@
 <li>
 <code><a href="reference/setup_rawdata.html">setup_rawdata()</a></code> creates <code>data-raw/</code> and the processing script.</li>
 <li>
-<code><a href="reference/setup_dictionary.html">setup_dictionary()</a></code> writes the variable dictionary from the data objects.</li>
+<code><a href="reference/setup_dictionary.html">setup_dictionary()</a></code> writes the variable dictionary from the data objects, and <code><a href="reference/update_dictionary.html">update_dictionary()</a></code> brings it in line with the data after a change.</li>
 <li>
 <code><a href="reference/setup_roxygen.html">setup_roxygen()</a></code> writes the roxygen documentation from the dictionary.</li>
 <li>
@@ -87,10 +90,12 @@
 <li>
 <code><a href="reference/use_brand.html">use_brand()</a></code> installs the openwashdata brand for the site.</li>
 <li>
-<code><a href="reference/update_citation.html">update_citation()</a></code> writes the citation files, with the DOI once there is one.</li>
+<code><a href="reference/update_citation.html">update_citation()</a></code> writes the citation files, with the DOI once there is one, and the <code>.zenodo.json</code> that files the release on Zenodo as a dataset.</li>
 </ul>
+<p><code><a href="reference/check_publication_readiness.html">check_publication_readiness()</a></code> then reports, item by item, what is in place and what is still missing before the release.</p>
 <p>The FAIR layer is one experimental function. <code><a href="reference/update_metadata.html">update_metadata()</a></code> derives a schema.org description of the dataset from the files above and embeds it in the site, where dataset search engines read it.</p>
 <p>Every function reads what is there, merges its changes, and is safe to run again.</p>
+<p>A package scaffolded with washr meets the required tier of the openwashdata review standard, <a href="https://github.com/openwashdata/pkgreview" class="external-link">pkgreview</a>. A workflow builds a fixture package on every push and checks it against the pkgreview version recorded in <code>PKGREVIEW_FLOOR</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="how-to-use-washr">How to use washr<a class="anchor" aria-label="anchor" href="#how-to-use-washr"></a>

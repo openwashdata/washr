@@ -34,7 +34,8 @@ The badge appears in the README written by
 Other setup functions:
 [`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md),
 [`setup_rawdata()`](https://openwashdata.github.io/washr/reference/setup_rawdata.md),
-[`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md)
+[`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md),
+[`update_dictionary()`](https://openwashdata.github.io/washr/reference/update_dictionary.md)
 
 ## Examples
 

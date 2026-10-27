@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">washr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,6 +39,18 @@
     </div>
 
 
+    <div class="section level2">
+    <h2 id="messages-and-return-values">Messages and return values<a class="anchor" aria-label="anchor" href="#messages-and-return-values"></a></h2>
+
+
+<p>Every function reports through cli with three kinds of lines: a success
+line for a file it wrote, an info line for something it kept or skipped,
+and an arrow line for the next step that is left to you. Each function
+returns what it wrote, invisibly: the path of the file, or the paths when
+there are several. <code><a href="update_metadata.html">update_metadata()</a></code> returns the metadata as a list.</p>
+<p>Set <code>options(washr.quiet = TRUE)</code> to silence these lines, for example in
+scripts. Warnings and errors are never silenced.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Useful links:</p><ul><li><p><a href="https://openwashdata.github.io/washr/">https://openwashdata.github.io/washr/</a></p></li>

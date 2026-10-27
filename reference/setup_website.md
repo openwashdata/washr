@@ -2,9 +2,14 @@
 
 `setup_website()` writes the openwashdata pkgdown configuration and
 builds the site from the package documentation and README.md. The
-configuration comes from the washr template: the Pages URL as the site
-URL, the openwashdata analytics header, the funding sidebar, the authors
-footer, and a reference index with one entry per data object in `data/`.
+configuration comes from the washr template, filled from DESCRIPTION:
+the Pages URL as the site URL, the repository link, the analytics
+header, the funding sidebar, the authors footer, and a reference index
+with one entry per data object in `data/`. The analytics domain and the
+funding text are the `Config/washr/analytics-domain` and
+`Config/washr/funding` fields that
+[`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
+writes; a field set to `none` leaves its block out.
 
 The function is safe to re-run. An existing `_pkgdown.yml` is kept as it
 is and only the site is rebuilt, so hand edits and the brand wiring from
@@ -37,7 +42,7 @@ setup_website(has_example = FALSE, track_docs = NULL)
 
 ## Value
 
-NULL. Error if no README file is found.
+The path of `_pkgdown.yml`, invisibly. Error if no README file is found.
 
 ## See also
 
@@ -50,6 +55,7 @@ for the brand, and
 once the release has a DOI.
 
 Other publishing functions:
+[`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md),
 [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md),
 [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
 

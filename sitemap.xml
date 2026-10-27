@@ -6,6 +6,7 @@
 <url><loc>https://openwashdata.github.io/washr/authors.html</loc></url>
 <url><loc>https://openwashdata.github.io/washr/index.html</loc></url>
 <url><loc>https://openwashdata.github.io/washr/news/index.html</loc></url>
+<url><loc>https://openwashdata.github.io/washr/reference/check_publication_readiness.html</loc></url>
 <url><loc>https://openwashdata.github.io/washr/reference/fill_dictionary.html</loc></url>
 <url><loc>https://openwashdata.github.io/washr/reference/generate_roxygen_docs.html</loc></url>
 <url><loc>https://openwashdata.github.io/washr/reference/index.html</loc></url>
@@ -17,7 +18,9 @@
 <url><loc>https://openwashdata.github.io/washr/reference/setup_website.html</loc></url>
 <url><loc>https://openwashdata.github.io/washr/reference/update_citation.html</loc></url>
 <url><loc>https://openwashdata.github.io/washr/reference/update_description.html</loc></url>
+<url><loc>https://openwashdata.github.io/washr/reference/update_dictionary.html</loc></url>
 <url><loc>https://openwashdata.github.io/washr/reference/update_metadata.html</loc></url>
+<url><loc>https://openwashdata.github.io/washr/reference/update_zenodo_json.html</loc></url>
 <url><loc>https://openwashdata.github.io/washr/reference/use_brand.html</loc></url>
 <url><loc>https://openwashdata.github.io/washr/reference/washr-package.html</loc></url>
 </urlset>

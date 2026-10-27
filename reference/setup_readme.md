@@ -3,7 +3,18 @@
 `setup_readme()` uses the openwashdata README template to generate
 README files based on datasets retrieved from the `data/` directory. It
 helps in creating consistent and informative README documentation for
-your data packages.
+your data packages. The repository links, the install line and the
+license come from DESCRIPTION, so run
+[`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
+first.
+
+The Citation section states in plain text which version to cite with
+which DOI, links the authors page of the site and `CITATION.cff`, and
+names the source article of republished data from
+`X-schema.org-isBasedOn`. The download links point at the release tag of
+the version in DESCRIPTION, and at the main branch for a development
+version. pkgdown builds the `llms.txt` of the site from the README, so
+this is also what AI tools read about the package.
 
 The template documents the first data object in `data/`
 (alphabetically); add a section per further object by hand. It stops
@@ -32,7 +43,7 @@ setup_readme(force = FALSE, has_example = FALSE)
 
 ## Value
 
-NULL. This function creates a README.Rmd under the package directory.
+The path of README.Rmd, invisibly.
 
 ## See also
 
@@ -43,6 +54,7 @@ Next:
 which builds the site from README.md.
 
 Other publishing functions:
+[`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md),
 [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md),
 [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
 

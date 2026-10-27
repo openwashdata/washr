@@ -15,7 +15,7 @@ package does not have a license yet; an existing license is left untouched."></h
 
     <a class="navbar-brand me-2" href="../index.html">washr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,10 +52,7 @@ package does not have a license yet; an existing license is left untouched.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">update_description</span><span class="op">(</span></span>
-<span>  file <span class="op">=</span> <span class="st">"."</span>,</span>
-<span>  github_user <span class="op">=</span> <span class="st">"https://github.com/openwashdata/"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">update_description</span><span class="op">(</span>file <span class="op">=</span> <span class="st">"."</span>, github_user <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -67,19 +64,41 @@ package does not have a license yet; an existing license is left untouched.</p>
 
 
 <dt id="arg-github-user">github_user<a class="anchor" aria-label="anchor" href="#arg-github-user"></a></dt>
-<dd><p>Character. The URL path to the GitHub user or organization that hosts the current package. Defaults to "https://github.com/openwashdata".</p></dd>
+<dd><p>Character. The URL of the GitHub user or organization
+that hosts the package, e.g., <code>"https://github.com/yourorg"</code>. Defaults
+to the organisation of the repository already listed in <code>URL</code>, and to
+<code>"https://github.com/openwashdata"</code> when <code>URL</code> lists none.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>NULL. Update fields directly in DESCRIPTION file.</p>
+    <p>The path of the DESCRIPTION file, invisibly. The fields are
+updated in the file.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>DESCRIPTION is where the other functions read the facts of the package:
+the GitHub organisation and the repository from <code>URL</code>, the license from
+<code>License</code>, the people from <code>Authors@R</code>. The values that DESCRIPTION has no
+standard field for are written as <code>Config/washr/</code> fields, and every other
+function reads them from there:</p><table class="table table"><tr><td>Field</td><td>Used for</td><td>openwashdata default</td></tr><tr><td><code>Config/washr/funding</code></td><td>the funding sentence in the sidebar of the site</td><td>the ETH Board Open Research Data Program</td></tr><tr><td><code>Config/washr/analytics-domain</code></td><td>the Plausible analytics header of the site</td><td><code>openwashdata.github.io</code></td></tr><tr><td><code>Config/washr/doi-provider</code></td><td>the DOI badge of the README</td><td><code>zenodo</code></td></tr><tr><td><code>Config/washr/zenodo-community</code></td><td>the community in <code>.zenodo.json</code></td><td><code>openwashdata</code></td></tr><tr><td><code>Config/washr/brand-source</code></td><td>the GitHub repository <code><a href="use_brand.html">use_brand()</a></code> copies from</td><td><code>openwashdata/brand</code></td></tr><tr><td><code>Config/washr/version</code></td><td>the washr version that last ran this function</td><td></td></tr></table><p>A field that you edited is never overwritten, so a group other than
+openwashdata publishes with its own values by editing them. When
+<code>github_user</code> names another organisation than the one in <code>URL</code>, the
+repository in <code>URL</code> is replaced and the fields that still hold the
+defaults of the old organisation follow. Set a field
+to <code>none</code> to switch its feature off. For a package under another GitHub
+organisation the funding, analytics, community and brand fields are
+written as <code>none</code>, because the openwashdata values would be wrong there.
+One more field is only ever written by hand: <code>Config/washr/pages-domain</code>,
+for a site that is not served from <code>&lt;organisation&gt;.github.io</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Before: <code><a href="setup_roxygen.html">setup_roxygen()</a></code>. Next: <code><a href="update_metadata.html">update_metadata()</a></code> for the schema.org metadata, then <code><a href="setup_readme.html">setup_readme()</a></code>.</p>
 <p>Other metadata functions:
 <code><a href="update_citation.html">update_citation()</a></code>,
-<code><a href="update_metadata.html">update_metadata()</a></code></p></div>
+<code><a href="update_metadata.html">update_metadata()</a></code>,
+<code><a href="update_zenodo_json.html">update_zenodo_json()</a></code></p></div>
     </div>
 
     <div class="section level2">

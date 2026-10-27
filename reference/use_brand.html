@@ -6,14 +6,40 @@ into the package root. Re-running the function refreshes an existing
 copy and reports which files changed, so consuming packages stay in
 sync with the central definition.
 Brand values are never edited locally: change them in
-openwashdata/brand first, then refresh consumers with use_brand()."><meta property="og:description" content="use_brand() copies the openwashdata brand definition (_brand.yml)
+openwashdata/brand first and cut a release tag there, then refresh
+consumers with use_brand(). After a brand release the order is the
+Quarto extension, the website, then the data packages.
+By default the brand is copied at the latest release tag of the brand
+repository, and the tag is recorded in DESCRIPTION as
+Config/washr/brand, so the package says which brand it carries. A
+second run with no new tag changes no file. The brand repository is the
+Config/washr/brand-source field that update_description() writes
+(openwashdata/brand for openwashdata packages); a group with its own
+brand names its repository there, and none means there is no brand to
+install.
+The brand file and the logo directory are added to .Rbuildignore, so
+they stay out of the built package and R CMD check does not report them
+as non-standard top-level files."><meta property="og:description" content="use_brand() copies the openwashdata brand definition (_brand.yml)
 and the logo files it references from the central
 openwashdata/brand repository
 into the package root. Re-running the function refreshes an existing
 copy and reports which files changed, so consuming packages stay in
 sync with the central definition.
 Brand values are never edited locally: change them in
-openwashdata/brand first, then refresh consumers with use_brand()."></head><body>
+openwashdata/brand first and cut a release tag there, then refresh
+consumers with use_brand(). After a brand release the order is the
+Quarto extension, the website, then the data packages.
+By default the brand is copied at the latest release tag of the brand
+repository, and the tag is recorded in DESCRIPTION as
+Config/washr/brand, so the package says which brand it carries. A
+second run with no new tag changes no file. The brand repository is the
+Config/washr/brand-source field that update_description() writes
+(openwashdata/brand for openwashdata packages); a group with its own
+brand names its repository there, and none means there is no brand to
+install.
+The brand file and the logo directory are added to .Rbuildignore, so
+they stay out of the built package and R CMD check does not report them
+as non-standard top-level files."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -21,7 +47,7 @@ openwashdata/brand first, then refresh consumers with use_brand()."></head><body
 
     <a class="navbar-brand me-2" href="../index.html">washr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,12 +82,25 @@ into the package root. Re-running the function refreshes an existing
 copy and reports which files changed, so consuming packages stay in
 sync with the central definition.</p>
 <p>Brand values are never edited locally: change them in
-openwashdata/brand first, then refresh consumers with <code>use_brand()</code>.</p>
+openwashdata/brand first and cut a release tag there, then refresh
+consumers with <code>use_brand()</code>. After a brand release the order is the
+Quarto extension, the website, then the data packages.</p>
+<p>By default the brand is copied at the latest release tag of the brand
+repository, and the tag is recorded in DESCRIPTION as
+<code>Config/washr/brand</code>, so the package says which brand it carries. A
+second run with no new tag changes no file. The brand repository is the
+<code>Config/washr/brand-source</code> field that <code><a href="update_description.html">update_description()</a></code> writes
+(<code>openwashdata/brand</code> for openwashdata packages); a group with its own
+brand names its repository there, and <code>none</code> means there is no brand to
+install.</p>
+<p>The brand file and the logo directory are added to <code>.Rbuildignore</code>, so
+they stay out of the built package and <code>R CMD check</code> does not report them
+as non-standard top-level files.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">use_brand</span><span class="op">(</span>ref <span class="op">=</span> <span class="st">"main"</span>, pkgdown <span class="op">=</span> <span class="cn">TRUE</span>, source <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">use_brand</span><span class="op">(</span>ref <span class="op">=</span> <span class="cn">NULL</span>, pkgdown <span class="op">=</span> <span class="cn">TRUE</span>, source <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -69,8 +108,9 @@ openwashdata/brand first, then refresh consumers with <code>use_brand()</code>.<
 
 
 <dl><dt id="arg-ref">ref<a class="anchor" aria-label="anchor" href="#arg-ref"></a></dt>
-<dd><p>Character. Git reference (branch or tag) of
-openwashdata/brand to copy from. Defaults to <code>"main"</code>.</p></dd>
+<dd><p>Character. Git reference (branch or tag) of the brand
+repository to copy from. Defaults to the latest release tag. Pass
+<code>"main"</code> to try brand changes that are not released yet.</p></dd>
 
 
 <dt id="arg-pkgdown">pkgdown<a class="anchor" aria-label="anchor" href="#arg-pkgdown"></a></dt>
@@ -81,7 +121,7 @@ brand via bslib? Defaults to <code>TRUE</code>.</p></dd>
 <dt id="arg-source">source<a class="anchor" aria-label="anchor" href="#arg-source"></a></dt>
 <dd><p>Character. Advanced: an alternative source for the
 brand files, either a local directory or a URL prefix. When <code>NULL</code>
-(the default), the raw GitHub content of openwashdata/brand at
+(the default), the raw GitHub content of the brand repository at
 <code>ref</code> is used. Mainly useful for tests and offline work.</p></dd>
 
 </dl></div>
@@ -95,8 +135,11 @@ updated (empty when everything was already current).</p>
     <p>With <code>pkgdown = TRUE</code> (the default), an existing <code>_pkgdown.yml</code> is
 pointed at the brand through bslib (<code>template.bslib.brand</code>), so the
 next <code><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">pkgdown::build_site()</a></code> renders the site with the brand fonts
-and colors. The wiring rewrites <code>_pkgdown.yml</code> through the yaml
-package, which does not preserve comments in that file. When no
+and colors. The wiring adds its lines to <code>_pkgdown.yml</code> and leaves the
+rest of the file, comments included, as it is. Only when the <code>template</code>
+block already carries other bslib settings, or is written on one line,
+is the file rewritten through the yaml package, which does not preserve
+comments. When no
 <code>_pkgdown.yml</code> exists, the wiring is skipped with a hint to run
 <code><a href="setup_website.html">setup_website()</a></code> first. Building the wired site requires the
 brand.yml package (bslib asks for it at build time); it is listed in
@@ -109,6 +152,7 @@ For branded PDF and Word reports that read the installed <code>_brand.yml</code>
 the openwashdata Quarto extension
 <a href="https://github.com/openwashdata/quarto-owd" class="external-link">quarto-owd</a>.</p>
 <p>Other publishing functions:
+<code><a href="check_publication_readiness.html">check_publication_readiness()</a></code>,
 <code><a href="setup_readme.html">setup_readme()</a></code>,
 <code><a href="setup_website.html">setup_website()</a></code></p></div>
     </div>

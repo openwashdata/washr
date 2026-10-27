@@ -15,14 +15,23 @@ below.
 
 ## Install
 
-From CRAN:
+The stable release, from CRAN:
 
 ``` r
 
 install.packages("washr")
 ```
 
-Or the development version from GitHub:
+The current development build, from the [openwashdata
+R-universe](https://openwashdata.r-universe.dev). It is rebuilt on every
+push and installs like any other package, with no compiler toolchain:
+
+``` r
+
+install.packages("washr", repos = c("https://openwashdata.r-universe.dev", getOption("repos")))
+```
+
+The same development source from GitHub, built on your machine:
 
 ``` r
 
@@ -94,6 +103,20 @@ Open the CSV and write a description for every variable. The dictionary
 is the one place where variables are described; the roxygen
 documentation and the metadata are generated from it.
 
+When the data changes later, run
+[`update_dictionary()`](https://openwashdata.github.io/washr/reference/update_dictionary.md).
+It adds a row for each new variable, removes the row of a variable that
+no longer exists, refreshes the types, and keeps every description and
+every column you added yourself, such as `unit` or `allowed_values`.
+Then run
+[`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md)
+again.
+
+``` r
+
+update_dictionary()
+```
+
 ## 4. Generate the roxygen documentation
 
 [`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md)
@@ -118,7 +141,10 @@ description and anything else you wrote in the file.
 [`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
 sets the fields the openwashdata standard expects: the language, the
 date, the repository URL, the bug report URL, and the CC BY 4.0 license
-when the package has none yet. Existing values are kept and merged.
+when the package has none yet. Existing values are kept and merged. It
+also writes a few `Config/washr/` fields, such as the funding sentence
+and the analytics domain of the site. The later steps read them from
+`DESCRIPTION`, and the last section of this page explains them.
 
 ``` r
 
@@ -197,10 +223,12 @@ leaves `docs/` ignored.
 
 [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
 installs the openwashdata brand, the fonts and colors of the site, from
-the central brand repository and wires `_pkgdown.yml` to it. Run it once
-after
+the latest release of the central brand repository and wires
+`_pkgdown.yml` to it. It records the release it installed in
+`DESCRIPTION` as `Config/washr/brand`. Run it once after
 [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md),
-and again whenever the brand changes.
+and again after a new brand release; a run with no new release changes
+nothing.
 
 ``` r
 
@@ -227,7 +255,25 @@ steps.
 ``` r
 
 update_citation()
-# after the Zenodo release
+```
+
+Before you create the release, run
+[`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md).
+It reads the package and reports, item by item, what is in place and
+what is missing, and for every gap it names the step that closes it. It
+writes nothing, so run it as often as you like.
+
+``` r
+
+check_publication_readiness()
+```
+
+After the Zenodo release, run
+[`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)
+once more with the DOI:
+
+``` r
+
 update_citation(doi = "10.5281/zenodo.11185699")
 ```
 
@@ -237,12 +283,84 @@ file. Run
 [`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md)
 once more after that, so the metadata carries the DOI as well.
 
+The same call writes `.zenodo.json` from `DESCRIPTION`. Zenodo reads
+this file when it archives a GitHub release and takes the resource type
+(Dataset), the community, the creators and the license from it. Commit
+the file before you create the release.
+[`update_zenodo_json()`](https://openwashdata.github.io/washr/reference/update_zenodo_json.md)
+writes it on its own.
+
 ## Running steps again
 
 Every function above reads what is there, merges its changes, and writes
 only what changed. The two exceptions stop instead of overwriting:
 [`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md)
-when the dictionary exists, and
+when the dictionary exists (run
+[`update_dictionary()`](https://openwashdata.github.io/washr/reference/update_dictionary.md)
+instead, which keeps what you wrote), and
 [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md)
 when `README.Rmd` exists (pass `force = TRUE` to replace it). A full
 second run of the other steps on an unchanged package changes no file.
+
+## More than one dataset
+
+The processing script and the README template are written for one
+dataset that carries the name of the package. A package can hold more.
+In `data-raw/data_processing.R`, repeat the export block for each data
+frame, so each one is saved with
+[`usethis::use_data()`](https://usethis.r-lib.org/reference/use_data.html)
+and exported to `inst/extdata/`.
+[`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md),
+[`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md),
+[`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md)
+and
+[`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md)
+cover every data object in `data/` on their own.
+[`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md)
+documents the first one, so add a section per further data object to
+`README.Rmd` by hand.
+
+## Publishing outside openwashdata
+
+washr ships with the openwashdata values as defaults, and every one of
+them lives in `DESCRIPTION`, so another group publishes with its own
+values by editing that file. Nothing else has to change.
+
+Start by naming your GitHub organisation, once:
+
+``` r
+
+update_description(github_user = "https://github.com/yourorg")
+```
+
+From then on the organisation, the repository URL, the license and the
+people are read from the standard `DESCRIPTION` fields (`URL`,
+`License`, `Authors@R`), and the README, the site, the citation files
+and the metadata follow them. The values that have no standard field are
+the `Config/washr/` fields:
+
+| Field | What it sets | Value for another group |
+|----|----|----|
+| `Config/washr/funding` | the funding sentence in the sidebar of the site | your funding sentence, Markdown allowed, or `none` |
+| `Config/washr/analytics-domain` | the Plausible analytics header of the site | your Plausible domain, or `none` |
+| `Config/washr/doi-provider` | the DOI badge of the README | `zenodo`, or the name of another provider for a generic DOI badge |
+| `Config/washr/zenodo-community` | the community in `.zenodo.json` | your Zenodo community, or `none` |
+| `Config/washr/brand-source` | the repository [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md) copies from | the GitHub repository of your brand, such as `yourorg/brand`, or `none` |
+| `Config/washr/pages-domain` | the domain of the site | only when the site is not served from `yourorg.github.io` |
+
+For a package under another organisation,
+[`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
+writes the funding, analytics, community and brand fields as `none` and
+lists them, because the openwashdata values would be wrong there. Edit
+them, then run the steps as above. A field that is set is never
+overwritten.
+[`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md)
+holds the package to these values.
+
+A license other than CC BY 4.0 is set in `License` before the first
+[`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md),
+for example with
+[`usethis::use_cc0_license()`](https://usethis.r-lib.org/reference/licenses.html)
+or another `usethis::use_*_license()` function.
+[`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
+leaves a license that is set as it is.

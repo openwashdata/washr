@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">washr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,11 +73,16 @@ below.</p>
 <div class="section level2">
 <h2 id="install">Install<a class="anchor" aria-label="anchor" href="#install"></a>
 </h2>
-<p>From CRAN:</p>
+<p>The stable release, from CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"washr"</span><span class="op">)</span></span></code></pre></div>
-<p>Or the development version from GitHub:</p>
+<p>The current development build, from the <a href="https://openwashdata.r-universe.dev" class="external-link">openwashdata R-universe</a>.
+It is rebuilt on every push and installs like any other package, with no
+compiler toolchain:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"washr"</span>, repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://openwashdata.r-universe.dev"</span>, <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"repos"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>The same development source from GitHub, built on your machine:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"openwashdata/washr"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -87,7 +92,7 @@ below.</p>
 <p>Create an R package for the dataset and open it as a project. The
 package name is the name of the dataset, in lower case, without dots or
 underscores.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/create_package.html" class="external-link">create_package</a></span><span class="op">(</span><span class="st">"~/path/to/fslogisticskampala"</span><span class="op">)</span></span></code></pre></div>
 <p>Then put it under version control and on GitHub, for example with
 <code><a href="https://usethis.r-lib.org/reference/use_git.html" class="external-link">usethis::use_git()</a></code> and <code><a href="https://usethis.r-lib.org/reference/use_github.html" class="external-link">usethis::use_github()</a></code>.
@@ -97,7 +102,7 @@ The guide describes this step in detail.</p>
 Windows and three versions of R on Linux. The openwashdata review
 standard requires it, so run it now and the package meets that part of
 the standard from its first commit.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://openwashdata.github.io/washr/">washr</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/setup_ci.html">setup_ci</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -108,7 +113,7 @@ the standard from its first commit.</p>
 <code>data-raw/</code> and a processing script,
 <code>data-raw/data_processing.R</code>, with the steps the script
 should follow.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setup_rawdata.html">setup_rawdata</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Copy the raw files into <code>data-raw/</code>. In the processing
 script, read them, clean them into one or more tidy data frames, and end
@@ -124,11 +129,19 @@ is where the website and the metadata find the downloadable files.</p>
 <code>data/</code> and writes <code>data-raw/dictionary.csv</code> with
 one row per variable: the file it belongs to, its name, its type, and an
 empty description.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setup_dictionary.html">setup_dictionary</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Open the CSV and write a description for every variable. The
 dictionary is the one place where variables are described; the roxygen
 documentation and the metadata are generated from it.</p>
+<p>When the data changes later, run <code><a href="../reference/update_dictionary.html">update_dictionary()</a></code>. It
+adds a row for each new variable, removes the row of a variable that no
+longer exists, refreshes the types, and keeps every description and
+every column you added yourself, such as <code>unit</code> or
+<code>allowed_values</code>. Then run <code><a href="../reference/setup_roxygen.html">setup_roxygen()</a></code>
+again.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/update_dictionary.html">update_dictionary</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="generate-the-roxygen-documentation">4. Generate the roxygen documentation<a class="anchor" aria-label="anchor" href="#generate-the-roxygen-documentation"></a>
@@ -136,7 +149,7 @@ documentation and the metadata are generated from it.</p>
 <p><code><a href="../reference/setup_roxygen.html">setup_roxygen()</a></code> writes one file per data object under
 <code>R/</code>, with a title and description placeholder and the
 variable table from the dictionary.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setup_roxygen.html">setup_roxygen</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Open each file, replace the title and the description, then run
 <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> so the help pages exist. When you
@@ -151,8 +164,12 @@ in the file.</p>
 <p><code><a href="../reference/update_description.html">update_description()</a></code> sets the fields the openwashdata
 standard expects: the language, the date, the repository URL, the bug
 report URL, and the CC BY 4.0 license when the package has none yet.
-Existing values are kept and merged.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+Existing values are kept and merged. It also writes a few
+<code>Config/washr/</code> fields, such as the funding sentence and the
+analytics domain of the site. The later steps read them from
+<code>DESCRIPTION</code>, and the last section of this page explains
+them.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/update_description.html">update_description</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Then open <code>DESCRIPTION</code> and check the title, the
 description and the authors. Authors are written with
@@ -175,7 +192,7 @@ file and the files in <code>inst/extdata</code>, and writes it as
 JSON-LD into <code>pkgdown/templates/in-header.html</code>. The website
 build embeds it in the head of every page, where dataset search engines
 read it.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/update_metadata.html">update_metadata</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>The function ends with the fields it could not fill and where to fill
 them. Nothing is edited by hand: change the source and run it again.
@@ -189,11 +206,11 @@ openwashdata template, with the installation instructions, the download
 table, and a section for the first data object. With
 <code>has_example = TRUE</code> it adds an Example section with a
 scaffold for a first plot.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setup_readme.html">setup_readme</a></span><span class="op">(</span>has_example <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Write the text, add a section for each further data object, then
 render it:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/build_readme.html" class="external-link">build_readme</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -203,17 +220,20 @@ render it:</p>
 the openwashdata template and builds the site into <code>docs/</code>.
 The template sets the Pages URL, the analytics header, the funding
 sidebar, and a reference index with one entry per data object.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setup_website.html">setup_website</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Running it again keeps your <code>_pkgdown.yml</code> and rebuilds
 the site. <code>docs/</code> is committed and served by GitHub Pages;
 when the package deploys through a pkgdown GitHub Actions workflow
 instead, the function leaves <code>docs/</code> ignored.</p>
 <p><code><a href="../reference/use_brand.html">use_brand()</a></code> installs the openwashdata brand, the fonts
-and colors of the site, from the central brand repository and wires
-<code>_pkgdown.yml</code> to it. Run it once after
-<code><a href="../reference/setup_website.html">setup_website()</a></code>, and again whenever the brand changes.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+and colors of the site, from the latest release of the central brand
+repository and wires <code>_pkgdown.yml</code> to it. It records the
+release it installed in <code>DESCRIPTION</code> as
+<code>Config/washr/brand</code>. Run it once after
+<code><a href="../reference/setup_website.html">setup_website()</a></code>, and again after a new brand release; a run
+with no new release changes nothing.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/use_brand.html">use_brand</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Branded PDF and Word reports about the package use the openwashdata
 Quarto extension, <a href="https://github.com/openwashdata/quarto-owd" class="external-link">quarto-owd</a>, with
@@ -232,24 +252,138 @@ second brand copy is needed. Add <code>^_extensions$</code> to
 the first release so the files exist, then again with the DOI once the
 release is deposited on Zenodo; the guide describes the Zenodo
 steps.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/update_citation.html">update_citation</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co"># after the Zenodo release</span></span>
-<span><span class="fu"><a href="../reference/update_citation.html">update_citation</a></span><span class="op">(</span>doi <span class="op">=</span> <span class="st">"10.5281/zenodo.11185699"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/update_citation.html">update_citation</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Before you create the release, run
+<code><a href="../reference/check_publication_readiness.html">check_publication_readiness()</a></code>. It reads the package and
+reports, item by item, what is in place and what is missing, and for
+every gap it names the step that closes it. It writes nothing, so run it
+as often as you like.</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/check_publication_readiness.html">check_publication_readiness</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>After the Zenodo release, run <code><a href="../reference/update_citation.html">update_citation()</a></code> once
+more with the DOI:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/update_citation.html">update_citation</a></span><span class="op">(</span>doi <span class="op">=</span> <span class="st">"10.5281/zenodo.11185699"</span><span class="op">)</span></span></code></pre></div>
 <p>With a DOI the function also adds the DOI badge to the README and
 rebuilds it and the site. A later run without the DOI keeps the DOI on
 file. Run <code><a href="../reference/update_metadata.html">update_metadata()</a></code> once more after that, so the
 metadata carries the DOI as well.</p>
+<p>The same call writes <code>.zenodo.json</code> from
+<code>DESCRIPTION</code>. Zenodo reads this file when it archives a
+GitHub release and takes the resource type (Dataset), the community, the
+creators and the license from it. Commit the file before you create the
+release. <code><a href="../reference/update_zenodo_json.html">update_zenodo_json()</a></code> writes it on its own.</p>
 </div>
 <div class="section level2">
 <h2 id="running-steps-again">Running steps again<a class="anchor" aria-label="anchor" href="#running-steps-again"></a>
 </h2>
 <p>Every function above reads what is there, merges its changes, and
 writes only what changed. The two exceptions stop instead of
-overwriting: <code><a href="../reference/setup_dictionary.html">setup_dictionary()</a></code> when the dictionary exists,
-and <code><a href="../reference/setup_readme.html">setup_readme()</a></code> when <code>README.Rmd</code> exists
-(pass <code>force = TRUE</code> to replace it). A full second run of the
-other steps on an unchanged package changes no file.</p>
+overwriting: <code><a href="../reference/setup_dictionary.html">setup_dictionary()</a></code> when the dictionary exists
+(run <code><a href="../reference/update_dictionary.html">update_dictionary()</a></code> instead, which keeps what you
+wrote), and <code><a href="../reference/setup_readme.html">setup_readme()</a></code> when <code>README.Rmd</code>
+exists (pass <code>force = TRUE</code> to replace it). A full second run
+of the other steps on an unchanged package changes no file.</p>
+</div>
+<div class="section level2">
+<h2 id="more-than-one-dataset">More than one dataset<a class="anchor" aria-label="anchor" href="#more-than-one-dataset"></a>
+</h2>
+<p>The processing script and the README template are written for one
+dataset that carries the name of the package. A package can hold more.
+In <code>data-raw/data_processing.R</code>, repeat the export block for
+each data frame, so each one is saved with
+<code><a href="https://usethis.r-lib.org/reference/use_data.html" class="external-link">usethis::use_data()</a></code> and exported to
+<code>inst/extdata/</code>. <code><a href="../reference/setup_dictionary.html">setup_dictionary()</a></code>,
+<code><a href="../reference/setup_roxygen.html">setup_roxygen()</a></code>, <code><a href="../reference/setup_website.html">setup_website()</a></code> and
+<code><a href="../reference/update_metadata.html">update_metadata()</a></code> cover every data object in
+<code>data/</code> on their own. <code><a href="../reference/setup_readme.html">setup_readme()</a></code> documents
+the first one, so add a section per further data object to
+<code>README.Rmd</code> by hand.</p>
+</div>
+<div class="section level2">
+<h2 id="publishing-outside-openwashdata">Publishing outside openwashdata<a class="anchor" aria-label="anchor" href="#publishing-outside-openwashdata"></a>
+</h2>
+<p>washr ships with the openwashdata values as defaults, and every one
+of them lives in <code>DESCRIPTION</code>, so another group publishes
+with its own values by editing that file. Nothing else has to
+change.</p>
+<p>Start by naming your GitHub organisation, once:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/update_description.html">update_description</a></span><span class="op">(</span>github_user <span class="op">=</span> <span class="st">"https://github.com/yourorg"</span><span class="op">)</span></span></code></pre></div>
+<p>From then on the organisation, the repository URL, the license and
+the people are read from the standard <code>DESCRIPTION</code> fields
+(<code>URL</code>, <code>License</code>, <code>Authors@R</code>), and
+the README, the site, the citation files and the metadata follow them.
+The values that have no standard field are the
+<code>Config/washr/</code> fields:</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Field</th>
+<th>What it sets</th>
+<th>Value for another group</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>Config/washr/funding</code></td>
+<td>the funding sentence in the sidebar of the site</td>
+<td>your funding sentence, Markdown allowed, or <code>none</code>
+</td>
+</tr>
+<tr class="even">
+<td><code>Config/washr/analytics-domain</code></td>
+<td>the Plausible analytics header of the site</td>
+<td>your Plausible domain, or <code>none</code>
+</td>
+</tr>
+<tr class="odd">
+<td><code>Config/washr/doi-provider</code></td>
+<td>the DOI badge of the README</td>
+<td>
+<code>zenodo</code>, or the name of another provider for a generic
+DOI badge</td>
+</tr>
+<tr class="even">
+<td><code>Config/washr/zenodo-community</code></td>
+<td>the community in <code>.zenodo.json</code>
+</td>
+<td>your Zenodo community, or <code>none</code>
+</td>
+</tr>
+<tr class="odd">
+<td><code>Config/washr/brand-source</code></td>
+<td>the repository <code><a href="../reference/use_brand.html">use_brand()</a></code> copies from</td>
+<td>the GitHub repository of your brand, such as
+<code>yourorg/brand</code>, or <code>none</code>
+</td>
+</tr>
+<tr class="even">
+<td><code>Config/washr/pages-domain</code></td>
+<td>the domain of the site</td>
+<td>only when the site is not served from
+<code>yourorg.github.io</code>
+</td>
+</tr>
+</tbody>
+</table>
+<p>For a package under another organisation,
+<code><a href="../reference/update_description.html">update_description()</a></code> writes the funding, analytics,
+community and brand fields as <code>none</code> and lists them, because
+the openwashdata values would be wrong there. Edit them, then run the
+steps as above. A field that is set is never overwritten.
+<code><a href="../reference/check_publication_readiness.html">check_publication_readiness()</a></code> holds the package to these
+values.</p>
+<p>A license other than CC BY 4.0 is set in <code>License</code> before
+the first <code><a href="../reference/update_description.html">update_description()</a></code>, for example with
+<code><a href="https://usethis.r-lib.org/reference/licenses.html" class="external-link">usethis::use_cc0_license()</a></code> or another
+<code>usethis::use_*_license()</code> function.
+<code><a href="../reference/update_description.html">update_description()</a></code> leaves a license that is set as it
+is.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

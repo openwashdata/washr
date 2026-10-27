@@ -12,6 +12,7 @@ name, description, version, datePublished, licenseTitle, Description, Version, D
 urlthe pkgdown site (a github.io entry in URL), else the repository
 keywordsX-schema.org-keywords in DESCRIPTION, comma separated
 spatialCoverage, temporalCoverageX-schema.org-spatialCoverage and X-schema.org-temporalCoverage in DESCRIPTION
+isBasedOnthe source article DOIs in X-schema.org-isBasedOn in DESCRIPTION, comma separated
 creator, maintainer, funder, publisherAuthors@R roles aut/cre, cre, fnd, cph; ORCID from the comment field
 identifier, sameAsthe DOI in CITATION.cff, written by update_citation()
 variableMeasureddata-raw/dictionary.csv
@@ -36,6 +37,7 @@ name, description, version, datePublished, licenseTitle, Description, Version, D
 urlthe pkgdown site (a github.io entry in URL), else the repository
 keywordsX-schema.org-keywords in DESCRIPTION, comma separated
 spatialCoverage, temporalCoverageX-schema.org-spatialCoverage and X-schema.org-temporalCoverage in DESCRIPTION
+isBasedOnthe source article DOIs in X-schema.org-isBasedOn in DESCRIPTION, comma separated
 creator, maintainer, funder, publisherAuthors@R roles aut/cre, cre, fnd, cph; ORCID from the comment field
 identifier, sameAsthe DOI in CITATION.cff, written by update_citation()
 variableMeasureddata-raw/dictionary.csv
@@ -55,7 +57,7 @@ tarball."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">washr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +92,7 @@ head of every pkgdown page, where dataset search engines read it. Nothing
 is hand edited: to change a value, change its source and run the function
 again. Running it twice produces no change. It ends by listing the fields
 it could not fill and where to fill them.</p>
-<p>The sources are:</p><table class="table table"><tr><td>Field</td><td>Source</td></tr><tr><td>name, description, version, datePublished, license</td><td><code>Title</code>, <code>Description</code>, <code>Version</code>, <code>Date</code>, <code>License</code> in DESCRIPTION</td></tr><tr><td>url</td><td>the pkgdown site (a <code>github.io</code> entry in <code>URL</code>), else the repository</td></tr><tr><td>keywords</td><td><code>X-schema.org-keywords</code> in DESCRIPTION, comma separated</td></tr><tr><td>spatialCoverage, temporalCoverage</td><td><code>X-schema.org-spatialCoverage</code> and <code>X-schema.org-temporalCoverage</code> in DESCRIPTION</td></tr><tr><td>creator, maintainer, funder, publisher</td><td><code>Authors@R</code> roles <code>aut</code>/<code>cre</code>, <code>cre</code>, <code>fnd</code>, <code>cph</code>; ORCID from the <code>comment</code> field</td></tr><tr><td>identifier, sameAs</td><td>the DOI in <code>CITATION.cff</code>, written by <code><a href="update_citation.html">update_citation()</a></code></td></tr><tr><td>variableMeasured</td><td><code>data-raw/dictionary.csv</code></td></tr><tr><td>distribution</td><td>every file in <code>inst/extdata</code> that belongs to a dataset, one entry per file</td></tr></table><p>The JSON-LD lands in <code>pkgdown/templates/in-header.html</code>, which pkgdown
+<p>The sources are:</p><table class="table table"><tr><td>Field</td><td>Source</td></tr><tr><td>name, description, version, datePublished, license</td><td><code>Title</code>, <code>Description</code>, <code>Version</code>, <code>Date</code>, <code>License</code> in DESCRIPTION</td></tr><tr><td>url</td><td>the pkgdown site (a <code>github.io</code> entry in <code>URL</code>), else the repository</td></tr><tr><td>keywords</td><td><code>X-schema.org-keywords</code> in DESCRIPTION, comma separated</td></tr><tr><td>spatialCoverage, temporalCoverage</td><td><code>X-schema.org-spatialCoverage</code> and <code>X-schema.org-temporalCoverage</code> in DESCRIPTION</td></tr><tr><td>isBasedOn</td><td>the source article DOIs in <code>X-schema.org-isBasedOn</code> in DESCRIPTION, comma separated</td></tr><tr><td>creator, maintainer, funder, publisher</td><td><code>Authors@R</code> roles <code>aut</code>/<code>cre</code>, <code>cre</code>, <code>fnd</code>, <code>cph</code>; ORCID from the <code>comment</code> field</td></tr><tr><td>identifier, sameAs</td><td>the DOI in <code>CITATION.cff</code>, written by <code><a href="update_citation.html">update_citation()</a></code></td></tr><tr><td>variableMeasured</td><td><code>data-raw/dictionary.csv</code></td></tr><tr><td>distribution</td><td>every file in <code>inst/extdata</code> that belongs to a dataset, one entry per file</td></tr></table><p>The JSON-LD lands in <code>pkgdown/templates/in-header.html</code>, which pkgdown
 picks up on the next site build. The file also keeps the <code>in_header</code>
 includes from <code>_pkgdown.yml</code> working. It is not shipped in the package
 tarball.</p>
@@ -107,7 +109,8 @@ tarball.</p>
 
 <dl><dt id="arg-quiet">quiet<a class="anchor" aria-label="anchor" href="#arg-quiet"></a></dt>
 <dd><p>Logical. Suppress the messages and the report of blank
-fields. Defaults to <code>FALSE</code>.</p></dd>
+fields. Defaults to <code>FALSE</code>, or to <code>TRUE</code> when <code>options(washr.quiet = TRUE)</code>
+is set.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -121,7 +124,8 @@ fill them.</p>
     <div class="dont-index"><p>Before: <code><a href="update_description.html">update_description()</a></code>, which writes the DESCRIPTION fields this reads. Next: <code><a href="setup_readme.html">setup_readme()</a></code>. The DOI comes from <code><a href="update_citation.html">update_citation()</a></code>.</p>
 <p>Other metadata functions:
 <code><a href="update_citation.html">update_citation()</a></code>,
-<code><a href="update_description.html">update_description()</a></code></p></div>
+<code><a href="update_description.html">update_description()</a></code>,
+<code><a href="update_zenodo_json.html">update_zenodo_json()</a></code></p></div>
     </div>
 
     <div class="section level2">

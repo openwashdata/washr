@@ -15,6 +15,8 @@ The dictionary and the roxygen documentation it feeds
 
 - [`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md)
   : Create a dictionary file for tidy data sets
+- [`update_dictionary()`](https://openwashdata.github.io/washr/reference/update_dictionary.md)
+  : Bring the dictionary in line with the tidy data
 - [`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md)
   : Set up roxygen documentation for all tidy data sets using the
   dictionary
@@ -42,3 +44,7 @@ README, website, brand, and the citation with its DOI
   : Install or refresh the openwashdata brand in the active package
 - [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)
   : Update the citation file for the dataset.
+- [`update_zenodo_json()`](https://openwashdata.github.io/washr/reference/update_zenodo_json.md)
+  : Write the Zenodo metadata file of the data package
+- [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md)
+  : Check whether the data package is ready for publication

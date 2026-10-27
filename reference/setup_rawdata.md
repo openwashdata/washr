@@ -13,8 +13,8 @@ setup_rawdata()
 
 ## Value
 
-NULL. This function will create a directory "data-raw" under the package
-directory.
+The path of the processing script, invisibly. The function creates the
+directory "data-raw" under the package directory.
 
 ## See also
 
@@ -28,7 +28,8 @@ once the processing script has exported the tidy data with
 Other setup functions:
 [`setup_ci()`](https://openwashdata.github.io/washr/reference/setup_ci.md),
 [`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md),
-[`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md)
+[`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md),
+[`update_dictionary()`](https://openwashdata.github.io/washr/reference/update_dictionary.md)
 
 ## Examples
 

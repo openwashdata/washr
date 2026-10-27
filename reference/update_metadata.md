@@ -18,6 +18,7 @@ The sources are:
 | url | the pkgdown site (a `github.io` entry in `URL`), else the repository |
 | keywords | `X-schema.org-keywords` in DESCRIPTION, comma separated |
 | spatialCoverage, temporalCoverage | `X-schema.org-spatialCoverage` and `X-schema.org-temporalCoverage` in DESCRIPTION |
+| isBasedOn | the source article DOIs in `X-schema.org-isBasedOn` in DESCRIPTION, comma separated |
 | creator, maintainer, funder, publisher | `Authors@R` roles `aut`/`cre`, `cre`, `fnd`, `cph`; ORCID from the `comment` field |
 | identifier, sameAs | the DOI in `CITATION.cff`, written by [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md) |
 | variableMeasured | `data-raw/dictionary.csv` |
@@ -39,7 +40,8 @@ update_metadata(quiet = FALSE)
 - quiet:
 
   Logical. Suppress the messages and the report of blank fields.
-  Defaults to `FALSE`.
+  Defaults to `FALSE`, or to `TRUE` when `options(washr.quiet = TRUE)`
+  is set.
 
 ## Value
 
@@ -57,7 +59,8 @@ The DOI comes from
 
 Other metadata functions:
 [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md),
-[`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
+[`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md),
+[`update_zenodo_json()`](https://openwashdata.github.io/washr/reference/update_zenodo_json.md)
 
 ## Examples
 
