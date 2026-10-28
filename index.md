@@ -86,6 +86,6 @@ started](https://openwashdata.github.io/washr/articles/washr.html) page
 walks through the workflow in order, and the
 [Reference](https://openwashdata.github.io/washr/reference/index.html)
 page documents each function. The [publishing
-guide](https://global-health-engineering.github.io/ghedatapublishing/)
-covers the same steps with more explanation and the parts outside R,
-such as the GitHub repository and the Zenodo release.
+guide](https://openwashdata.github.io/fair-publishing/) covers the same
+steps with more explanation and the parts outside R, such as the GitHub
+repository and the Zenodo release.
