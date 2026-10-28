@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 washr turns a cleaned dataset into a documented R data package that follows the FAIR principles, with a website, a citation file and machine readable metadata. This page walks through the workflow in the order you run it. Each step is one function, and every function is safe to run again after you have edited the files it wrote.
 
-The [publishing guide](https://global-health-engineering.github.io/ghedatapublishing/) covers the same steps with more explanation and the parts that happen outside R, such as creating the GitHub repository and the Zenodo release. The chapters of the guide follow the same order as the sections below.
+The [FAIR Data Publishing guide](https://openwashdata.github.io/fair-publishing/) covers the same steps with more explanation and the parts that happen outside R, such as creating the GitHub repository and the Zenodo release. The chapters of the guide follow the same order as the sections below.
 
 ## Install
 
