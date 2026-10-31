@@ -27,7 +27,9 @@ The release that puts the names of washr and openwashdata on every package site.
   and the Open Graph image where they are missing, refreshes the washr
   version in the footer, and keeps the reference index, hand edits, comments
   and the brand wiring. A footer, navbar or sidebar written by hand keeps
-  its components. A current file is left untouched. `update_description()`
+  its components, and lists written at the indent of their key, as the
+  yaml package leaves them after `use_brand()`, are edited in place like
+  the others. A current file is left untouched. `update_description()`
   refreshes the washr version in the footer on its own, so the footer and
   `Config/washr/version` never disagree.
 

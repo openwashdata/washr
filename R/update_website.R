@@ -297,14 +297,29 @@ yaml_add_item <- function(lines, idx, item, before = NULL, first = FALSE) {
     lines[idx] <- paste0(key_part, " ", yaml_flow(place(value)))
     return(list(lines = lines, changed = TRUE))
   }
-  range <- yaml_child_range(lines, idx)
-  if (range[2] == idx) {
-    indent <- strrep(" ", yaml_indent_of(line) + 2L)
+  # The items of a block sequence: the `- ` lines after the key, at the
+  # indent of the key (the style the yaml package writes, so the style of a
+  # file use_brand() rewrote) or deeper, up to the first line that belongs
+  # to a sibling or a parent. Blank lines and comments are passed over, the
+  # continuation lines of an item are skipped.
+  key_indent <- yaml_indent_of(line)
+  entries <- integer(0)
+  i <- idx + 1L
+  while (i <= length(lines)) {
+    if (!grepl("^\\s*(#.*)?$", lines[i])) {
+      ind <- yaml_indent_of(lines[i])
+      if (grepl("^\\s*- ", lines[i]) && ind >= key_indent) {
+        entries <- c(entries, i)
+      } else if (ind <= key_indent) {
+        break
+      }
+    }
+    i <- i + 1L
+  }
+  if (!length(entries)) {
+    indent <- strrep(" ", key_indent + 2L)
     return(list(lines = append(lines, paste0(indent, "- ", item), after = idx), changed = TRUE))
   }
-  entries <- seq(idx + 1L, range[2])
-  entries <- entries[grepl("^\\s*- ", lines[entries])]
-  if (!length(entries)) return(unchanged)
   items <- bare(sub("^\\s*- ", "", lines[entries]))
   if (item %in% items) return(unchanged)
   indent <- sub("^(\\s*).*$", "\\1", lines[entries[1]])
