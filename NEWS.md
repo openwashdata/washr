@@ -1,4 +1,6 @@
-# washr (development version)
+# washr 1.2.1
+
+The release that puts the names of washr and openwashdata on every package site. It carries the site items only; the skill and metadata work follows in 1.3.0.
 
 ## New
 
