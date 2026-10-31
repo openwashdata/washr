@@ -22,16 +22,21 @@
 #' | `Config/washr/doi-provider` | the DOI badge of the README | `zenodo` |
 #' | `Config/washr/zenodo-community` | the community in `.zenodo.json` | `openwashdata` |
 #' | `Config/washr/brand-source` | the GitHub repository [use_brand()] copies from | `openwashdata/brand` |
-#' | `Config/washr/version` | the washr version that last ran this function | |
+#' | `Config/washr/publisher` | the publisher sentence in the footer of the site | "Published by openwashdata, a project of Global Health Engineering at ETH Zurich." with links |
+#' | `Config/washr/home` | the website of the organisation: the navbar link, the line under the README badges, the publisher url in the metadata | `https://openwashdata.org` |
+#' | `Config/washr/catalog` | the data catalogue named in the metadata (`includedInDataCatalog`) | the Data page of openwashdata.org |
+#' | `Config/washr/community` | the text of the community block in the sidebar of the site | the openwashdata block with the catalogue and the newsletter |
+#' | `Config/washr/version` | the washr version that last ran this function; also named in the footer of the site | |
 #'
 #' A field that you edited is never overwritten, so a group other than
-#' openwashdata publishes with its own values by editing them. When
-#' `github_user` names another organisation than the one in `URL`, the
-#' repository in `URL` is replaced and the fields that still hold the
-#' defaults of the old organisation follow. Set a field
-#' to `none` to switch its feature off. For a package under another GitHub
-#' organisation the funding, analytics, community and brand fields are
-#' written as `none`, because the openwashdata values would be wrong there.
+#' openwashdata publishes with its own values by editing them. When the
+#' package moves to another organisation, whether `github_user` names it or
+#' `URL` was edited by hand, the fields that still hold the defaults of the
+#' old organisation follow; with `github_user`, the repository in `URL` is
+#' replaced as well. Set a field to `none` to switch its feature off. For a package under another GitHub
+#' organisation the funding, analytics, Zenodo community, brand, publisher,
+#' website, catalogue and community fields are written as `none`, because
+#' the openwashdata values would be wrong there.
 #' One more field is only ever written by hand: `Config/washr/pages-domain`,
 #' for a site that is not served from `<organisation>.github.io`.
 #'
@@ -127,21 +132,26 @@ update_description <- function(file = ".", github_user = NULL){
   # organisation, then left to the group that owns the package. Config/
   # entries washr does not own are never touched.
   # When the organisation changes, a field that still holds the default of
-  # the old organisation follows; a field someone edited stays.
+  # the old organisation follows; a field someone edited stays. The old
+  # organisation is the one URL named before this run, or openwashdata,
+  # whose defaults a package created there still carries after URL was
+  # edited by hand (#145).
   org <- basename(dirname(repo))
   old_org <- if (is.null(previous)) "openwashdata" else basename(dirname(previous))
-  org_changed <- !identical(tolower(org), tolower(old_org))
   defaults <- washr_defaults(org)
-  old_defaults <- washr_defaults(old_org)
+  stale <- lapply(setdiff(tolower(c(old_org, "openwashdata")), tolower(org)), washr_defaults)
   for (key in names(defaults)) {
     current <- washr_config(key, file = file)
-    if (is.null(current) || (org_changed && identical(current, old_defaults[[key]]))) {
+    follows <- any(vapply(stale, function(d) identical(current, d[[key]]), logical(1)))
+    if (is.null(current) || follows) {
       desc::desc_set(paste0("Config/washr/", key), defaults[[key]], file = file)
     }
   }
   desc::desc_set("Config/washr/version",
                  as.character(utils::packageVersion("washr")),
                  file = file)
+  # The footer of the site names the same version (#145)
+  refresh_pkgdown_washr_line(dirname(desc_path))
 
   ui_done("Updated {.path {desc_path}}")
   off <- names(defaults)[vapply(names(defaults), function(key) {

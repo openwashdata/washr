@@ -25,6 +25,8 @@ the analytics item is not applicable.
 place of the package name. Without it, any \code{github.io} URL passes.
 \item \code{funding_text}: the funding sentence that \verb{_pkgdown.yml} has to carry
 word for word. Without it, the funding item is not applicable.
+\item \code{publisher_text}: the publisher sentence the footer has to carry word
+for word. Without it, the publisher item is not applicable.
 \item \code{keywords_required}: keywords every package of the organisation has
 to carry.
 \item \code{brand}: \code{"none"} when the organisation has no brand, or the name of
@@ -76,6 +78,8 @@ a review tool can pick the rows it needs.\tabular{lll}{
    docs \tab \code{pkgdown_analytics} \tab \verb{_pkgdown.yml} carries the analytics header \cr
    docs \tab \code{pkgdown_url} \tab \code{url} in \verb{_pkgdown.yml} is the Pages URL, not the repository URL \cr
    docs \tab \code{pkgdown_funding} \tab \verb{_pkgdown.yml} carries the funding text of the organisation \cr
+   docs \tab \code{pkgdown_publisher} \tab the footer in \verb{_pkgdown.yml} carries the publisher sentence of the organisation \cr
+   docs \tab \code{pkgdown_washr_version} \tab the footer in \verb{_pkgdown.yml} names the washr version that \code{Config/washr/version} records \cr
    docs \tab \code{pkgdown_brand} \tab the brand entry in \verb{_pkgdown.yml} matches the organisation \cr
    docs \tab \code{pkgdown_llm_docs} \tab \verb{_pkgdown.yml} does not switch off the \code{llms.txt} of the site (\code{llm-docs: false}) \cr
    docs \tab \code{docs_untracked} \tab git tracks no file under \verb{docs/} while the pkgdown workflow deploys the site \cr
@@ -108,6 +112,7 @@ release the package.
 Other publishing functions:
 \code{\link[=setup_readme]{setup_readme()}},
 \code{\link[=setup_website]{setup_website()}},
+\code{\link[=update_website]{update_website()}},
 \code{\link[=use_brand]{use_brand()}}
 }
 \concept{publishing functions}

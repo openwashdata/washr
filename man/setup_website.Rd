@@ -22,11 +22,14 @@ found.
 \code{setup_website()} writes the openwashdata pkgdown configuration and builds
 the site from the package documentation and README.md. The configuration
 comes from the washr template, filled from DESCRIPTION: the Pages URL as
-the site URL, the repository link, the analytics header, the funding
-sidebar, the authors footer, and a reference index with one entry per
-data object in \verb{data/}. The analytics domain and the funding text are the
-\code{Config/washr/analytics-domain} and \code{Config/washr/funding} fields that
-\code{\link[=update_description]{update_description()}} writes; a field set to \code{none} leaves its block out.
+the site URL, the repository link, the analytics header, the link to the
+website of the organisation in the navbar, the funding and the community
+blocks of the sidebar, the authors footer, the footer that names the
+washr version and the publisher, and a reference index with one entry
+per data object in \verb{data/}. The texts and links are the \verb{Config/washr/}
+fields that \code{\link[=update_description]{update_description()}} writes (\code{analytics-domain}, \code{funding},
+\code{home}, \code{community}, \code{publisher}); a field set to \code{none} leaves its block
+out. \code{\link[=update_website]{update_website()}} brings an existing file up to date.
 
 The function is safe to re-run. An existing \verb{_pkgdown.yml} is kept as it
 is and only the site is rebuilt, so hand edits and the brand wiring from
@@ -44,11 +47,12 @@ deploys through the pkgdown GitHub Actions workflow instead
 }
 }
 \seealso{
-Before: \code{\link[=setup_readme]{setup_readme()}}. Next: \code{\link[=use_brand]{use_brand()}} for the brand, and \code{\link[=update_citation]{update_citation()}} once the release has a DOI.
+Before: \code{\link[=setup_readme]{setup_readme()}}. Next: \code{\link[=use_brand]{use_brand()}} for the brand, and \code{\link[=update_citation]{update_citation()}} once the release has a DOI. \code{\link[=update_website]{update_website()}} updates an existing \verb{_pkgdown.yml}.
 
 Other publishing functions:
 \code{\link[=check_publication_readiness]{check_publication_readiness()}},
 \code{\link[=setup_readme]{setup_readme()}},
+\code{\link[=update_website]{update_website()}},
 \code{\link[=use_brand]{use_brand()}}
 }
 \concept{publishing functions}

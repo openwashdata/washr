@@ -31,6 +31,10 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
+{{#has_home}}
+A data package published by [{{{org}}}]({{{home}}}).
+
+{{/has_home}}
 The goal of {{{packagename}}} is to ...
 
 ## Installation

@@ -52,6 +52,7 @@ Before: \code{\link[=update_description]{update_description()}}. Next: \code{\li
 Other publishing functions:
 \code{\link[=check_publication_readiness]{check_publication_readiness()}},
 \code{\link[=setup_website]{setup_website()}},
+\code{\link[=update_website]{update_website()}},
 \code{\link[=use_brand]{use_brand()}}
 }
 \concept{publishing functions}

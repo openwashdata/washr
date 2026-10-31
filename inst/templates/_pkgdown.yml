@@ -1,9 +1,10 @@
 # Standard _pkgdown.yml, written by washr::setup_website() from DESCRIPTION.
 # `url` is the site base URL (canonical links, sitemap.xml, redirects), so it
 # is the Pages URL, never the GitHub repository URL; the repository link lives
-# in home.links below. The analytics header and the funding text come from
-# the Config/washr fields in DESCRIPTION. washr keeps this file as it is on
-# every later run.
+# in home.links below. The analytics header, the navbar link, the sidebar
+# texts and the footer come from the Config/washr fields in DESCRIPTION.
+# washr keeps this file as it is on every later run; update_website() brings
+# the washr owned blocks up to date and leaves the rest alone.
 url: {{{pages_url}}}
 template:
   bootstrap: 5
@@ -12,20 +13,38 @@ template:
     in_header: |
       <script defer data-domain="{{{analytics_domain}}}" src="https://plausible.io/js/script.js"></script>
 {{/has_analytics}}
+{{#has_home}}
+
+navbar:
+  structure:
+    right: {{{navbar_right}}}
+  components:
+    home:
+      text: {{{home_text}}}
+      href: {{{home}}}
+      aria-label: {{{home_label}}}
+{{/has_home}}
 
 home:
   links:
     - icon: github
       text: GitHub repository
       href: {{{repo_url}}}
-{{#has_funding}}
+{{#has_sidebar}}
   sidebar:
-    structure: [links, citation, authors, dev, custom]
+    structure: {{{sidebar_structure}}}
     components:
+{{#has_funding}}
       custom:
         title: Funding
         text: {{{funding}}}
 {{/has_funding}}
+{{#has_community}}
+      community:
+        title: {{{community_title}}}
+        text: {{{community}}}
+{{/has_community}}
+{{/has_sidebar}}
 
 authors:
   footer:
@@ -35,6 +54,18 @@ authors:
     roles: [cre, aut, ctb]
     before: "So *who* does the work?"
     after: "Thanks all!"
+
+# The footer names the washr version that last ran update_description(),
+# which refreshes the line, and the publisher of the package.
+footer:
+  structure:
+    left: {{{footer_left}}}
+    right: {{{footer_right}}}
+  components:
+{{#has_publisher}}
+    publisher: {{{publisher}}}
+{{/has_publisher}}
+    washr: {{{washr_line}}}
 {{#has_datasets}}
 
 # One entry per data object in data/, each under its own descriptive name.

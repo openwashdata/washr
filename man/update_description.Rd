@@ -37,18 +37,23 @@ function reads them from there:\tabular{lll}{
    \code{Config/washr/doi-provider} \tab the DOI badge of the README \tab \code{zenodo} \cr
    \code{Config/washr/zenodo-community} \tab the community in \code{.zenodo.json} \tab \code{openwashdata} \cr
    \code{Config/washr/brand-source} \tab the GitHub repository \code{\link[=use_brand]{use_brand()}} copies from \tab \code{openwashdata/brand} \cr
-   \code{Config/washr/version} \tab the washr version that last ran this function \tab  \cr
+   \code{Config/washr/publisher} \tab the publisher sentence in the footer of the site \tab "Published by openwashdata, a project of Global Health Engineering at ETH Zurich." with links \cr
+   \code{Config/washr/home} \tab the website of the organisation: the navbar link, the line under the README badges, the publisher url in the metadata \tab \verb{https://openwashdata.org} \cr
+   \code{Config/washr/catalog} \tab the data catalogue named in the metadata (\code{includedInDataCatalog}) \tab the Data page of openwashdata.org \cr
+   \code{Config/washr/community} \tab the text of the community block in the sidebar of the site \tab the openwashdata block with the catalogue and the newsletter \cr
+   \code{Config/washr/version} \tab the washr version that last ran this function; also named in the footer of the site \tab  \cr
 }
 
 
 A field that you edited is never overwritten, so a group other than
-openwashdata publishes with its own values by editing them. When
-\code{github_user} names another organisation than the one in \code{URL}, the
-repository in \code{URL} is replaced and the fields that still hold the
-defaults of the old organisation follow. Set a field
-to \code{none} to switch its feature off. For a package under another GitHub
-organisation the funding, analytics, community and brand fields are
-written as \code{none}, because the openwashdata values would be wrong there.
+openwashdata publishes with its own values by editing them. When the
+package moves to another organisation, whether \code{github_user} names it or
+\code{URL} was edited by hand, the fields that still hold the defaults of the
+old organisation follow; with \code{github_user}, the repository in \code{URL} is
+replaced as well. Set a field to \code{none} to switch its feature off. For a package under another GitHub
+organisation the funding, analytics, Zenodo community, brand, publisher,
+website, catalogue and community fields are written as \code{none}, because
+the openwashdata values would be wrong there.
 One more field is only ever written by hand: \code{Config/washr/pages-domain},
 for a site that is not served from \verb{<organisation>.github.io}.
 }

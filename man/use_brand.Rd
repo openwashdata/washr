@@ -53,8 +53,11 @@ as non-standard top-level files.
 With \code{pkgdown = TRUE} (the default), an existing \verb{_pkgdown.yml} is
 pointed at the brand through bslib (\code{template.bslib.brand}), so the
 next \code{\link[pkgdown:build_site]{pkgdown::build_site()}} renders the site with the brand fonts
-and colors. The wiring adds its lines to \verb{_pkgdown.yml} and leaves the
-rest of the file, comments included, as it is. Only when the \code{template}
+and colors, and its Open Graph image is set to the social preview of
+the brand repository at the installed release
+(\code{assets/social-preview.png}), so a shared link to the site shows the
+image of the organisation. The wiring adds its lines to \verb{_pkgdown.yml}
+and leaves the rest of the file, comments included, as it is. Only when the \code{template}
 block already carries other bslib settings, or is written on one line,
 is the file rewritten through the yaml package, which does not preserve
 comments. When no
@@ -81,6 +84,7 @@ the openwashdata Quarto extension
 Other publishing functions:
 \code{\link[=check_publication_readiness]{check_publication_readiness()}},
 \code{\link[=setup_readme]{setup_readme()}},
-\code{\link[=setup_website]{setup_website()}}
+\code{\link[=setup_website]{setup_website()}},
+\code{\link[=update_website]{update_website()}}
 }
 \concept{publishing functions}

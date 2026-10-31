@@ -8,7 +8,9 @@
 #   DESCRIPTION            name, description, version, date, license, URLs,
 #                          keywords, coverage and source DOIs
 #                          (X-schema.org-* fields),
-#                          creators, maintainer, funder and publisher (Authors@R)
+#                          creators, maintainer, funder and publisher (Authors@R),
+#                          the website and the data catalogue of the
+#                          organisation (Config/washr/home and catalog)
 #   data-raw/dictionary.csv  datasets and variables
 #   CITATION.cff           DOI
 #   inst/extdata           one distribution per file that belongs to a dataset
@@ -78,10 +80,19 @@ build_dataset_jsonld <- function(path = ".") {
   if (length(people$creator) == 0) {
     note_blank("creator", "add persons with role aut or cre to Authors@R in DESCRIPTION")
   }
+  # The publisher is the copyright holder in Authors@R, else the
+  # organisation, with its website when DESCRIPTION names one (#145)
+  home <- pkg_config("home", path)
   publisher <- people$publisher
   if (is.null(publisher) && !is.null(org)) {
     publisher <- list("@type" = "Organization", name = org,
-                      url = paste0("https://github.com/", org))
+                      url = if (is_set(home)) home else paste0("https://github.com/", org))
+  }
+  # The data catalogue of the organisation, where dataset search engines
+  # file the package (#145)
+  catalog <- pkg_config("catalog", path)
+  catalog <- if (is_set(catalog) && !is.null(org)) {
+    list("@type" = "DataCatalog", name = org, url = catalog)
   }
 
   # Datasets and variables from the dictionary
@@ -124,6 +135,7 @@ build_dataset_jsonld <- function(path = ".") {
     creator = if (length(people$creator)) people$creator,
     maintainer = people$maintainer,
     publisher = publisher,
+    includedInDataCatalog = catalog,
     funder = if (length(people$funder)) people$funder,
     spatialCoverage = if (!identical(spatial, "")) list("@type" = "Place", name = spatial),
     temporalCoverage = if (!identical(temporal, "")) temporal,

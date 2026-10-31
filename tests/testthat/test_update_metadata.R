@@ -77,6 +77,20 @@ test_that("update_metadata() maps Authors@R to creator, maintainer, funder and p
   expect_identical(d$publisher$name, "openwashdata")
 })
 
+test_that("update_metadata() names the website and the data catalogue of the organisation (#145)", {
+  create_metadata_fixture()
+  d <- suppressMessages(update_metadata())
+  expect_identical(d$publisher$url, "https://openwashdata.org")
+  expect_identical(d$includedInDataCatalog[["@type"]], "DataCatalog")
+  expect_identical(d$includedInDataCatalog$name, "openwashdata")
+  expect_identical(d$includedInDataCatalog$url, "https://openwashdata.org/pages/gallery/data/")
+  # a group without a website or a catalogue gets the repository and no catalogue
+  desc::desc_set(`Config/washr/home` = "none", `Config/washr/catalog` = "none")
+  d <- suppressMessages(update_metadata())
+  expect_identical(d$publisher$url, "https://github.com/openwashdata")
+  expect_null(d$includedInDataCatalog)
+})
+
 test_that("update_metadata() lists one distribution per existing file with the right MIME type", {
   pkg <- create_metadata_fixture()
   d <- suppressMessages(update_metadata())
