@@ -27,11 +27,20 @@
 #' as non-standard top-level files.
 #'
 #' @details
+#' The small logo of the brand becomes the package logo: it is copied to
+#' `man/figures/logo.png`, where pkgdown shows it beside the title of the
+#' home page, and added to the title line of `README.Rmd`, so GitHub shows
+#' it too (pkgdown shows one logo, not two). When the brand names a dark
+#' counterpart of that logo, it goes to `pkgdown/assets/logo-dark.png`, and
+#' the one rule written to `pkgdown/extra.css` shows it on the dark theme
+#' of the site.
+#'
 #' With `pkgdown = TRUE` (the default), an existing `_pkgdown.yml` is
 #' pointed at the brand through bslib (`template.bslib.brand`), so the
 #' next [pkgdown::build_site()] renders the site with the brand fonts
-#' and colors, and its Open Graph image is set to the social preview of
-#' the brand repository at the installed release
+#' and colors, `brand.yml` is listed in `Config/Needs/website` so the
+#' pkgdown workflow installs it, and the Open Graph image is set to the
+#' social preview of the brand repository at the installed release
 #' (`assets/social-preview.png`), so a shared link to the site shows the
 #' image of the organisation. The wiring adds its lines to `_pkgdown.yml`
 #' and leaves the rest of the file, comments included, as it is. Only when the `template`
@@ -102,11 +111,16 @@ use_brand <- function(ref = NULL, pkgdown = TRUE, source = NULL) {
   }
   ignore_brand_files(logo_paths)
 
+  # The package logo: the brand's small logo in pkgdown's logo slot and at
+  # the title of the README, with its dark counterpart for the light switch
+  changed <- c(changed, install_package_logo(brand))
+
   if (isTRUE(pkgdown)) {
     changed <- c(changed, wire_pkgdown_brand())
     if (!is.null(repo) && !is.null(ref)) {
       changed <- c(changed, wire_pkgdown_opengraph(repo, ref))
     }
+    if (file.exists("DESCRIPTION")) changed <- c(changed, need_brand_yml())
   }
 
   previous <- record_brand_ref(ref)
@@ -246,6 +260,116 @@ place_brand_file <- function(tmp, dest) {
   file.copy(tmp, dest, overwrite = TRUE)
   ui_done("{.path {dest}} {status}.")
   dest
+}
+
+# The package logo from the brand: the image the brand names as its small
+# logo goes to man/figures/logo.png, where pkgdown shows it beside the
+# title of the home page and GitHub renders it from the README; the
+# counterpart the brand names as "<image>-dark" goes to
+# pkgdown/assets/logo-dark.png, shown on the dark theme of the site by the
+# one rule in pkgdown/extra.css. Nothing is written when the brand names
+# no small logo. Returns the files written or updated.
+install_package_logo <- function(brand) {
+  entry <- brand_logo_entry(brand, "small")
+  if (is.null(entry) || !file.exists(entry$path)) return(character(0))
+  changed <- place_brand_file(entry$path, file.path("man", "figures", "logo.png"))
+  dark <- brand_logo_entry(brand, "small", dark = TRUE)
+  if (!is.null(dark) && file.exists(dark$path)) {
+    changed <- c(changed, place_brand_file(dark$path, file.path("pkgdown", "assets", "logo-dark.png")))
+    changed <- c(changed, write_logo_css())
+    if (file.exists("DESCRIPTION")) usethis::use_build_ignore("pkgdown")
+  }
+  c(changed, add_readme_logo())
+}
+
+# The image a brand names for a size ("small", "medium" or "large"): a list
+# with the path and the alt text, or NULL. With dark = TRUE, the image the
+# brand names as the dark counterpart ("<image>-dark"), or NULL.
+brand_logo_entry <- function(brand, size, dark = FALSE) {
+  logo <- brand$logo
+  if (is.null(logo) || is.null(logo[[size]])) return(NULL)
+  key <- logo[[size]]
+  name <- if (is.character(key) && length(key) == 1 && !is.null(logo$images[[key]])) key else NULL
+  entry <- if (dark) {
+    if (is.null(name)) NULL else logo$images[[paste0(name, "-dark")]]
+  } else if (is.null(name)) {
+    key
+  } else {
+    logo$images[[name]]
+  }
+  if (is.null(entry)) return(NULL)
+  if (is.list(entry)) {
+    list(path = entry$path, alt = if (is.null(entry$alt)) "" else entry$alt)
+  } else {
+    list(path = entry, alt = "")
+  }
+}
+
+# The rule that shows the dark counterpart of the logo on the dark theme of
+# the site. pkgdown includes pkgdown/extra.css on every page and copies
+# pkgdown/assets to the root of the site; its light switch sets
+# data-bs-theme on the page. Written once, kept as it is after.
+write_logo_css <- function() {
+  path <- file.path("pkgdown", "extra.css")
+  marker <- "/* washr: the brand logo on the dark theme */"
+  lines <- if (file.exists(path)) readLines(path, warn = FALSE) else character(0)
+  if (any(lines == marker)) return(character(0))
+  dir.create("pkgdown", showWarnings = FALSE)
+  rule <- c(marker, '[data-bs-theme="dark"] img.logo { content: url("logo-dark.png"); }')
+  writeLines(c(lines, if (length(lines)) "", rule), path)
+  ui_done("{.path {path}} shows the dark logo on the dark theme of the site.")
+  path
+}
+
+# The logo at the title of README.Rmd, so GitHub shows it; pkgdown shows
+# its own slot logo once and drops the duplicate from the title. The title
+# is the first level one heading outside a code fence. A title that already
+# carries an image is left alone. Returns the file when it changed.
+add_readme_logo <- function() {
+  path <- "README.Rmd"
+  if (!file.exists(path)) return(character(0))
+  lines <- readLines(path, warn = FALSE)
+  title <- readme_title_line(lines)
+  if (is.na(title) || grepl("<img", lines[title], fixed = TRUE)) return(character(0))
+  lines[title] <- paste(lines[title], readme_logo_html())
+  writeLines(lines, path)
+  ui_done("{.path {path}} shows the logo at the title; rebuild the README with {.code devtools::build_readme()}.")
+  path
+}
+
+# The index of the first level one heading outside a code fence, or NA.
+readme_title_line <- function(lines) {
+  fence <- FALSE
+  for (i in seq_along(lines)) {
+    if (grepl("^\\s*```", lines[i])) fence <- !fence
+    if (!fence && grepl("^# ", lines[i])) return(i)
+  }
+  NA_integer_
+}
+
+# The image tag of the logo for the title of the README, linked to the
+# website of the organisation when DESCRIPTION names one. The alt text is
+# the name the brand gives itself, else the organisation.
+readme_logo_html <- function(file = ".") {
+  brand_file <- file.path(file, "_brand.yml")
+  brand <- if (file.exists(brand_file)) tryCatch(yaml::read_yaml(brand_file), error = function(e) NULL) else NULL
+  alt <- brand$meta$name
+  if (is.null(alt) || !nzchar(alt)) alt <- pkg_org(file)
+  img <- sprintf('<img src="man/figures/logo.png" align="right" width="120" alt="%s" />', alt)
+  home <- if (file.exists(file.path(file, "DESCRIPTION"))) pkg_config("home", file) else "none"
+  if (is_set(home)) sprintf('<a href="%s">%s</a>', home, img) else img
+}
+
+# The site build needs the brand.yml package once _pkgdown.yml is wired to
+# the brand; listed in Config/Needs/website so the pkgdown workflow installs
+# it (#143). Returns DESCRIPTION when the field changed.
+need_brand_yml <- function() {
+  needs <- desc::desc_get_field("Config/Needs/website", default = "")
+  needs <- setdiff(trimws(strsplit(needs, ",")[[1]]), "")
+  if ("brand.yml" %in% needs) return(character(0))
+  desc::desc_set("Config/Needs/website", paste(c(needs, "brand.yml"), collapse = ", "))
+  ui_done("{.field Config/Needs/website} lists brand.yml, which the branded site build needs.")
+  "DESCRIPTION"
 }
 
 # The logo paths a brand definition references: the named images plus any
