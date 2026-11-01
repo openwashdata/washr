@@ -88,7 +88,7 @@ test_that("the report goes through cli, can be silenced and prints again (#82)",
   expect_no_message(quiet_check())
   expect_invisible(quiet_check())
   expect_output(print(result), "Publication readiness")
-  expect_output(print(result), "28 pass, 0 fail, 2 not applicable", fixed = TRUE)
+  expect_output(print(result), "30 pass, 0 fail, 2 not applicable", fixed = TRUE)
   expect_identical(length(format(result)) > nrow(result), TRUE)
 })
 
@@ -187,6 +187,7 @@ test_that("items that cannot be decided are not applicable, with the reason (#82
   na_ids <- c("citation_version", "citation_authors", "dictionary_coverage",
               "dictionary_descriptions", "dictionary_schema", "roxygen_docs",
               "readme_citation", "pkgdown_analytics", "pkgdown_url", "pkgdown_funding",
+              "pkgdown_publisher", "pkgdown_washr_version",
               "pkgdown_brand", "pkgdown_llm_docs", "docs_untracked", "check_workflow_dev")
   expect_identical(unname(result$status[match(na_ids, result$id)]), rep("na", length(na_ids)))
   expect_true(all(nzchar(result$detail[match(na_ids, result$id)])))
@@ -203,6 +204,12 @@ test_that("the organisation profile sets what the site items expect (#82)", {
   funding <- "funded by the [Open Research Data Program of the ETH Board]"
   expect_identical(status_of(quiet_check(profile = list(funding_text = funding)), "pkgdown_funding"), "pass")
   expect_identical(status_of(quiet_check(profile = list(funding_text = "Funded by nobody")), "pkgdown_funding"), "fail")
+
+  publisher <- "Published by [openwashdata](https://openwashdata.org)"
+  expect_identical(status_of(quiet_check(profile = list(publisher_text = publisher)), "pkgdown_publisher"), "pass")
+  expect_identical(status_of(quiet_check(profile = list(publisher_text = "Published by nobody")), "pkgdown_publisher"), "fail")
+  # a profile without a publisher text leaves the item not applicable, as the funding item
+  expect_identical(status_of(quiet_check(profile = list(license = "any")), "pkgdown_publisher"), "na")
 
   pattern <- "https://openwashdata.github.io/<package>/"
   expect_identical(status_of(quiet_check(profile = list(site_url_pattern = pattern)), "pkgdown_url"), "pass")
@@ -319,4 +326,34 @@ test_that("readme_citation passes once README.md names the DOI of CITATION.cff (
   cat("Cite version 0.0.0.9000 with the DOI [10.5281/zenodo.1234567](https://doi.org/10.5281/zenodo.1234567).\n",
       file = "README.md", append = TRUE)
   expect_identical(status_of(quiet_check(), "readme_citation"), "pass")
+})
+
+test_that("the footer items follow the washr line and the version DESCRIPTION records (#145)", {
+  readiness_fixture()
+  expect_identical(status_of(quiet_check(), "pkgdown_washr_version"), "pass")
+  expect_identical(status_of(quiet_check(), "pkgdown_publisher"), "pass")
+
+  # the footer names another version than DESCRIPTION
+  stale <- broken_copy()
+  config <- file.path(stale, "_pkgdown.yml")
+  lines <- readLines(config)
+  lines[grep("^    washr:", lines)] <- "    washr: Package built with [washr](https://openwashdata.github.io/washr/) 1.0.0."
+  writeLines(lines, config)
+  result <- quiet_check(stale)
+  expect_identical(status_of(result, "pkgdown_washr_version"), "fail")
+  expect_match(result$detail[result$id == "pkgdown_washr_version"], "footer names washr 1.0.0", fixed = TRUE)
+
+  # a 1.2.0 file without the footer
+  old <- broken_copy()
+  lines <- readLines(file.path(old, "_pkgdown.yml"))
+  writeLines(lines[seq_len(grep("^footer:", lines) - 1L)], file.path(old, "_pkgdown.yml"))
+  result <- quiet_check(old)
+  expect_identical(status_of(result, "pkgdown_washr_version"), "fail")
+  expect_identical(status_of(result, "pkgdown_publisher"), "fail")
+  expect_match(result$fix[result$id == "pkgdown_publisher"], "update_website()", fixed = TRUE)
+
+  # a package that update_description() 1.2.0 never touched records no version
+  unrecorded <- broken_copy()
+  desc::desc_del("Config/washr/version", file = unrecorded)
+  expect_identical(status_of(quiet_check(unrecorded), "pkgdown_washr_version"), "na")
 })

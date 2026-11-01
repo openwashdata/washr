@@ -20,6 +20,10 @@ test_that("update_description() writes the Config/washr fields with the openwash
   expect_identical(washr_config("doi-provider"), "zenodo")
   expect_identical(washr_config("zenodo-community"), "openwashdata")
   expect_identical(washr_config("brand-source"), "openwashdata/brand")
+  expect_identical(washr_config("publisher"), washr_defaults()[["publisher"]])
+  expect_identical(washr_config("home"), "https://openwashdata.org")
+  expect_identical(washr_config("catalog"), "https://openwashdata.org/pages/gallery/data/")
+  expect_identical(washr_config("community"), washr_defaults()[["community"]])
   expect_identical(washr_config("version"), as.character(utils::packageVersion("washr")))
 })
 
@@ -49,6 +53,10 @@ test_that("update_description() takes the organisation from URL and writes none 
   expect_identical(washr_config("analytics-domain"), "none")
   expect_identical(washr_config("zenodo-community"), "none")
   expect_identical(washr_config("brand-source"), "none")
+  expect_identical(washr_config("publisher"), "none")
+  expect_identical(washr_config("home"), "none")
+  expect_identical(washr_config("catalog"), "none")
+  expect_identical(washr_config("community"), "none")
   expect_identical(washr_config("doi-provider"), "zenodo")
 })
 
@@ -89,7 +97,51 @@ test_that("the pkgdown template reads its values from DESCRIPTION (#81)", {
                    "Funded by: the \"Example\" Foundation.")
 
   desc::desc_set(`Config/washr/funding` = "none")
+  no_funding <- render()$home$sidebar
+  expect_null(no_funding$components$custom)
+  expect_false("custom" %in% no_funding$structure)
+  expect_true("community" %in% no_funding$structure)
+  desc::desc_set(`Config/washr/community` = "none")
   expect_null(render()$home$sidebar)
+})
+
+test_that("the pkgdown template writes the footer, the navbar link and the sidebar blocks from DESCRIPTION (#145)", {
+  pkg <- config_fixture()
+  render <- function() {
+    unlink("_pkgdown.yml")
+    usethis::use_template("_pkgdown.yml", save_as = "_pkgdown.yml",
+                          data = pkgdown_template_data(), package = "washr")
+    yaml::read_yaml("_pkgdown.yml")
+  }
+
+  suppressMessages(update_description())
+  owd <- render()
+  expect_identical(owd$footer$structure$left, c("developed_by", "publisher"))
+  expect_identical(owd$footer$structure$right, c("washr", "built_with"))
+  expect_identical(owd$footer$components$publisher, washr_defaults()[["publisher"]])
+  expect_identical(owd$footer$components$washr, washr_footer_line())
+  expect_match(owd$footer$components$washr, as.character(utils::packageVersion("washr")), fixed = TRUE)
+  expect_identical(owd$navbar$structure$right, c("search", "home", "github", "lightswitch"))
+  expect_identical(owd$navbar$components$home$href, "https://openwashdata.org")
+  expect_identical(owd$navbar$components$home$text, "openwashdata.org")
+  expect_identical(owd$home$sidebar$structure, c("links", "citation", "authors", "dev", "custom", "community"))
+  expect_identical(owd$home$sidebar$components$community$title, "openwashdata")
+  expect_identical(owd$home$sidebar$components$community$text, washr_defaults()[["community"]])
+  # the texts stand on one line, as the readiness items read them
+  lines <- readLines("_pkgdown.yml")
+  expect_true(any(grepl(washr_defaults()[["publisher"]], lines, fixed = TRUE)))
+  expect_true(any(grepl(washr_defaults()[["community"]], lines, fixed = TRUE)))
+
+  # another organisation gets the washr line and nothing that names openwashdata
+  desc::desc_set_urls(paste0("https://github.com/exampleorg/", pkg))
+  suppressMessages(update_description())
+  other <- render()
+  expect_identical(other$footer$structure$left, "developed_by")
+  expect_null(other$footer$components$publisher)
+  expect_identical(other$footer$components$washr, washr_footer_line())
+  expect_null(other$navbar)
+  expect_null(other$home$sidebar)
+  expect_false(any(grepl("openwashdata.org", readLines("_pkgdown.yml"), fixed = TRUE)))
 })
 
 test_that("the README template reads the repository and the license from DESCRIPTION (#81)", {
@@ -97,6 +149,7 @@ test_that("the README template reads the repository and the license from DESCRIP
   suppressMessages(update_description())
   suppressMessages(setup_readme())
   owd <- readLines("README.Rmd")
+  expect_true(any(grepl("A data package published by [openwashdata](https://openwashdata.org).", owd, fixed = TRUE)))
   expect_true(any(grepl(paste0('install_github("openwashdata/', pkg, '")'), owd, fixed = TRUE)))
   expect_true(any(grepl("License-CC_BY_4.0-lightgrey", owd, fixed = TRUE)))
   expect_true(any(grepl(paste0("[CC-BY](https://github.com/openwashdata/", pkg, "/blob/main/LICENSE.md)"),
@@ -104,9 +157,13 @@ test_that("the README template reads the repository and the license from DESCRIP
 
   desc::desc_set_urls(paste0("https://github.com/exampleorg/", pkg))
   desc::desc_set(License = "CC BY-SA 4.0")
+  # the organisation changed, so the fields that held the openwashdata
+  # defaults follow (#81); the publisher line under the badges goes with them
+  suppressMessages(update_description())
   suppressMessages(setup_readme(force = TRUE))
   other <- readLines("README.Rmd")
   expect_false(any(grepl("openwashdata", other, fixed = TRUE)))
+  expect_false(any(grepl("A data package published by", other, fixed = TRUE)))
   expect_true(any(grepl(paste0('install_github("exampleorg/', pkg, '")'), other, fixed = TRUE)))
   expect_true(any(grepl(paste0('"https://github.com/exampleorg/', pkg, '/raw/", ref, "/inst/extdata/"'),
                         other, fixed = TRUE)))

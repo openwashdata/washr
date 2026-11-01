@@ -269,3 +269,24 @@ test_that("latest_brand_ref prefers the latest release and falls back to the hig
   )
   expect_identical(latest_brand_ref("openwashdata/brand"), "v1.10.0")
 })
+
+test_that("wire_pkgdown_opengraph() sets the social preview of the brand when the repository has one (#145)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  src <- make_brand_source()
+  writeLines(c("template:", "  bootstrap: 5"), "_pkgdown.yml")
+  suppressMessages(use_brand(source = src))
+  # a brand repository without the file leaves the configuration alone
+  testthat::local_mocked_bindings(url_exists = function(url) FALSE)
+  expect_length(suppressMessages(wire_pkgdown_opengraph("openwashdata/brand", "v1.1.0")), 0)
+  expect_null(yaml::read_yaml("_pkgdown.yml")$template$opengraph)
+  # with the file, the image follows the installed ref and the brand name
+  testthat::local_mocked_bindings(url_exists = function(url) TRUE)
+  expect_identical(suppressMessages(wire_pkgdown_opengraph("openwashdata/brand", "v1.1.0")), "_pkgdown.yml")
+  config <- yaml::read_yaml("_pkgdown.yml")
+  expect_identical(config$template$opengraph$image$src,
+                   "https://raw.githubusercontent.com/openwashdata/brand/v1.1.0/assets/social-preview.png")
+  expect_identical(config$template$opengraph$image$alt, "openwashdata, social preview image")
+  expect_identical(config$template$bslib$brand, "_brand.yml")
+  expect_length(suppressMessages(wire_pkgdown_opengraph("openwashdata/brand", "v1.1.0")), 0)
+})

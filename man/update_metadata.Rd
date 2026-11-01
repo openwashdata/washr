@@ -33,7 +33,8 @@ The sources are:\tabular{ll}{
    keywords \tab \code{X-schema.org-keywords} in DESCRIPTION, comma separated \cr
    spatialCoverage, temporalCoverage \tab \code{X-schema.org-spatialCoverage} and \code{X-schema.org-temporalCoverage} in DESCRIPTION \cr
    isBasedOn \tab the source article DOIs in \code{X-schema.org-isBasedOn} in DESCRIPTION, comma separated \cr
-   creator, maintainer, funder, publisher \tab \code{Authors@R} roles \code{aut}/\code{cre}, \code{cre}, \code{fnd}, \code{cph}; ORCID from the \code{comment} field \cr
+   creator, maintainer, funder, publisher \tab \code{Authors@R} roles \code{aut}/\code{cre}, \code{cre}, \code{fnd}, \code{cph}; ORCID from the \code{comment} field. Without a \code{cph}, the publisher is the organisation with the website in \code{Config/washr/home} \cr
+   includedInDataCatalog \tab the data catalogue of the organisation in \code{Config/washr/catalog} \cr
    identifier, sameAs \tab the DOI in \code{CITATION.cff}, written by \code{\link[=update_citation]{update_citation()}} \cr
    variableMeasured \tab \code{data-raw/dictionary.csv} \cr
    distribution \tab every file in \code{inst/extdata} that belongs to a dataset, one entry per file \cr

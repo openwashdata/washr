@@ -38,6 +38,8 @@
 #' | docs | `pkgdown_analytics` | `_pkgdown.yml` carries the analytics header |
 #' | docs | `pkgdown_url` | `url` in `_pkgdown.yml` is the Pages URL, not the repository URL |
 #' | docs | `pkgdown_funding` | `_pkgdown.yml` carries the funding text of the organisation |
+#' | docs | `pkgdown_publisher` | the footer in `_pkgdown.yml` carries the publisher sentence of the organisation |
+#' | docs | `pkgdown_washr_version` | the footer in `_pkgdown.yml` names the washr version that `Config/washr/version` records |
 #' | docs | `pkgdown_brand` | the brand entry in `_pkgdown.yml` matches the organisation |
 #' | docs | `pkgdown_llm_docs` | `_pkgdown.yml` does not switch off the `llms.txt` of the site (`llm-docs: false`) |
 #' | docs | `docs_untracked` | git tracks no file under `docs/` while the pkgdown workflow deploys the site |
@@ -66,6 +68,8 @@
 #'     place of the package name. Without it, any `github.io` URL passes.
 #'   * `funding_text`: the funding sentence that `_pkgdown.yml` has to carry
 #'     word for word. Without it, the funding item is not applicable.
+#'   * `publisher_text`: the publisher sentence the footer has to carry word
+#'     for word. Without it, the publisher item is not applicable.
 #'   * `keywords_required`: keywords every package of the organisation has
 #'     to carry.
 #'   * `brand`: `"none"` when the organisation has no brand, or the name of
@@ -200,6 +204,8 @@ package_profile <- function(path = ".") {
     brand = if (is_set(brand)) brand else "none"
   )
   if (is_set(funding)) profile$funding_text <- funding
+  publisher <- pkg_config("publisher", path)
+  if (is_set(publisher)) profile$publisher_text <- publisher
   profile
 }
 
@@ -370,6 +376,14 @@ readiness_checks <- function() {
           "_pkgdown.yml carries the funding sidebar text from the org profile",
           "Add the funding text to the sidebar in _pkgdown.yml.",
           readiness_pkgdown_funding),
+    check("pkgdown_publisher", "docs",
+          "_pkgdown.yml footer carries the publisher sentence from the org profile",
+          "Run update_website(), which adds the publisher sentence to the footer.",
+          readiness_pkgdown_publisher),
+    check("pkgdown_washr_version", "docs",
+          "_pkgdown.yml footer names the washr version recorded in DESCRIPTION",
+          "Run update_description(), then update_website() when the footer has no washr line.",
+          readiness_pkgdown_washr_version),
     check("pkgdown_brand", "docs", "_pkgdown.yml brand wiring matches the org profile",
           "Remove the brand entry from _pkgdown.yml, or run use_brand() when the organisation has a brand.",
           readiness_pkgdown_brand),
@@ -713,6 +727,46 @@ readiness_pkgdown_funding <- function(ctx) {
     (is.character(text) && grepl(squish(funding[[1]]), squish(text[[1]]), fixed = TRUE))
   readiness_result(found,
                    if (found) "" else "the profile's funding text was not found verbatim")
+}
+
+# The footer sentence that names the publisher, verbatim as the funding
+# text, read from footer.components.publisher (#145).
+readiness_pkgdown_publisher <- function(ctx) {
+  config <- ctx$lines("_pkgdown.yml")
+  if (length(config) == 0) return(readiness_na("_pkgdown.yml missing"))
+  publisher <- ctx$profile$publisher_text
+  if (!length(publisher)) return(readiness_na("org profile defines no publisher text"))
+  squish <- function(x) trimws(gsub("\\s+", " ", x))
+  parsed <- tryCatch(yaml::yaml.load(paste(config, collapse = "\n")), error = function(e) NULL)
+  text <- parsed$footer$components$publisher
+  found <- any(grepl(publisher[[1]], config, fixed = TRUE)) ||
+    (is.character(text) && grepl(squish(publisher[[1]]), squish(text[[1]]), fixed = TRUE))
+  readiness_result(found,
+                   if (found) "" else "the profile's publisher text was not found verbatim in the footer")
+}
+
+# The footer names the washr version that DESCRIPTION records, so a site
+# never claims a version other than the one that last updated the package
+# (#145). The item is not applicable before update_description() has
+# recorded a version.
+readiness_pkgdown_washr_version <- function(ctx) {
+  config <- ctx$lines("_pkgdown.yml")
+  if (length(config) == 0) return(readiness_na("_pkgdown.yml missing"))
+  recorded <- ctx$field("Config/washr/version")
+  if (is.na(recorded) || !nzchar(trimws(recorded))) {
+    return(readiness_na("DESCRIPTION records no Config/washr/version; update_description() writes it"))
+  }
+  recorded <- trimws(recorded)
+  range <- yaml_block(config, "footer")
+  idx <- if (is.null(range)) NA_integer_ else yaml_find(config, range, "^\\s+washr:\\s")
+  if (is.na(idx)) return(readiness_result(FALSE, "the footer has no washr line"))
+  # The version stands after the link; the URL itself carries no digits that
+  # look like one, but the text after the closing parenthesis is what counts
+  tail <- sub("^.*\\)", "", config[idx])
+  version <- regmatches(tail, regexpr("[0-9]+(\\.[0-9]+)+", tail))
+  if (!length(version)) return(readiness_result(FALSE, "the washr line of the footer names no version"))
+  readiness_result(identical(version, recorded),
+                   sprintf("footer names washr %s, DESCRIPTION records %s", version, recorded))
 }
 
 # pkgdown 2.2.0 and later build llms.txt and a Markdown copy of every page

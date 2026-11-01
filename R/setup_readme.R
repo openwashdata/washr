@@ -81,9 +81,10 @@ setup_readme <- function(force = FALSE, has_example = FALSE){
   invisible(readmermd_path)
 }
 
-# The repository, site and license values of the README template, read from
-# DESCRIPTION (#81). The site URL links the authors page in the Citation
-# section (#137). CC BY 4.0, the license update_description() sets, keeps
+# The repository, site, license and publisher values of the README template,
+# read from DESCRIPTION (#81). The site URL links the authors page in the
+# Citation section (#137); the website of the organisation gives the line
+# under the badges that names the publisher (#145). CC BY 4.0, the license update_description() sets, keeps
 # the badge and the label the template has always carried.
 readme_template_data <- function(file = ".") {
   repo <- pkg_repo_url(file)
@@ -103,11 +104,15 @@ readme_template_data <- function(file = ".") {
                      license, utils::URLencode(shield, reserved = TRUE), target)
     label <- license
   }
+  home <- pkg_config("home", file)
   list(
     repo_url = repo,
     pages_url = pkg_pages_url(file),
     repo_slug = sub("^https?://github\\.com/", "", repo),
     license_badge = badge,
-    license_label = label
+    license_label = label,
+    org = pkg_org(file),
+    has_home = is_set(home),
+    home = if (is_set(home)) home
   )
 }

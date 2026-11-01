@@ -8,11 +8,18 @@
 #   doi-provider       where releases get their DOI; decides the DOI badge
 #   zenodo-community   the Zenodo community of the record (.zenodo.json)
 #   brand-source       the GitHub repository of the brand (use_brand())
+#   publisher          the publisher sentence of the site footer (Markdown)
+#   home               the website of the organisation (navbar link, README
+#                      line, publisher url in the JSON-LD)
+#   catalog            the data catalogue of the organisation
+#                      (includedInDataCatalog in the JSON-LD)
+#   community          the text of the community block in the site sidebar
+#                      (Markdown)
 #   pages-domain       the domain of the site, when it is not <org>.github.io
 #   version            the washr version that last ran update_description()
 #   brand              the brand ref that use_brand() last installed
 # A field set to "none" switches its feature off. update_description() writes
-# the first five with their defaults and the version; use_brand() writes the
+# the first nine with their defaults and the version; use_brand() writes the
 # brand. pages-domain is only ever written by hand.
 #
 # The GitHub organisation, the repository URL, the license and the publisher
@@ -31,7 +38,8 @@ washr_config <- function(key, default = NULL, file = ".") {
 # The defaults update_description() writes. openwashdata packages get the
 # openwashdata values. A package of another organisation gets "none" for the
 # values that would otherwise make a false statement on its site (a funder
-# it does not have, analytics and a community it does not own).
+# or a publisher it does not have, analytics, a website, a catalogue and a
+# community it does not own).
 washr_defaults <- function(org = "openwashdata") {
   if (identical(tolower(org), "openwashdata")) {
     c(
@@ -39,7 +47,11 @@ washr_defaults <- function(org = "openwashdata") {
       "analytics-domain" = "openwashdata.github.io",
       "doi-provider" = "zenodo",
       "zenodo-community" = "openwashdata",
-      "brand-source" = "openwashdata/brand"
+      "brand-source" = "openwashdata/brand",
+      "publisher" = "Published by [openwashdata](https://openwashdata.org), a project of [Global Health Engineering](https://ghe.ethz.ch/) at ETH Zurich.",
+      "home" = "https://openwashdata.org",
+      "catalog" = "https://openwashdata.org/pages/gallery/data/",
+      "community" = "This package is part of [openwashdata](https://openwashdata.org). Browse the [data catalogue](https://openwashdata.org/pages/gallery/data/) or get the [newsletter](https://openwashdata.org/pages/newsletter/)."
     )
   } else {
     c(
@@ -47,7 +59,11 @@ washr_defaults <- function(org = "openwashdata") {
       "analytics-domain" = "none",
       "doi-provider" = "zenodo",
       "zenodo-community" = "none",
-      "brand-source" = "none"
+      "brand-source" = "none",
+      "publisher" = "none",
+      "home" = "none",
+      "catalog" = "none",
+      "community" = "none"
     )
   }
 }

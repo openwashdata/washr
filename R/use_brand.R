@@ -30,8 +30,11 @@
 #' With `pkgdown = TRUE` (the default), an existing `_pkgdown.yml` is
 #' pointed at the brand through bslib (`template.bslib.brand`), so the
 #' next [pkgdown::build_site()] renders the site with the brand fonts
-#' and colors. The wiring adds its lines to `_pkgdown.yml` and leaves the
-#' rest of the file, comments included, as it is. Only when the `template`
+#' and colors, and its Open Graph image is set to the social preview of
+#' the brand repository at the installed release
+#' (`assets/social-preview.png`), so a shared link to the site shows the
+#' image of the organisation. The wiring adds its lines to `_pkgdown.yml`
+#' and leaves the rest of the file, comments included, as it is. Only when the `template`
 #' block already carries other bslib settings, or is written on one line,
 #' is the file rewritten through the yaml package, which does not preserve
 #' comments. When no
@@ -101,6 +104,9 @@ use_brand <- function(ref = NULL, pkgdown = TRUE, source = NULL) {
 
   if (isTRUE(pkgdown)) {
     changed <- c(changed, wire_pkgdown_brand())
+    if (!is.null(repo) && !is.null(ref)) {
+      changed <- c(changed, wire_pkgdown_opengraph(repo, ref))
+    }
   }
 
   previous <- record_brand_ref(ref)
@@ -298,6 +304,31 @@ sort_keys <- function(x) {
   if (!is.list(x)) return(x)
   if (!is.null(names(x))) x <- x[order(names(x))]
   lapply(x, sort_keys)
+}
+
+# Set the Open Graph image of the site to the social preview of the brand
+# repository at the installed ref, when the repository has one (#145). A
+# shared link to the site then shows the image of the organisation. Returns
+# the config path when it changed, or an empty vector.
+wire_pkgdown_opengraph <- function(repo, ref) {
+  configpath <- "_pkgdown.yml"
+  if (!file.exists(configpath) || !file.exists("_brand.yml")) return(character(0))
+  image <- brand_social_preview(repo, ref)
+  if (!url_exists(image$src)) {
+    ui_info("{repo} has no {.path assets/social-preview.png} at {.val {ref}}; the Open Graph image stays as it is.")
+    return(character(0))
+  }
+  lines <- readLines(configpath, warn = FALSE)
+  result <- pkgdown_update_opengraph(lines, image, yaml_indent_unit(lines))
+  if (!isTRUE(result$changed)) return(character(0))
+  parsed <- tryCatch(yaml::yaml.load(paste(result$lines, collapse = "\n")), error = function(e) NULL)
+  if (is.null(parsed)) {
+    ui_info("The Open Graph image could not be added to {.path {configpath}} line by line; add template.opengraph.image by hand.")
+    return(character(0))
+  }
+  writeLines(result$lines, configpath)
+  ui_done("{.path {configpath}} shows the social preview of the brand when a link to the site is shared.")
+  configpath
 }
 
 # Point an existing _pkgdown.yml at the brand through bslib. Returns the

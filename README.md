@@ -62,6 +62,8 @@ step, in the order you run them:
 - `setup_readme()` writes the README from the template.
 - `setup_website()` writes the pkgdown configuration and builds the
   site.
+- `update_website()` brings an existing pkgdown configuration up to date
+  with the template.
 - `use_brand()` installs the openwashdata brand for the site.
 - `update_citation()` writes the citation files, with the DOI once there
   is one, and the `.zenodo.json` that files the release on Zenodo as a
@@ -89,7 +91,7 @@ The [Get
 started](https://openwashdata.github.io/washr/articles/washr.html) page
 walks through the workflow in order, and the
 [Reference](https://openwashdata.github.io/washr/reference/index.html)
-page documents each function. The [publishing
-guide](https://openwashdata.github.io/fair-publishing/)
-covers the same steps with more explanation and the parts outside R,
-such as the GitHub repository and the Zenodo release.
+page documents each function. The [FAIR Data Publishing
+guide](https://openwashdata.github.io/fair-publishing/) covers the same
+steps with more explanation and the parts outside R, such as the GitHub
+repository and the Zenodo release.

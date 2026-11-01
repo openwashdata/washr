@@ -27,6 +27,7 @@ reference:
   contents:
   - setup_readme
   - setup_website
+  - update_website
   - use_brand
   - update_citation
   - update_zenodo_json

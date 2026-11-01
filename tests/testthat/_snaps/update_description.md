@@ -25,5 +25,9 @@
       Config/washr/doi-provider: zenodo
       Config/washr/zenodo-community: openwashdata
       Config/washr/brand-source: openwashdata/brand
+      Config/washr/publisher: Published by [openwashdata](https://openwashdata.org), a project of [Global Health Engineering](https://ghe.ethz.ch/) at ETH Zurich.
+      Config/washr/home: https://openwashdata.org
+      Config/washr/catalog: https://openwashdata.org/pages/gallery/data/
+      Config/washr/community: This package is part of [openwashdata](https://openwashdata.org). Browse the [data catalogue](https://openwashdata.org/pages/gallery/data/) or get the [newsletter](https://openwashdata.org/pages/newsletter/).
       Config/washr/version: WASHR_VERSION
 

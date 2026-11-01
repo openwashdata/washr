@@ -57,6 +57,7 @@ The stable core scaffolds and documents the package, one function per step, in t
 - `update_description()` completes `DESCRIPTION` to the openwashdata standard.
 - `setup_readme()` writes the README from the template.
 - `setup_website()` writes the pkgdown configuration and builds the site.
+- `update_website()` brings an existing pkgdown configuration up to date with the template.
 - `use_brand()` installs the openwashdata brand for the site.
 - `update_citation()` writes the citation files, with the DOI once there is one, and the `.zenodo.json` that files the release on Zenodo as a dataset.
 
