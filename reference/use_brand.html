@@ -47,7 +47,7 @@ as non-standard top-level files."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">washr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -132,11 +132,19 @@ updated (empty when everything was already current).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>With <code>pkgdown = TRUE</code> (the default), an existing <code>_pkgdown.yml</code> is
+    <p>The small logo of the brand becomes the package logo: it is copied to
+<code>man/figures/logo.png</code>, where pkgdown shows it beside the title of the
+home page, and added to the title line of <code>README.Rmd</code>, so GitHub shows
+it too (pkgdown shows one logo, not two). When the brand names a dark
+counterpart of that logo, it goes to <code>pkgdown/assets/logo-dark.png</code>, and
+the one rule written to <code>pkgdown/extra.css</code> shows it on the dark theme
+of the site.</p>
+<p>With <code>pkgdown = TRUE</code> (the default), an existing <code>_pkgdown.yml</code> is
 pointed at the brand through bslib (<code>template.bslib.brand</code>), so the
 next <code><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">pkgdown::build_site()</a></code> renders the site with the brand fonts
-and colors, and its Open Graph image is set to the social preview of
-the brand repository at the installed release
+and colors, <code>brand.yml</code> is listed in <code>Config/Needs/website</code> so the
+pkgdown workflow installs it, and the Open Graph image is set to the
+social preview of the brand repository at the installed release
 (<code>assets/social-preview.png</code>), so a shared link to the site shows the
 image of the organisation. The wiring adds its lines to <code>_pkgdown.yml</code>
 and leaves the rest of the file, comments included, as it is. Only when the <code>template</code>

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">washr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -240,13 +240,15 @@ version line on its own.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/update_website.html">update_website</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><code><a href="../reference/use_brand.html">use_brand()</a></code> installs the openwashdata brand, the fonts
 and colors of the site, from the latest release of the central brand
-repository and wires <code>_pkgdown.yml</code> to it. It also sets the
-social preview of the brand as the Open Graph image of the site, so a
-shared link shows the openwashdata image. It records the release it
-installed in <code>DESCRIPTION</code> as
-<code>Config/washr/brand</code>. Run it once after
-<code><a href="../reference/setup_website.html">setup_website()</a></code>, and again after a new brand release; a run
-with no new release changes nothing.</p>
+repository and wires <code>_pkgdown.yml</code> to it. It installs the
+small logo of the brand as the package logo, which the site shows beside
+the title and the README shows on GitHub (with its white counterpart on
+the dark theme of the site), and it sets the social preview of the brand
+as the Open Graph image of the site, so a shared link shows the
+openwashdata image. It records the release it installed in
+<code>DESCRIPTION</code> as <code>Config/washr/brand</code>. Run it once
+after <code><a href="../reference/setup_website.html">setup_website()</a></code>, and again after a new brand release;
+a run with no new release changes nothing.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/use_brand.html">use_brand</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Branded PDF and Word reports about the package use the openwashdata

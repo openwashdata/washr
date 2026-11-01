@@ -59,17 +59,26 @@ when everything was already current).
 
 ## Details
 
+The small logo of the brand becomes the package logo: it is copied to
+`man/figures/logo.png`, where pkgdown shows it beside the title of the
+home page, and added to the title line of `README.Rmd`, so GitHub shows
+it too (pkgdown shows one logo, not two). When the brand names a dark
+counterpart of that logo, it goes to `pkgdown/assets/logo-dark.png`, and
+the one rule written to `pkgdown/extra.css` shows it on the dark theme
+of the site.
+
 With `pkgdown = TRUE` (the default), an existing `_pkgdown.yml` is
 pointed at the brand through bslib (`template.bslib.brand`), so the next
 [`pkgdown::build_site()`](https://pkgdown.r-lib.org/reference/build_site.html)
-renders the site with the brand fonts and colors, and its Open Graph
-image is set to the social preview of the brand repository at the
-installed release (`assets/social-preview.png`), so a shared link to the
-site shows the image of the organisation. The wiring adds its lines to
-`_pkgdown.yml` and leaves the rest of the file, comments included, as it
-is. Only when the `template` block already carries other bslib settings,
-or is written on one line, is the file rewritten through the yaml
-package, which does not preserve comments. When no `_pkgdown.yml`
+renders the site with the brand fonts and colors, `brand.yml` is listed
+in `Config/Needs/website` so the pkgdown workflow installs it, and the
+Open Graph image is set to the social preview of the brand repository at
+the installed release (`assets/social-preview.png`), so a shared link to
+the site shows the image of the organisation. The wiring adds its lines
+to `_pkgdown.yml` and leaves the rest of the file, comments included, as
+it is. Only when the `template` block already carries other bslib
+settings, or is written on one line, is the file rewritten through the
+yaml package, which does not preserve comments. When no `_pkgdown.yml`
 exists, the wiring is skipped with a hint to run
 [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md)
 first. Building the wired site requires the brand.yml package (bslib

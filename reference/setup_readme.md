@@ -8,13 +8,16 @@ license come from DESCRIPTION, so run
 [`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
 first.
 
-The Citation section states in plain text which version to cite with
-which DOI, links the authors page of the site and `CITATION.cff`, and
-names the source article of republished data from
-`X-schema.org-isBasedOn`. The download links point at the release tag of
-the version in DESCRIPTION, and at the main branch for a development
-version. pkgdown builds the `llms.txt` of the site from the README, so
-this is also what AI tools read about the package.
+The Citation section names the publisher with its website, states in
+plain text which version to cite with which DOI, links the authors page
+of the site and `CITATION.cff`, and names the source article of
+republished data from `X-schema.org-isBasedOn`. When
+[`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
+has installed the logo (`man/figures/logo.png`), the title line shows
+it, linked to the website of the organisation. The download links point
+at the release tag of the version in DESCRIPTION, and at the main branch
+for a development version. pkgdown builds the `llms.txt` of the site
+from the README, so this is also what AI tools read about the package.
 
 The template documents the first data object in `data/`
 (alphabetically); add a section per further object by hand. It stops

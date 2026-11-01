@@ -1,5 +1,33 @@
 # Changelog
 
+## washr 1.2.2
+
+The release that puts the openwashdata logo on every package site and
+moves the publisher line off the top of the README. A GitHub release,
+like 1.2.1; the next CRAN submission carries both.
+
+### New
+
+- The openwashdata logo on every package site and README.
+  [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
+  installs the small logo of the brand as the package logo
+  (`man/figures/logo.png`), which pkgdown shows beside the title of the
+  home page, adds it to the title line of README.Rmd so GitHub shows it
+  too, and, when the brand names a dark counterpart, writes it to
+  `pkgdown/assets/logo-dark.png` with the one rule in
+  `pkgdown/extra.css` that shows it on the dark theme. It also lists
+  `brand.yml` in `Config/Needs/website`, which the site build needs once
+  the site is wired to the brand
+  ([\#148](https://github.com/openwashdata/washr/issues/148),
+  [\#143](https://github.com/openwashdata/washr/issues/143)).
+- The README template no longer opens with a line under the badges. The
+  publisher is named as the first line of the Citation section, with the
+  website written out (“Published by openwashdata,
+  <https://openwashdata.org>.”), and
+  [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md)
+  shows the installed logo at the title
+  ([\#148](https://github.com/openwashdata/washr/issues/148)).
+
 ## washr 1.2.1
 
 The release that puts the names of washr and openwashdata on every

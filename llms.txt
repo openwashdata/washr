@@ -58,7 +58,8 @@ step, in the order you run them:
 - [`update_website()`](https://openwashdata.github.io/washr/reference/update_website.md)
   brings an existing pkgdown configuration up to date with the template.
 - [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
-  installs the openwashdata brand for the site.
+  installs the openwashdata brand and the logo for the site and the
+  README.
 - [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)
   writes the citation files, with the DOI once there is one, and the
   `.zenodo.json` that files the release on Zenodo as a dataset.

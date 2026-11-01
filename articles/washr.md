@@ -240,10 +240,13 @@ update_website()
 [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
 installs the openwashdata brand, the fonts and colors of the site, from
 the latest release of the central brand repository and wires
-`_pkgdown.yml` to it. It also sets the social preview of the brand as
-the Open Graph image of the site, so a shared link shows the
-openwashdata image. It records the release it installed in `DESCRIPTION`
-as `Config/washr/brand`. Run it once after
+`_pkgdown.yml` to it. It installs the small logo of the brand as the
+package logo, which the site shows beside the title and the README shows
+on GitHub (with its white counterpart on the dark theme of the site),
+and it sets the social preview of the brand as the Open Graph image of
+the site, so a shared link shows the openwashdata image. It records the
+release it installed in `DESCRIPTION` as `Config/washr/brand`. Run it
+once after
 [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md),
 and again after a new brand release; a run with no new release changes
 nothing.
