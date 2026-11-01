@@ -4,7 +4,7 @@
 \alias{update_description}
 \title{Update the DESCRIPTION file to conform with openwashdata standards}
 \usage{
-update_description(file = ".", github_user = NULL)
+update_description(file = ".", github_user = NULL, date = NULL)
 }
 \arguments{
 \item{file}{Character. The file path to the DESCRIPTION file of the R package. Defaults to the current working directory.}
@@ -13,6 +13,11 @@ update_description(file = ".", github_user = NULL)
 that hosts the package, e.g., \code{"https://github.com/yourorg"}. Defaults
 to the organisation of the repository already listed in \code{URL}, and to
 \code{"https://github.com/openwashdata"} when \code{URL} lists none.}
+
+\item{date}{The \code{Date} field for a release: \code{"today"} or a \code{Date}. The
+default \code{NULL} keeps an existing date and writes today only when the
+field is absent, so a run that changes nothing about the data does not
+move the date of the package (#150).}
 }
 \value{
 The path of the DESCRIPTION file, invisibly. The fields are
@@ -21,6 +26,7 @@ updated in the file.
 \description{
 This function updates the DESCRIPTION file of an R package to comply with openwashdata standards.
 It ensures that fields such as \code{License}, \code{Language}, \code{Date}, \code{URL}, and others are correctly specified.
+\code{Date} is written once and then kept; a release sets it through \code{date}.
 Existing \code{URL} and \code{Config/Needs/website} entries are preserved and merged
 with the openwashdata defaults. A CC BY 4.0 license is only set when the
 package does not have a license yet; an existing license is left untouched.

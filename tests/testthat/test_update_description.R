@@ -81,3 +81,18 @@ test_that("DESCRIPTION full-file snapshot (#65)", {
   lines <- sub("^(Config/washr/version:).*$", "\\1 WASHR_VERSION", lines)
   expect_snapshot(cat(lines, sep = "\n"))
 })
+
+test_that("update_description() keeps an existing Date and sets it on purpose (#150)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  suppressMessages(update_description())
+  expect_identical(desc::desc_get_field("Date"), as.character(Sys.Date()))
+  desc::desc_set("Date", "2025-03-01")
+  withr::with_options(list(usethis.quiet = FALSE),
+                      expect_message(update_description(), "Date stays"))
+  expect_identical(desc::desc_get_field("Date"), "2025-03-01")
+  suppressMessages(update_description(date = as.Date("2026-01-15")))
+  expect_identical(desc::desc_get_field("Date"), "2026-01-15")
+  suppressMessages(update_description(date = "today"))
+  expect_identical(desc::desc_get_field("Date"), as.character(Sys.Date()))
+})

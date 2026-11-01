@@ -1,5 +1,13 @@
 # washr (development version)
 
+## Changed
+
+- `update_description()` writes `Date` once and then keeps it; a release sets the date on purpose with the new `date` argument (`"today"` or a `Date`). The site branding passes had to restore the field on 59 packages whose data had not changed (#150).
+
+## Fixed
+
+- `setup_roxygen()` no longer stops on its first call in a package without an `R/` folder; it creates the folder itself (#144).
+
 # washr 1.2.2
 
 The release that puts the openwashdata logo on every package site and moves the publisher line off the top of the README. A GitHub release, like 1.2.1; the next CRAN submission carries both.

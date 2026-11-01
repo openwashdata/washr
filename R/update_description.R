@@ -4,6 +4,7 @@
 #' @description
 #' This function updates the DESCRIPTION file of an R package to comply with openwashdata standards.
 #' It ensures that fields such as `License`, `Language`, `Date`, `URL`, and others are correctly specified.
+#' `Date` is written once and then kept; a release sets it through `date`.
 #' Existing `URL` and `Config/Needs/website` entries are preserved and merged
 #' with the openwashdata defaults. A CC BY 4.0 license is only set when the
 #' package does not have a license yet; an existing license is left untouched.
@@ -41,6 +42,10 @@
 #' for a site that is not served from `<organisation>.github.io`.
 #'
 #' @param file Character. The file path to the DESCRIPTION file of the R package. Defaults to the current working directory.
+#' @param date The `Date` field for a release: `"today"` or a `Date`. The
+#'   default `NULL` keeps an existing date and writes today only when the
+#'   field is absent, so a run that changes nothing about the data does not
+#'   move the date of the package (#150).
 #' @param github_user Character. The URL of the GitHub user or organization
 #'   that hosts the package, e.g., `"https://github.com/yourorg"`. Defaults
 #'   to the organisation of the repository already listed in `URL`, and to
@@ -67,7 +72,7 @@
 #' }
 #'
 #'
-update_description <- function(file = ".", github_user = NULL){
+update_description <- function(file = ".", github_user = NULL, date = NULL){
   desc_path <- if (dir.exists(file)) file.path(file, "DESCRIPTION") else file
   if(!file.exists(desc_path)){
     cli::cli_abort("No DESCRIPTION file found at {.path {desc_path}}.")
@@ -98,10 +103,18 @@ update_description <- function(file = ".", github_user = NULL){
                  paste(union("rmarkdown", website), collapse = ", "),
                  file = file)
 
-  # Date
-  desc::desc_set("Date",
-                 Sys.Date(),
-                 file = file)
+  # Date: written when absent, kept when set, and set on purpose through
+  # `date` for a release (#150); a pass over packages whose data did not
+  # change must not move their date
+  current_date <- desc::desc_get_field("Date", default = "", file = file)
+  if (!is.null(date)) {
+    value <- if (identical(date, "today")) Sys.Date() else as.Date(date)
+    desc::desc_set("Date", format(value), file = file)
+  } else if (identical(current_date, "")) {
+    desc::desc_set("Date", Sys.Date(), file = file)
+  } else {
+    ui_info("Date stays {.val {current_date}}; set it with {.code update_description(date = \"today\")} for a release.")
+  }
   # The repository: the one under the GitHub user given, else the one URL
   # already lists, else the conventional one under openwashdata. URL entries
   # are merged, never replaced.
