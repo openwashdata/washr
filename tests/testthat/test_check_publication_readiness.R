@@ -357,3 +357,20 @@ test_that("the footer items follow the washr line and the version DESCRIPTION re
   desc::desc_del("Config/washr/version", file = unrecorded)
   expect_identical(status_of(quiet_check(unrecorded), "pkgdown_washr_version"), "na")
 })
+
+test_that("dictionary_schema allows named columns after the five and rejects unnamed ones (#151)", {
+  readiness_fixture()
+  extra <- broken_copy()
+  path <- file.path(extra, "data-raw", "dictionary.csv")
+  lines <- readLines(path)
+  writeLines(c(paste0(lines[1], ",unit"), paste0(lines[-1], ",m")), path)
+  expect_identical(status_of(quiet_check(extra), "dictionary_schema"), "pass")
+
+  unnamed <- broken_copy()
+  path <- file.path(unnamed, "data-raw", "dictionary.csv")
+  lines <- readLines(path)
+  writeLines(c(paste0(lines[1], ","), paste0(lines[-1], ",x")), path)
+  result <- quiet_check(unnamed)
+  expect_identical(status_of(result, "dictionary_schema"), "fail")
+  expect_match(result$detail[result$id == "dictionary_schema"], "unnamed", fixed = TRUE)
+})

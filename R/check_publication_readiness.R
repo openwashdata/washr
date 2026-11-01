@@ -27,7 +27,7 @@
 #' | data | `dictionary_present` | `data-raw/dictionary.csv` is present |
 #' | data | `dictionary_coverage` | the dictionary covers every variable of every data object |
 #' | data | `dictionary_descriptions` | no description is empty or a placeholder |
-#' | data | `dictionary_schema` | the five washr columns in order, UTF-8 without a byte order mark, one class name per `variable_type` |
+#' | data | `dictionary_schema` | the five washr columns first, in order, further named columns allowed, UTF-8 without a byte order mark, one class name per `variable_type` |
 #' | docs | `roxygen_docs` | every data object has a help page in `man/` |
 #' | docs | `readme` | `README.Rmd` and the rendered `README.md` are present |
 #' | docs | `rd_source` | at least one help page in `man/` carries a source |
@@ -340,7 +340,7 @@ readiness_checks <- function() {
           readiness_dictionary_descriptions),
     check("dictionary_schema", "data",
           "Dictionary schema: five washr columns, UTF-8 without BOM, single-class variable_type",
-          "Keep the five columns that setup_dictionary() writes and save the file as UTF-8 without a byte order mark.",
+          "Keep the five columns that setup_dictionary() writes first in the file, or run update_dictionary(), and save the file as UTF-8 without a byte order mark.",
           readiness_dictionary_schema),
     check("roxygen_docs", "docs", "Every dataset has a help page in man/",
           "Run setup_roxygen(), then devtools::document().",
@@ -607,9 +607,12 @@ readiness_dictionary_schema <- function(ctx) {
   problems <- c(
     if (has_bom) "UTF-8 byte order mark at the start of the file",
     if (bad_utf8) "non-UTF-8 bytes in the file",
-    if (!identical(cols, expected)) {
-      sprintf("columns are [%s], expected [%s]",
+    if (!identical(cols[seq_along(expected)], expected)) {
+      sprintf("columns are [%s], expected [%s] first",
               paste(cols, collapse = ", "), paste(expected, collapse = ", "))
+    },
+    if (length(cols) > length(expected) && any(!nzchar(trimws(cols[-seq_along(expected)])))) {
+      "unnamed columns after the five washr columns"
     },
     if (any(type_bad)) {
       sprintf("variable_type is not a single class name for: %s",

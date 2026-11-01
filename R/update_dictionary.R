@@ -16,7 +16,15 @@
 #' added, so what you wrote in the removed rows is printed for you to copy
 #' into the new rows.
 #'
-#' The columns keep the order they have in the file. The rows follow the
+#' A dictionary in an older layout is brought to the washr layout first:
+#' an unnamed index column and unnamed empty columns from a spreadsheet are
+#' dropped, `directory` and `file_name` are derived from the data objects
+#' when the file lacks them or holds placeholders (a variable that several
+#' data objects carry gets one row per object), and a row whose variable no
+#' data object carries stops the run with the variable named.
+#'
+#' The five washr columns come first, in order; every other column keeps
+#' its place after them. The rows follow the
 #' data: data objects in alphabetical order, variables in the order of the
 #' data object. When nothing differs, the file is left untouched, so the
 #' function is safe to run again.
@@ -58,19 +66,30 @@ update_dictionary <- function() {
     ))
   }
 
-  old <- read_dictionary_cells(dict_path)
   info <- collect_tidydata_info(data_dir)
+  raw <- read_dictionary_cells(dict_path)
+  migrated <- migrate_dictionary_layout(raw, info, data_dir, dict_path)
+  old <- check_dictionary_rows(migrated$dictionary, dict_path)
   merged <- merge_dictionary(old, info, data_dir)
   new <- merged$dictionary
+  # The five washr columns first, in order; every other column after them
+  standard <- c("directory", "file_name", "variable_name", "variable_type", "description")
+  ordered <- c(standard, setdiff(names(new), standard))
+  repairs <- migrated$repairs
+  if (!identical(names(new), ordered)) {
+    new <- new[ordered]
+    repairs <- c(repairs, "Put the five washr columns first")
+  }
 
-  changed <- !identical(names(old), names(new)) ||
-    !identical(unname(as.list(old)), unname(as.list(new)))
+  changed <- !identical(names(raw), names(new)) ||
+    !identical(unname(as.list(raw)), unname(as.list(new)))
   if (changed) {
     write_dictionary_cells(new, dict_path)
     ui_done("Updated {.path {dict_path}}")
   } else {
     ui_done("{.path {dict_path}} is up to date")
   }
+  for (repair in repairs) ui_info(repair)
   report_dictionary_changes(merged)
 
   described <- !trimws(new$description) %in% c("", "NA")
@@ -92,13 +111,81 @@ read_dictionary_cells <- function(dict_path) {
                                 na.strings = character(), check.names = FALSE,
                                 encoding = "UTF-8",
                                 fileEncoding = if (bom) "UTF-8-BOM" else "")
-  missing <- setdiff(c("file_name", "variable_name"), names(dictionary))
-  if (length(missing) > 0) {
+  # A header cell exported with its quotes doubled reads as a name in quotes
+  names(dictionary) <- gsub('^"+|"+$', "", names(dictionary))
+  if (!"variable_name" %in% names(dictionary)) {
+    missing <- setdiff(c("file_name", "variable_name"), names(dictionary))
     cli::cli_abort(c(
       "{.path {dict_path}} lacks {length(missing)} column{?s}: {.val {missing}}.",
-      "i" = "{.fun update_dictionary} matches the rows on {.val file_name} and {.val variable_name}. Restore both column names, or delete the file and run {.fun setup_dictionary}."
+      "i" = "{.fun update_dictionary} matches the rows on {.val variable_name}, and on {.val file_name} when the file has it. Restore the column names, or delete the file and run {.fun setup_dictionary}."
     ))
   }
+  dictionary
+}
+
+# Bring a dictionary in an older layout to the washr layout before its rows
+# are matched to the data (#151): an unnamed index column and unnamed empty
+# columns are dropped, directory and file_name are derived from the data
+# objects when they are absent or hold placeholders (values that are no
+# file names), and a row of a variable that several data objects carry
+# becomes one row per object.
+# Returns the dictionary and the repairs made, as sentences.
+migrate_dictionary_layout <- function(dict, info, data_dir, dict_path) {
+  repairs <- character()
+  unnamed <- which(!nzchar(trimws(names(dict))))
+  for (i in rev(unnamed)) {
+    cells <- trimws(dict[[i]])
+    is_index <- i == 1L && identical(cells, as.character(seq_len(nrow(dict))))
+    if (is_index || all(cells == "")) {
+      dict[[i]] <- NULL
+      repairs <- c(repairs, if (is_index) "Dropped the unnamed index column" else "Dropped an unnamed empty column")
+    }
+  }
+  # file_name holds placeholders when none of its values is a file name at
+  # all; a file name that names no data object is a renamed or removed
+  # object, which the merge reports
+  derive <- !"file_name" %in% names(dict) || (nrow(dict) > 0 && !any(grepl("\\.rda$", dict$file_name)))
+  if (derive) {
+    placeholder <- "file_name" %in% names(dict)
+    derived <- derive_file_names(dict, info)
+    if (length(derived$unmatched) > 0) {
+      cli::cli_abort(c(
+        "{.path {dict_path}} has {length(derived$unmatched)} variable{?s} that match no data object: {.val {derived$unmatched}}.",
+        "i" = "The file names no data object in a {.val file_name} column, so the rows are matched on {.val variable_name}. Name the data object of each row in {.val file_name}, or remove the rows."
+      ))
+    }
+    dict <- derived$dictionary
+    repairs <- c(repairs, if (placeholder) "Set file_name from the data objects in place of placeholders" else "Added file_name from the data objects")
+  }
+  dirs <- c(data_dir, sub("/$", "", data_dir))
+  if ("directory" %in% names(dict) && nrow(dict) > 0 && !any(dict$directory %in% dirs)) {
+    dict$directory <- rep(data_dir, nrow(dict))
+    repairs <- c(repairs, "Set directory in place of placeholders")
+  }
+  list(dictionary = dict, repairs = repairs)
+}
+
+# One row per data object that carries the variable, matched on
+# variable_name. Rows whose variable no data object carries are returned
+# as unmatched.
+derive_file_names <- function(dict, info) {
+  if (!"file_name" %in% names(dict)) dict$file_name <- rep("", nrow(dict))
+  rows <- lapply(seq_len(nrow(dict)), function(i) {
+    objects <- unique(info$file_name[info$var_name == dict$variable_name[i]])
+    if (length(objects) == 0) return(NULL)
+    out <- dict[rep(i, length(objects)), , drop = FALSE]
+    out$file_name <- objects
+    out
+  })
+  unmatched <- dict$variable_name[vapply(rows, is.null, logical(1))]
+  rows <- rows[!vapply(rows, is.null, logical(1))]
+  out <- if (length(rows)) do.call(rbind, rows) else dict[0, , drop = FALSE]
+  rownames(out) <- NULL
+  list(dictionary = out, unmatched = unique(unmatched[!unmatched %in% c("", "NA")]))
+}
+
+# One row per variable: stop on a second row for the same variable.
+check_dictionary_rows <- function(dictionary, dict_path) {
   keys <- dictionary_key(dictionary$file_name, dictionary$variable_name)
   twice <- unique(keys[duplicated(keys) & keys != dictionary_key("", "")])
   if (length(twice) > 0) {
@@ -132,6 +219,7 @@ merge_dictionary <- function(old, info, data_dir) {
   standard <- c("directory", "file_name", "variable_name", "variable_type", "description")
   new_cols <- setdiff(standard, names(old))
   for (col in new_cols) old[[col]] <- rep("", nrow(old))
+  if ("directory" %in% new_cols) old$directory <- rep(data_dir, nrow(old))
 
   empty <- old$file_name == "" & old$variable_name == ""
   old_keys <- dictionary_key(old$file_name, old$variable_name)

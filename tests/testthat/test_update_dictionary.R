@@ -63,7 +63,9 @@ test_that("update_dictionary() keeps the columns a user added, the pkgreview#37 
   suppressMessages(update_dictionary())
 
   after <- read_cells()
-  expect_identical(names(after), names(dict))
+  # the five washr columns first, the added columns after them in their order (#151)
+  expect_identical(names(after), c("directory", "file_name", "variable_name", "variable_type", "description",
+                                   "unit", "allowed_values", "review note"))
   expect_identical(after$variable_name, c("id", "truck", "volume", "site"))
   expect_identical(after$unit, c("", "", "litres", ""))
   expect_identical(after$allowed_values, c("", "", "", "a; b; c"))
@@ -204,7 +206,8 @@ test_that("update_dictionary() adds a standard column the dictionary lacks (#13)
   msg <- messages_of(update_dictionary())
   expect_match(msg, "Added 2 columns")
   after <- read_cells()
-  expect_identical(names(after), c("file_name", "variable_name", "description", "directory", "variable_type"))
+  expect_identical(names(after), c("directory", "file_name", "variable_name", "variable_type", "description"))
+  expect_identical(after$directory, rep("data/", 3))
   expect_identical(after$description, c("Trip id", "Volume emptied", "Site name"))
   expect_identical(after$variable_type, c("integer", "character", "character"))
 })
@@ -264,4 +267,72 @@ test_that("setup_dictionary() points at update_dictionary() when the dictionary 
   err <- rlang::catch_cnd(setup_dictionary(), "error")
   expect_match(conditionMessage(err), "already exists")
   expect_match(conditionMessage(err), "update_dictionary")
+})
+
+# A dictionary file written byte by byte, with an optional byte order mark.
+write_dict_bytes <- function(lines, bom = FALSE) {
+  con <- file(dict_path, open = "wb")
+  on.exit(close(con), add = TRUE)
+  if (bom) writeBin(as.raw(c(0xef, 0xbb, 0xbf)), con)
+  writeLines(lines, con, sep = "\n", useBytes = TRUE)
+}
+
+test_that("update_dictionary() migrates a dictionary without file_name by matching the data objects (#151)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  suppressMessages(setup_rawdata())
+  addendum <- data.frame(table_id = 1:2, note = c("a", "b"))
+  centrifugation <- data.frame(table_id = 1:2, speed = c(1.5, 2))
+  usethis::use_data(addendum, centrifugation)
+  write_dict_bytes(c("variable_name,description", "table_id,ID of the table", "note,A note", "speed,Rotor speed"), bom = TRUE)
+  msgs <- messages_of(update_dictionary())
+  d <- read_cells()
+  expect_identical(names(d), c("directory", "file_name", "variable_name", "variable_type", "description"))
+  expect_identical(d$file_name, c("addendum.rda", "addendum.rda", "centrifugation.rda", "centrifugation.rda"))
+  expect_identical(d$variable_name, c("table_id", "note", "table_id", "speed"))
+  expect_identical(d$description, c("ID of the table", "A note", "ID of the table", "Rotor speed"))
+  expect_identical(d$variable_type, c("integer", "character", "integer", "numeric"))
+  expect_identical(unique(d$directory), "data/")
+  expect_match(msgs, "Added file_name from the data objects")
+  expect_false(identical(readBin(dict_path, "raw", 3L), as.raw(c(0xef, 0xbb, 0xbf))))
+  before <- readLines(dict_path)
+  suppressMessages(update_dictionary())
+  expect_identical(readLines(dict_path), before)
+})
+
+test_that("update_dictionary() repairs placeholder headers and values, an index column and empty columns (#151)", {
+  dict_fixture()
+  write_dict_bytes(c(
+    ',"""directory""","""file_name""",variable_name,variable_type,description,,',
+    "1,directory,file_name,id,integer,Trip id,,",
+    "2,directory,file_name,volume,character,Volume emptied,,",
+    "3,directory,file_name,site,character,Site name,,"
+  ))
+  msgs <- messages_of(update_dictionary())
+  d <- read_cells()
+  expect_identical(names(d), c("directory", "file_name", "variable_name", "variable_type", "description"))
+  expect_identical(d$file_name, rep("trips.rda", 3))
+  expect_identical(d$directory, rep("data/", 3))
+  expect_identical(d$description, c("Trip id", "Volume emptied", "Site name"))
+  expect_match(msgs, "index column")
+  expect_match(msgs, "empty column")
+  expect_match(msgs, "in place of placeholders")
+  expect_length(suppressMessages(messages_of(update_dictionary())), 1)
+})
+
+test_that("update_dictionary() keeps extra columns after the five and stops on a variable no data object carries (#151)", {
+  dict_fixture()
+  write_dict_bytes(c("unit,variable_name,description", ",id,Trip id", "m3,volume,Volume emptied", ",site,Site name"))
+  msgs <- messages_of(update_dictionary())
+  d <- read_cells()
+  expect_identical(names(d), c("directory", "file_name", "variable_name", "variable_type", "description", "unit"))
+  expect_identical(d$unit, c("", "m3", ""))
+  expect_match(msgs, "five washr columns first")
+
+  write_dict_bytes(c("variable_name,description", "id,Trip id", "ghost,Not in the data"))
+  before <- readLines(dict_path)
+  err <- rlang::catch_cnd(update_dictionary(), "error")
+  expect_match(conditionMessage(err), "ghost")
+  expect_match(conditionMessage(err), "match no data object")
+  expect_identical(readLines(dict_path), before)
 })

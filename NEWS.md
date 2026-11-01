@@ -2,6 +2,7 @@
 
 ## Changed
 
+- `update_dictionary()` brings a dictionary in an older layout to the washr layout before it matches the rows to the data: an unnamed index column and unnamed empty columns are dropped, `directory` and `file_name` are derived from the data objects when the file lacks them or holds placeholders (a variable that several data objects carry gets one row per object), the five washr columns come first and every other column keeps its place after them. `update_metadata()` then runs on those packages. A row whose variable no data object carries stops the run with the variable named. `check_publication_readiness()` accepts named columns after the five in `dictionary_schema`, as `update_dictionary()` keeps them (#151).
 - `update_description()` writes `Date` once and then keeps it; a release sets the date on purpose with the new `date` argument (`"today"` or a `Date`). The site branding passes had to restore the field on 59 packages whose data had not changed (#150).
 
 ## Fixed

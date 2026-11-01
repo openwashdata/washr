@@ -67,7 +67,7 @@ a review tool can pick the rows it needs.\tabular{lll}{
    data \tab \code{dictionary_present} \tab \code{data-raw/dictionary.csv} is present \cr
    data \tab \code{dictionary_coverage} \tab the dictionary covers every variable of every data object \cr
    data \tab \code{dictionary_descriptions} \tab no description is empty or a placeholder \cr
-   data \tab \code{dictionary_schema} \tab the five washr columns in order, UTF-8 without a byte order mark, one class name per \code{variable_type} \cr
+   data \tab \code{dictionary_schema} \tab the five washr columns first, in order, further named columns allowed, UTF-8 without a byte order mark, one class name per \code{variable_type} \cr
    docs \tab \code{roxygen_docs} \tab every data object has a help page in \verb{man/} \cr
    docs \tab \code{readme} \tab \code{README.Rmd} and the rendered \code{README.md} are present \cr
    docs \tab \code{rd_source} \tab at least one help page in \verb{man/} carries a source \cr
