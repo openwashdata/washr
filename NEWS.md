@@ -1,4 +1,6 @@
-# washr (development version)
+# washr 1.2.2
+
+The release that puts the openwashdata logo on every package site and moves the publisher line off the top of the README. A GitHub release, like 1.2.1; the next CRAN submission carries both.
 
 ## New
 
