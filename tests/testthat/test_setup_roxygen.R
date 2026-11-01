@@ -95,3 +95,17 @@ test_that("setup_roxygen() errors clearly on a file without an @format line (#73
   writeLines(c("#' d1: hand written", "#' no format line here", '"d1"'), doc_path)
   expect_error(washr::setup_roxygen(), "@format")
 })
+
+test_that("setup_roxygen() creates R/ on its first call (#144)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  trips <- data.frame(id = 1:3)
+  usethis::use_data(trips)
+  suppressMessages(setup_rawdata())
+  suppressMessages(setup_dictionary())
+  unlink("R", recursive = TRUE)
+  expect_false(dir.exists("R"))
+  written <- suppressMessages(setup_roxygen())
+  expect_true(file.exists(file.path("R", "trips.R")))
+  expect_identical(basename(written), "trips.R")
+})

@@ -40,11 +40,10 @@ setup_roxygen <- function() {
     ))
   }
   local_session()
-  # Check R/ existence
+  # R/ is created when missing (#144): usethis::use_r() needs a file name
+  # and stopped the first call
   output_file_dir <- file.path(getwd(), "R")
-  if (!dir.exists(output_file_dir)) {
-    usethis::use_r(open = FALSE)
-  }
+  dir.create(output_file_dir, showWarnings = FALSE)
   # Check data/ existence
   tidy_datasets <- list.files(path = file.path(getwd(), "data"))
   num_tidy_datasets <- length(tidy_datasets)
