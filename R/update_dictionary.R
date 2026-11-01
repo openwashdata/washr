@@ -135,10 +135,16 @@ migrate_dictionary_layout <- function(dict, info, data_dir, dict_path) {
   unnamed <- which(!nzchar(trimws(names(dict))))
   for (i in rev(unnamed)) {
     cells <- trimws(dict[[i]])
-    is_index <- i == 1L && identical(cells, as.character(seq_len(nrow(dict))))
+    # row numbers from write.csv() or a spreadsheet: digits only, or blank
+    is_index <- i == 1L && all(grepl("^[0-9]*$", cells)) && any(cells != "")
     if (is_index || all(cells == "")) {
       dict[[i]] <- NULL
       repairs <- c(repairs, if (is_index) "Dropped the unnamed index column" else "Dropped an unnamed empty column")
+    } else {
+      cli::cli_abort(c(
+        "{.path {dict_path}} has a column without a name that holds text.",
+        "i" = "Name the column, or remove it, then run {.fun update_dictionary} again."
+      ))
     }
   }
   # file_name holds placeholders when none of its values is a file name at
