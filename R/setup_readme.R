@@ -6,10 +6,12 @@
 #' for your data packages. The repository links, the install line and the
 #' license come from DESCRIPTION, so run [update_description()] first.
 #'
-#' The Citation section states in plain text which version to cite with
-#' which DOI, links the authors page of the site and `CITATION.cff`, and
-#' names the source article of republished data from
-#' `X-schema.org-isBasedOn`. The download links point at the release tag of
+#' The Citation section names the publisher with its website, states in
+#' plain text which version to cite with which DOI, links the authors page
+#' of the site and `CITATION.cff`, and names the source article of
+#' republished data from `X-schema.org-isBasedOn`. When [use_brand()] has
+#' installed the logo (`man/figures/logo.png`), the title line shows it,
+#' linked to the website of the organisation. The download links point at the release tag of
 #' the version in DESCRIPTION, and at the main branch for a development
 #' version. pkgdown builds the `llms.txt` of the site from the README, so
 #' this is also what AI tools read about the package.
@@ -83,8 +85,9 @@ setup_readme <- function(force = FALSE, has_example = FALSE){
 
 # The repository, site, license and publisher values of the README template,
 # read from DESCRIPTION (#81). The site URL links the authors page in the
-# Citation section (#137); the website of the organisation gives the line
-# under the badges that names the publisher (#145). CC BY 4.0, the license update_description() sets, keeps
+# Citation section (#137), where the website of the organisation names the
+# publisher (#145); the logo that use_brand() installed is shown at the
+# title. CC BY 4.0, the license update_description() sets, keeps
 # the badge and the label the template has always carried.
 readme_template_data <- function(file = ".") {
   repo <- pkg_repo_url(file)
@@ -105,6 +108,7 @@ readme_template_data <- function(file = ".") {
     label <- license
   }
   home <- pkg_config("home", file)
+  has_logo <- file.exists(file.path(file, "man", "figures", "logo.png"))
   list(
     repo_url = repo,
     pages_url = pkg_pages_url(file),
@@ -113,6 +117,8 @@ readme_template_data <- function(file = ".") {
     license_label = label,
     org = pkg_org(file),
     has_home = is_set(home),
-    home = if (is_set(home)) home
+    home = if (is_set(home)) home,
+    has_logo = has_logo,
+    logo_html = if (has_logo) readme_logo_html(file)
   )
 }

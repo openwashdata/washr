@@ -50,11 +50,20 @@ they stay out of the built package and \verb{R CMD check} does not report them
 as non-standard top-level files.
 }
 \details{
+The small logo of the brand becomes the package logo: it is copied to
+\code{man/figures/logo.png}, where pkgdown shows it beside the title of the
+home page, and added to the title line of \code{README.Rmd}, so GitHub shows
+it too (pkgdown shows one logo, not two). When the brand names a dark
+counterpart of that logo, it goes to \code{pkgdown/assets/logo-dark.png}, and
+the one rule written to \code{pkgdown/extra.css} shows it on the dark theme
+of the site.
+
 With \code{pkgdown = TRUE} (the default), an existing \verb{_pkgdown.yml} is
 pointed at the brand through bslib (\code{template.bslib.brand}), so the
 next \code{\link[pkgdown:build_site]{pkgdown::build_site()}} renders the site with the brand fonts
-and colors, and its Open Graph image is set to the social preview of
-the brand repository at the installed release
+and colors, \code{brand.yml} is listed in \code{Config/Needs/website} so the
+pkgdown workflow installs it, and the Open Graph image is set to the
+social preview of the brand repository at the installed release
 (\code{assets/social-preview.png}), so a shared link to the site shows the
 image of the organisation. The wiring adds its lines to \verb{_pkgdown.yml}
 and leaves the rest of the file, comments included, as it is. Only when the \code{template}

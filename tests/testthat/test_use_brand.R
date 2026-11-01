@@ -29,7 +29,7 @@ test_that("use_brand installs the brand and referenced logos", {
   written <- use_brand(source = src, pkgdown = FALSE)
   expect_true(file.exists("_brand.yml"))
   expect_true(file.exists("logos/icon.png"))
-  expect_setequal(written, c("_brand.yml", "logos/icon.png"))
+  expect_setequal(written, c("_brand.yml", "logos/icon.png", "man/figures/logo.png"))
 })
 
 test_that("use_brand reads logo entries that carry a path and an alt text", {
@@ -64,7 +64,7 @@ test_that("use_brand reads logo entries that carry a path and an alt text", {
   written <- use_brand(source = src, pkgdown = FALSE)
   expect_setequal(
     written,
-    c("_brand.yml", "logos/icon.png", "logos/badge.png", "logos/wordmark.png")
+    c("_brand.yml", "logos/icon.png", "logos/badge.png", "logos/wordmark.png", "man/figures/logo.png")
   )
 })
 
@@ -78,7 +78,7 @@ test_that("use_brand is idempotent and reports refreshed files", {
   # A change in the central source must reach the consumer on refresh.
   writeBin(as.raw(9:16), file.path(src, "logos", "icon.png"))
   third <- use_brand(source = src, pkgdown = FALSE)
-  expect_identical(third, "logos/icon.png")
+  expect_setequal(third, c("logos/icon.png", "man/figures/logo.png"))
 })
 
 test_that("use_brand wires an existing _pkgdown.yml to the brand", {
@@ -186,7 +186,7 @@ test_that("use_brand installs the latest release tag and records it (#128)", {
   src <- make_brand_source()
   local_brand_release("v1.1.0", src)
   expect_message(written <- use_brand(pkgdown = FALSE), "installed at")
-  expect_setequal(written, c("_brand.yml", "logos/icon.png"))
+  expect_setequal(written, c("_brand.yml", "logos/icon.png", "man/figures/logo.png"))
   expect_identical(washr_config("brand"), "v1.1.0")
 
   before <- tools::md5sum(list.files(".", recursive = TRUE, all.files = TRUE))
@@ -204,7 +204,7 @@ test_that("use_brand reports the old and the new ref after a brand release (#128
   writeBin(as.raw(8:1), file.path(src, "logos", "icon.png"))
   local_brand_release("v1.1.0", src)
   expect_message(written <- use_brand(pkgdown = FALSE), "moved from")
-  expect_identical(written, "logos/icon.png")
+  expect_setequal(written, c("logos/icon.png", "man/figures/logo.png"))
   expect_identical(washr_config("brand"), "v1.1.0")
 })
 
@@ -289,4 +289,47 @@ test_that("wire_pkgdown_opengraph() sets the social preview of the brand when th
   expect_identical(config$template$opengraph$image$alt, "openwashdata, social preview image")
   expect_identical(config$template$bslib$brand, "_brand.yml")
   expect_length(suppressMessages(wire_pkgdown_opengraph("openwashdata/brand", "v1.1.0")), 0)
+})
+
+test_that("use_brand() installs the package logo, its dark counterpart and the README title image (#145)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  src <- make_brand_source()
+  writeBin(as.raw(9:16), file.path(src, "logos", "icon-dark.png"))
+  writeLines(
+    c("meta:", "  name: openwashdata", "logo:", "  images:",
+      "    icon:", "      path: logos/icon.png", "      alt: openwashdata, stacked wordmark",
+      "    icon-dark:", "      path: logos/icon-dark.png", "      alt: openwashdata, stacked wordmark in white",
+      "  small: icon"),
+    file.path(src, "_brand.yml")
+  )
+  writeLines(c("# testpkg", "", "<!-- badges: start -->", "<!-- badges: end -->", "", "Intro.", "", "```r", "# a comment, not a title", "```"), "README.Rmd")
+  suppressMessages(update_description())
+  written <- suppressMessages(use_brand(source = src, pkgdown = FALSE))
+  expect_true(all(c("man/figures/logo.png", "pkgdown/assets/logo-dark.png", "pkgdown/extra.css", "README.Rmd") %in% written))
+  expect_identical(readBin("man/figures/logo.png", "raw", 8), as.raw(1:8))
+  expect_identical(readBin("pkgdown/assets/logo-dark.png", "raw", 8), as.raw(9:16))
+  css <- readLines("pkgdown/extra.css")
+  expect_true(any(grepl('[data-bs-theme="dark"] img.logo { content: url("logo-dark.png"); }', css, fixed = TRUE)))
+  readme <- readLines("README.Rmd")
+  expect_identical(readme[1], '# testpkg <a href="https://openwashdata.org"><img src="man/figures/logo.png" align="right" width="120" alt="openwashdata" /></a>')
+  expect_identical(readme[9], "# a comment, not a title")
+  expect_true(any(grepl("^\\^pkgdown\\$$", readLines(".Rbuildignore"))))
+  # a second run changes nothing
+  expect_length(suppressMessages(use_brand(source = src, pkgdown = FALSE)), 0)
+  expect_identical(readLines("README.Rmd"), readme)
+  expect_identical(readLines("pkgdown/extra.css"), css)
+})
+
+test_that("use_brand() lists brand.yml in Config/Needs/website when it wires the site (#143)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  src <- make_brand_source()
+  writeLines(c("template:", "  bootstrap: 5"), "_pkgdown.yml")
+  suppressMessages(update_description())
+  desc::desc_set("Config/Needs/website", "rmarkdown, ggplot2")
+  written <- suppressMessages(use_brand(source = src))
+  expect_true("DESCRIPTION" %in% written)
+  expect_identical(desc::desc_get_field("Config/Needs/website"), "rmarkdown, ggplot2, brand.yml")
+  expect_false("DESCRIPTION" %in% suppressMessages(use_brand(source = src)))
 })

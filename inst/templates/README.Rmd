@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# {{{packagename}}}
+# {{{packagename}}}{{#has_logo}} {{{logo_html}}}{{/has_logo}}
 
 <!-- badges: start -->
 
@@ -31,10 +31,6 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-{{#has_home}}
-A data package published by [{{{org}}}]({{{home}}}).
-
-{{/has_home}}
 The goal of {{{packagename}}} is to ...
 
 ## Installation
@@ -145,6 +141,10 @@ Data are available as
 
 ## Citation
 
+{{#has_home}}
+Published by {{{org}}}, <{{{home}}}>.
+
+{{/has_home}}
 ```{r, echo=FALSE, results='asis'}
 # How to cite in plain text, so the DOI and the version also reach readers
 # of README.md and the llms.txt that pkgdown builds from it.

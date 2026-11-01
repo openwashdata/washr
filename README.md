@@ -64,7 +64,7 @@ step, in the order you run them:
   site.
 - `update_website()` brings an existing pkgdown configuration up to date
   with the template.
-- `use_brand()` installs the openwashdata brand for the site.
+- `use_brand()` installs the openwashdata brand and the logo for the site and the README.
 - `update_citation()` writes the citation files, with the DOI once there
   is one, and the `.zenodo.json` that files the release on Zenodo as a
   dataset.

@@ -128,3 +128,33 @@ test_that("the download links follow the release tag, and main for a development
   expect_identical(env$ref, "v1.2.0")
   expect_true(any(grepl('/raw/", ref, "/inst/extdata/"', readme, fixed = TRUE)))
 })
+
+test_that("setup_readme() names the publisher under Citation and shows the installed logo at the title (#145)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  trips <- data.frame(id = 1:3)
+  usethis::use_data(trips)
+  suppressMessages(update_description())
+  suppressMessages(setup_readme())
+  readme <- readLines("README.Rmd")
+  expect_false(any(grepl("A data package published by", readme, fixed = TRUE)))
+  cit <- grep("^## Citation$", readme)
+  expect_identical(readme[cit + 2L], "Published by openwashdata, <https://openwashdata.org>.")
+  expect_false(grepl("<img", readme[grep("^# ", readme)[1]], fixed = TRUE))
+
+  # with the logo installed, the title shows it, linked to the website
+  dir.create(file.path("man", "figures"), recursive = TRUE)
+  writeBin(as.raw(1:8), file.path("man", "figures", "logo.png"))
+  writeLines(c("meta:", "  name: openwashdata"), "_brand.yml")
+  suppressMessages(setup_readme(force = TRUE))
+  title <- readLines("README.Rmd")[readme_title_line(readLines("README.Rmd"))]
+  expect_match(title, '^# [a-z0-9]+ <a href="https://openwashdata.org"><img src="man/figures/logo.png" align="right" width="120" alt="openwashdata" /></a>$')
+
+  # another organisation: no sentence, a logo without a link
+  desc::desc_set_urls(paste0("https://github.com/exampleorg/", desc::desc_get("Package")[[1]]))
+  suppressMessages(update_description())
+  suppressMessages(setup_readme(force = TRUE))
+  readme <- readLines("README.Rmd")
+  expect_false(any(grepl("Published by", readme, fixed = TRUE)))
+  expect_match(readme[readme_title_line(readme)], '^# [a-z0-9]+ <img src="man/figures/logo.png" align="right" width="120" alt="openwashdata" />$')
+})

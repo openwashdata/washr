@@ -24,10 +24,12 @@ retrieved from the \verb{data/} directory. It helps in creating consistent and i
 for your data packages. The repository links, the install line and the
 license come from DESCRIPTION, so run \code{\link[=update_description]{update_description()}} first.
 
-The Citation section states in plain text which version to cite with
-which DOI, links the authors page of the site and \code{CITATION.cff}, and
-names the source article of republished data from
-\code{X-schema.org-isBasedOn}. The download links point at the release tag of
+The Citation section names the publisher with its website, states in
+plain text which version to cite with which DOI, links the authors page
+of the site and \code{CITATION.cff}, and names the source article of
+republished data from \code{X-schema.org-isBasedOn}. When \code{\link[=use_brand]{use_brand()}} has
+installed the logo (\code{man/figures/logo.png}), the title line shows it,
+linked to the website of the organisation. The download links point at the release tag of
 the version in DESCRIPTION, and at the main branch for a development
 version. pkgdown builds the \code{llms.txt} of the site from the README, so
 this is also what AI tools read about the package.

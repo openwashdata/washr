@@ -149,7 +149,8 @@ test_that("the README template reads the repository and the license from DESCRIP
   suppressMessages(update_description())
   suppressMessages(setup_readme())
   owd <- readLines("README.Rmd")
-  expect_true(any(grepl("A data package published by [openwashdata](https://openwashdata.org).", owd, fixed = TRUE)))
+  expect_true(any(grepl("Published by openwashdata, <https://openwashdata.org>.", owd, fixed = TRUE)))
+  expect_false(any(grepl("A data package published by", owd, fixed = TRUE)))
   expect_true(any(grepl(paste0('install_github("openwashdata/', pkg, '")'), owd, fixed = TRUE)))
   expect_true(any(grepl("License-CC_BY_4.0-lightgrey", owd, fixed = TRUE)))
   expect_true(any(grepl(paste0("[CC-BY](https://github.com/openwashdata/", pkg, "/blob/main/LICENSE.md)"),
