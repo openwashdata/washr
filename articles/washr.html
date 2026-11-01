@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">washr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -218,22 +218,36 @@ render it:</p>
 </h2>
 <p><code><a href="../reference/setup_website.html">setup_website()</a></code> writes <code>_pkgdown.yml</code> from
 the openwashdata template and builds the site into <code>docs/</code>.
-The template sets the Pages URL, the analytics header, the funding
-sidebar, and a reference index with one entry per data object.</p>
+The template sets the Pages URL, the analytics header, a link to
+openwashdata.org in the navbar, the funding and the openwashdata blocks
+of the sidebar, a footer that names the washr version and the publisher
+(“Package built with washr 1.2.1.” and “Published by openwashdata, a
+project of Global Health Engineering at ETH Zurich.”), and a reference
+index with one entry per data object.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setup_website.html">setup_website</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Running it again keeps your <code>_pkgdown.yml</code> and rebuilds
 the site. <code>docs/</code> is committed and served by GitHub Pages;
 when the package deploys through a pkgdown GitHub Actions workflow
 instead, the function leaves <code>docs/</code> ignored.</p>
+<p><code><a href="../reference/update_website.html">update_website()</a></code> brings an existing
+<code>_pkgdown.yml</code> up to date after a washr release: it adds what
+the template has gained, refreshes the washr version in the footer, and
+keeps the reference index, your hand edits and the comments. A current
+file is left untouched. <code><a href="../reference/update_description.html">update_description()</a></code> refreshes the
+version line on its own.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/update_website.html">update_website</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><code><a href="../reference/use_brand.html">use_brand()</a></code> installs the openwashdata brand, the fonts
 and colors of the site, from the latest release of the central brand
-repository and wires <code>_pkgdown.yml</code> to it. It records the
-release it installed in <code>DESCRIPTION</code> as
+repository and wires <code>_pkgdown.yml</code> to it. It also sets the
+social preview of the brand as the Open Graph image of the site, so a
+shared link shows the openwashdata image. It records the release it
+installed in <code>DESCRIPTION</code> as
 <code>Config/washr/brand</code>. Run it once after
 <code><a href="../reference/setup_website.html">setup_website()</a></code>, and again after a new brand release; a run
 with no new release changes nothing.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/use_brand.html">use_brand</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Branded PDF and Word reports about the package use the openwashdata
 Quarto extension, <a href="https://github.com/openwashdata/quarto-owd" class="external-link">quarto-owd</a>, with
@@ -252,18 +266,18 @@ second brand copy is needed. Add <code>^_extensions$</code> to
 the first release so the files exist, then again with the DOI once the
 release is deposited on Zenodo; the guide describes the Zenodo
 steps.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/update_citation.html">update_citation</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Before you create the release, run
 <code><a href="../reference/check_publication_readiness.html">check_publication_readiness()</a></code>. It reads the package and
 reports, item by item, what is in place and what is missing, and for
 every gap it names the step that closes it. It writes nothing, so run it
 as often as you like.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/check_publication_readiness.html">check_publication_readiness</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>After the Zenodo release, run <code><a href="../reference/update_citation.html">update_citation()</a></code> once
 more with the DOI:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/update_citation.html">update_citation</a></span><span class="op">(</span>doi <span class="op">=</span> <span class="st">"10.5281/zenodo.11185699"</span><span class="op">)</span></span></code></pre></div>
 <p>With a DOI the function also adds the DOI badge to the README and
 rebuilds it and the site. A later run without the DOI keeps the DOI on
@@ -283,8 +297,11 @@ writes only what changed. The two exceptions stop instead of
 overwriting: <code><a href="../reference/setup_dictionary.html">setup_dictionary()</a></code> when the dictionary exists
 (run <code><a href="../reference/update_dictionary.html">update_dictionary()</a></code> instead, which keeps what you
 wrote), and <code><a href="../reference/setup_readme.html">setup_readme()</a></code> when <code>README.Rmd</code>
-exists (pass <code>force = TRUE</code> to replace it). A full second run
-of the other steps on an unchanged package changes no file.</p>
+exists (pass <code>force = TRUE</code> to replace it).
+<code><a href="../reference/setup_website.html">setup_website()</a></code> keeps an existing
+<code>_pkgdown.yml</code>; <code><a href="../reference/update_website.html">update_website()</a></code> is the function
+that changes it. A full second run of the other steps on an unchanged
+package changes no file.</p>
 </div>
 <div class="section level2">
 <h2 id="more-than-one-dataset">More than one dataset<a class="anchor" aria-label="anchor" href="#more-than-one-dataset"></a>
@@ -309,7 +326,7 @@ of them lives in <code>DESCRIPTION</code>, so another group publishes
 with its own values by editing that file. Nothing else has to
 change.</p>
 <p>Start by naming your GitHub organisation, once:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/update_description.html">update_description</a></span><span class="op">(</span>github_user <span class="op">=</span> <span class="st">"https://github.com/yourorg"</span><span class="op">)</span></span></code></pre></div>
 <p>From then on the organisation, the repository URL, the license and
 the people are read from the standard <code>DESCRIPTION</code> fields
@@ -363,6 +380,31 @@ DOI badge</td>
 </td>
 </tr>
 <tr class="even">
+<td><code>Config/washr/publisher</code></td>
+<td>the publisher sentence in the footer of the site</td>
+<td>your sentence, Markdown allowed, or <code>none</code>
+</td>
+</tr>
+<tr class="odd">
+<td><code>Config/washr/home</code></td>
+<td>the website of your group: the navbar link, the line under the
+README badges, the publisher url in the metadata</td>
+<td>the URL, or <code>none</code>
+</td>
+</tr>
+<tr class="even">
+<td><code>Config/washr/catalog</code></td>
+<td>the data catalogue named in the metadata</td>
+<td>the URL of your catalogue, or <code>none</code>
+</td>
+</tr>
+<tr class="odd">
+<td><code>Config/washr/community</code></td>
+<td>the text of the community block in the sidebar of the site</td>
+<td>your text, Markdown allowed, or <code>none</code>
+</td>
+</tr>
+<tr class="even">
 <td><code>Config/washr/pages-domain</code></td>
 <td>the domain of the site</td>
 <td>only when the site is not served from
@@ -372,10 +414,11 @@ DOI badge</td>
 </tbody>
 </table>
 <p>For a package under another organisation,
-<code><a href="../reference/update_description.html">update_description()</a></code> writes the funding, analytics,
-community and brand fields as <code>none</code> and lists them, because
-the openwashdata values would be wrong there. Edit them, then run the
-steps as above. A field that is set is never overwritten.
+<code><a href="../reference/update_description.html">update_description()</a></code> writes the funding, analytics, Zenodo
+community, brand, publisher, website, catalogue and community fields as
+<code>none</code> and lists them, because the openwashdata values would
+be wrong there. The footer then names washr and nothing else. Edit them,
+then run the steps as above. A field that is set is never overwritten.
 <code><a href="../reference/check_publication_readiness.html">check_publication_readiness()</a></code> holds the package to these
 values.</p>
 <p>A license other than CC BY 4.0 is set in <code>License</code> before

@@ -4,12 +4,16 @@
 builds the site from the package documentation and README.md. The
 configuration comes from the washr template, filled from DESCRIPTION:
 the Pages URL as the site URL, the repository link, the analytics
-header, the funding sidebar, the authors footer, and a reference index
-with one entry per data object in `data/`. The analytics domain and the
-funding text are the `Config/washr/analytics-domain` and
-`Config/washr/funding` fields that
+header, the link to the website of the organisation in the navbar, the
+funding and the community blocks of the sidebar, the authors footer, the
+footer that names the washr version and the publisher, and a reference
+index with one entry per data object in `data/`. The texts and links are
+the `Config/washr/` fields that
 [`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
-writes; a field set to `none` leaves its block out.
+writes (`analytics-domain`, `funding`, `home`, `community`,
+`publisher`); a field set to `none` leaves its block out.
+[`update_website()`](https://openwashdata.github.io/washr/reference/update_website.md)
+brings an existing file up to date.
 
 The function is safe to re-run. An existing `_pkgdown.yml` is kept as it
 is and only the site is rebuilt, so hand edits and the brand wiring from
@@ -53,10 +57,13 @@ Next:
 for the brand, and
 [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)
 once the release has a DOI.
+[`update_website()`](https://openwashdata.github.io/washr/reference/update_website.md)
+updates an existing `_pkgdown.yml`.
 
 Other publishing functions:
 [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md),
 [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md),
+[`update_website()`](https://openwashdata.github.io/washr/reference/update_website.md),
 [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
 
 ## Examples

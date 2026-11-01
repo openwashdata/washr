@@ -207,8 +207,12 @@ devtools::build_readme()
 
 [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md)
 writes `_pkgdown.yml` from the openwashdata template and builds the site
-into `docs/`. The template sets the Pages URL, the analytics header, the
-funding sidebar, and a reference index with one entry per data object.
+into `docs/`. The template sets the Pages URL, the analytics header, a
+link to openwashdata.org in the navbar, the funding and the openwashdata
+blocks of the sidebar, a footer that names the washr version and the
+publisher (“Package built with washr 1.2.1.” and “Published by
+openwashdata, a project of Global Health Engineering at ETH Zurich.”),
+and a reference index with one entry per data object.
 
 ``` r
 
@@ -220,11 +224,26 @@ Running it again keeps your `_pkgdown.yml` and rebuilds the site.
 deploys through a pkgdown GitHub Actions workflow instead, the function
 leaves `docs/` ignored.
 
+[`update_website()`](https://openwashdata.github.io/washr/reference/update_website.md)
+brings an existing `_pkgdown.yml` up to date after a washr release: it
+adds what the template has gained, refreshes the washr version in the
+footer, and keeps the reference index, your hand edits and the comments.
+A current file is left untouched.
+[`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
+refreshes the version line on its own.
+
+``` r
+
+update_website()
+```
+
 [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
 installs the openwashdata brand, the fonts and colors of the site, from
 the latest release of the central brand repository and wires
-`_pkgdown.yml` to it. It records the release it installed in
-`DESCRIPTION` as `Config/washr/brand`. Run it once after
+`_pkgdown.yml` to it. It also sets the social preview of the brand as
+the Open Graph image of the site, so a shared link shows the
+openwashdata image. It records the release it installed in `DESCRIPTION`
+as `Config/washr/brand`. Run it once after
 [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md),
 and again after a new brand release; a run with no new release changes
 nothing.
@@ -298,8 +317,12 @@ when the dictionary exists (run
 [`update_dictionary()`](https://openwashdata.github.io/washr/reference/update_dictionary.md)
 instead, which keeps what you wrote), and
 [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md)
-when `README.Rmd` exists (pass `force = TRUE` to replace it). A full
-second run of the other steps on an unchanged package changes no file.
+when `README.Rmd` exists (pass `force = TRUE` to replace it).
+[`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md)
+keeps an existing `_pkgdown.yml`;
+[`update_website()`](https://openwashdata.github.io/washr/reference/update_website.md)
+is the function that changes it. A full second run of the other steps on
+an unchanged package changes no file.
 
 ## More than one dataset
 
@@ -345,14 +368,19 @@ the `Config/washr/` fields:
 | `Config/washr/doi-provider` | the DOI badge of the README | `zenodo`, or the name of another provider for a generic DOI badge |
 | `Config/washr/zenodo-community` | the community in `.zenodo.json` | your Zenodo community, or `none` |
 | `Config/washr/brand-source` | the repository [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md) copies from | the GitHub repository of your brand, such as `yourorg/brand`, or `none` |
+| `Config/washr/publisher` | the publisher sentence in the footer of the site | your sentence, Markdown allowed, or `none` |
+| `Config/washr/home` | the website of your group: the navbar link, the line under the README badges, the publisher url in the metadata | the URL, or `none` |
+| `Config/washr/catalog` | the data catalogue named in the metadata | the URL of your catalogue, or `none` |
+| `Config/washr/community` | the text of the community block in the sidebar of the site | your text, Markdown allowed, or `none` |
 | `Config/washr/pages-domain` | the domain of the site | only when the site is not served from `yourorg.github.io` |
 
 For a package under another organisation,
 [`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
-writes the funding, analytics, community and brand fields as `none` and
-lists them, because the openwashdata values would be wrong there. Edit
-them, then run the steps as above. A field that is set is never
-overwritten.
+writes the funding, analytics, Zenodo community, brand, publisher,
+website, catalogue and community fields as `none` and lists them,
+because the openwashdata values would be wrong there. The footer then
+names washr and nothing else. Edit them, then run the steps as above. A
+field that is set is never overwritten.
 [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md)
 holds the package to these values.
 

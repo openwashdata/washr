@@ -62,12 +62,15 @@ when everything was already current).
 With `pkgdown = TRUE` (the default), an existing `_pkgdown.yml` is
 pointed at the brand through bslib (`template.bslib.brand`), so the next
 [`pkgdown::build_site()`](https://pkgdown.r-lib.org/reference/build_site.html)
-renders the site with the brand fonts and colors. The wiring adds its
-lines to `_pkgdown.yml` and leaves the rest of the file, comments
-included, as it is. Only when the `template` block already carries other
-bslib settings, or is written on one line, is the file rewritten through
-the yaml package, which does not preserve comments. When no
-`_pkgdown.yml` exists, the wiring is skipped with a hint to run
+renders the site with the brand fonts and colors, and its Open Graph
+image is set to the social preview of the brand repository at the
+installed release (`assets/social-preview.png`), so a shared link to the
+site shows the image of the organisation. The wiring adds its lines to
+`_pkgdown.yml` and leaves the rest of the file, comments included, as it
+is. Only when the `template` block already carries other bslib settings,
+or is written on one line, is the file rewritten through the yaml
+package, which does not preserve comments. When no `_pkgdown.yml`
+exists, the wiring is skipped with a hint to run
 [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md)
 first. Building the wired site requires the brand.yml package (bslib
 asks for it at build time); it is listed in Suggests and installed on
@@ -84,7 +87,8 @@ extension [quarto-owd](https://github.com/openwashdata/quarto-owd).
 Other publishing functions:
 [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md),
 [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md),
-[`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md)
+[`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md),
+[`update_website()`](https://openwashdata.github.io/washr/reference/update_website.md)
 
 ## Examples
 

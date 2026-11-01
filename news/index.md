@@ -1,6 +1,63 @@
 # Changelog
 
+## washr 1.2.1
+
+The release that puts the names of washr and openwashdata on every
+package site. It carries the site items only; the skill and metadata
+work follows in 1.3.0.
+
+### New
+
+- Every package site now says what made it and where it belongs
+  ([\#145](https://github.com/openwashdata/washr/issues/145)). The
+  footer names the washr version that last updated the package (“Package
+  built with washr 1.2.1.”) next to the pkgdown line, and carries the
+  publisher sentence with links (“Published by openwashdata, a project
+  of Global Health Engineering at ETH Zurich.”). The navbar links to the
+  website of the organisation, the sidebar gets an openwashdata block
+  with the data catalogue and the newsletter under the Funding block,
+  the README template opens with “A data package published by
+  openwashdata.”, and the schema.org metadata names the data catalogue
+  in `includedInDataCatalog` and the website as the publisher url. The
+  texts and links are four new `Config/washr/` fields in DESCRIPTION
+  (`publisher`, `home`, `catalog`, `community`), written by
+  [`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
+  with the openwashdata defaults and as `none` for another organisation,
+  whose sites carry the washr line and nothing that names openwashdata.
+  A package moved to another organisation by editing `URL` gets the
+  same: the fields that still hold the openwashdata defaults follow on
+  the next
+  [`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md).
+
+- [`update_website()`](https://openwashdata.github.io/washr/reference/update_website.md)
+  brings an existing `_pkgdown.yml` in line with the current template:
+  it adds the footer, the navbar link, the sidebar blocks and the Open
+  Graph image where they are missing, refreshes the washr version in the
+  footer, and keeps the reference index, hand edits, comments and the
+  brand wiring. A footer, navbar or sidebar written by hand keeps its
+  components, and lists written at the indent of their key, as the yaml
+  package leaves them after
+  [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md),
+  are edited in place like the others. A current file is left untouched.
+  [`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
+  refreshes the washr version in the footer on its own, so the footer
+  and `Config/washr/version` never disagree.
+
+- [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
+  sets the Open Graph image of the site to the social preview of the
+  brand repository at the installed release, so a shared link to the
+  site shows the image of the organisation. A brand repository without
+  `assets/social-preview.png` leaves the image as it is.
+
+- [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md)
+  gets two items in the docs area: `pkgdown_washr_version` (the footer
+  names the version that `Config/washr/version` records) and
+  `pkgdown_publisher` (the publisher sentence of the organisation,
+  verbatim). A review profile passes the sentence as `publisher_text`.
+
 ## washr 1.2.0
+
+CRAN release: 2026-10-28
 
 The release that makes washr the engine of a guided workflow. Every
 function now reports through cli and returns what it wrote, a readiness

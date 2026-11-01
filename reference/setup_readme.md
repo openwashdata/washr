@@ -56,6 +56,7 @@ which builds the site from README.md.
 Other publishing functions:
 [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md),
 [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md),
+[`update_website()`](https://openwashdata.github.io/washr/reference/update_website.md),
 [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
 
 ## Examples

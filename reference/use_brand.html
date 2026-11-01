@@ -47,7 +47,7 @@ as non-standard top-level files."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">washr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -135,8 +135,11 @@ updated (empty when everything was already current).</p>
     <p>With <code>pkgdown = TRUE</code> (the default), an existing <code>_pkgdown.yml</code> is
 pointed at the brand through bslib (<code>template.bslib.brand</code>), so the
 next <code><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">pkgdown::build_site()</a></code> renders the site with the brand fonts
-and colors. The wiring adds its lines to <code>_pkgdown.yml</code> and leaves the
-rest of the file, comments included, as it is. Only when the <code>template</code>
+and colors, and its Open Graph image is set to the social preview of
+the brand repository at the installed release
+(<code>assets/social-preview.png</code>), so a shared link to the site shows the
+image of the organisation. The wiring adds its lines to <code>_pkgdown.yml</code>
+and leaves the rest of the file, comments included, as it is. Only when the <code>template</code>
 block already carries other bslib settings, or is written on one line,
 is the file rewritten through the yaml package, which does not preserve
 comments. When no
@@ -154,7 +157,8 @@ the openwashdata Quarto extension
 <p>Other publishing functions:
 <code><a href="check_publication_readiness.html">check_publication_readiness()</a></code>,
 <code><a href="setup_readme.html">setup_readme()</a></code>,
-<code><a href="setup_website.html">setup_website()</a></code></p></div>
+<code><a href="setup_website.html">setup_website()</a></code>,
+<code><a href="update_website.html">update_website()</a></code></p></div>
     </div>
 
     <div class="section level2">

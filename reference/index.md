@@ -40,6 +40,8 @@ README, website, brand, and the citation with its DOI
   : Generate the README RMarkdown file
 - [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md)
   : Set up a pkgdown website for the data package
+- [`update_website()`](https://openwashdata.github.io/washr/reference/update_website.md)
+  : Bring an existing \_pkgdown.yml in line with the washr template
 - [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
   : Install or refresh the openwashdata brand in the active package
 - [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)

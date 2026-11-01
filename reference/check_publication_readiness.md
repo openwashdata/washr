@@ -38,6 +38,8 @@ script or a review tool can pick the rows it needs.
 | docs | `pkgdown_analytics` | `_pkgdown.yml` carries the analytics header |
 | docs | `pkgdown_url` | `url` in `_pkgdown.yml` is the Pages URL, not the repository URL |
 | docs | `pkgdown_funding` | `_pkgdown.yml` carries the funding text of the organisation |
+| docs | `pkgdown_publisher` | the footer in `_pkgdown.yml` carries the publisher sentence of the organisation |
+| docs | `pkgdown_washr_version` | the footer in `_pkgdown.yml` names the washr version that `Config/washr/version` records |
 | docs | `pkgdown_brand` | the brand entry in `_pkgdown.yml` matches the organisation |
 | docs | `pkgdown_llm_docs` | `_pkgdown.yml` does not switch off the `llms.txt` of the site (`llm-docs: false`) |
 | docs | `docs_untracked` | git tracks no file under `docs/` while the pkgdown workflow deploys the site |
@@ -85,6 +87,9 @@ check_publication_readiness(path = ".", profile = NULL)
   - `funding_text`: the funding sentence that `_pkgdown.yml` has to
     carry word for word. Without it, the funding item is not applicable.
 
+  - `publisher_text`: the publisher sentence the footer has to carry
+    word for word. Without it, the publisher item is not applicable.
+
   - `keywords_required`: keywords every package of the organisation has
     to carry.
 
@@ -113,6 +118,7 @@ package.
 Other publishing functions:
 [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md),
 [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md),
+[`update_website()`](https://openwashdata.github.io/washr/reference/update_website.md),
 [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
 
 ## Examples

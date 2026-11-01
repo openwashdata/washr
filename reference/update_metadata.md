@@ -19,7 +19,8 @@ The sources are:
 | keywords | `X-schema.org-keywords` in DESCRIPTION, comma separated |
 | spatialCoverage, temporalCoverage | `X-schema.org-spatialCoverage` and `X-schema.org-temporalCoverage` in DESCRIPTION |
 | isBasedOn | the source article DOIs in `X-schema.org-isBasedOn` in DESCRIPTION, comma separated |
-| creator, maintainer, funder, publisher | `Authors@R` roles `aut`/`cre`, `cre`, `fnd`, `cph`; ORCID from the `comment` field |
+| creator, maintainer, funder, publisher | `Authors@R` roles `aut`/`cre`, `cre`, `fnd`, `cph`; ORCID from the `comment` field. Without a `cph`, the publisher is the organisation with the website in `Config/washr/home` |
+| includedInDataCatalog | the data catalogue of the organisation in `Config/washr/catalog` |
 | identifier, sameAs | the DOI in `CITATION.cff`, written by [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md) |
 | variableMeasured | `data-raw/dictionary.csv` |
 | distribution | every file in `inst/extdata` that belongs to a dataset, one entry per file |
