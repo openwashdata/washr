@@ -84,12 +84,18 @@ read_csv("data-raw/dictionary.csv") |>
 
 ## Data
 
+{{^multiple}}
 The package provides access to ...
+{{/multiple}}
+{{#multiple}}
+The package provides access to {{{n_datasets}}} datasets ...
+{{/multiple}}
 
 ```{r}
 library({{{packagename}}})
 ```
 
+{{#datasets}}
 ### {{{dataname}}}
 
 The dataset `{{{dataname}}}` contains data about ... It has
@@ -114,6 +120,7 @@ readr::read_csv("data-raw/dictionary.csv") |>
   kableExtra::scroll_box(height = "200px")
 ```
 
+{{/datasets}}
 {{#has_example}}
 ## Example
 

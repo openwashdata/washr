@@ -63,17 +63,16 @@ test_that("setup_readme(has_example = TRUE) adds the Example section with a ggpl
   expect_false(any(grepl("{{{", readme, fixed = TRUE)))
 })
 
-test_that("setup_readme() omits the Example section by default and documents the first data object (#74)", {
+test_that("setup_readme() omits the Example section by default and documents every data object (#74, #103)", {
   create_local_package()
   rlang::local_interactive(FALSE)
   zebra <- data.frame(id = 1)
   apple <- data.frame(id = 1)
   usethis::use_data(zebra, apple)
-  withr::with_options(list(usethis.quiet = FALSE),
-                      expect_message(setup_readme(), "2 data objects"))
+  suppressMessages(setup_readme())
   readme <- readLines("README.Rmd")
   expect_false("## Example" %in% readme)
-  expect_true(any(grepl("### apple", readme, fixed = TRUE)))
+  expect_identical(grep("^### ", readme, value = TRUE), c("### apple", "### zebra"))
   expect_false(any(grepl("{{{", readme, fixed = TRUE)))
 })
 
