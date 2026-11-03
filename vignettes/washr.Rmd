@@ -113,7 +113,7 @@ The keywords are a comma separated list. The spatial coverage is a place name. T
 
 ## 6. Generate the metadata
 
-`update_metadata()` derives a schema.org description of the dataset from `DESCRIPTION`, the dictionary, the citation file and the files in `inst/extdata`, and writes it as JSON-LD into `pkgdown/templates/in-header.html`. The website build embeds it in the head of every page, where dataset search engines read it.
+`update_metadata()` derives a schema.org description of the dataset from `DESCRIPTION`, the dictionary, the citation file and the files in `inst/extdata`, and writes it as JSON-LD into `pkgdown/templates/in-header.html`. The website build embeds it in the head of every page, where dataset search engines read it. The same JSON-LD goes to `pkgdown/assets/metadata.jsonld`, which the build copies to the root of the site, so the metadata also has its own address, `<site>/metadata.jsonld`. The README links it in the Citation section once the package names its site.
 
 ```{r}
 update_metadata()
