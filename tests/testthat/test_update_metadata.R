@@ -91,6 +91,52 @@ test_that("update_metadata() names the website and the data catalogue of the org
   expect_null(d$includedInDataCatalog)
 })
 
+test_that("update_metadata() nests the parent organisations under the fallback publisher (#153)", {
+  create_metadata_fixture()
+  d <- suppressMessages(update_metadata())
+  # openwashdata as publisher is the first link of the chain
+  expect_identical(d$publisher$name, "openwashdata")
+  ghe <- d$publisher$parentOrganization
+  expect_identical(ghe, list(
+    "@type" = "Organization",
+    name = "Global Health Engineering",
+    url = "https://ghe.ethz.ch/",
+    parentOrganization = list(
+      "@type" = "Organization",
+      "@id" = "https://ror.org/03zqk4w67",
+      name = "Institute of Design, Materials and Fabrication",
+      parentOrganization = list(
+        "@type" = "Organization",
+        "@id" = "https://ror.org/05a28rw58",
+        name = "ETH Zurich"
+      )
+    )
+  ))
+  json <- jsonlite::fromJSON(jsonlite::toJSON(d, auto_unbox = TRUE), simplifyVector = FALSE)
+  expect_identical(json$publisher$parentOrganization$parentOrganization$parentOrganization[["@id"]],
+                   "https://ror.org/05a28rw58")
+})
+
+test_that("update_metadata() nests the parent organisations under a cph publisher (#153)", {
+  create_metadata_fixture()
+  desc::desc_set_authors(c(desc::desc_get_authors(),
+                           utils::person("Global Health Engineering, ETH Zurich", role = "cph")))
+  d <- suppressMessages(update_metadata())
+  expect_identical(d$publisher$name, "Global Health Engineering, ETH Zurich")
+  expect_null(d$publisher[["@id"]])
+  expect_identical(d$publisher$parentOrganization$name, "Global Health Engineering")
+  expect_identical(d$publisher$parentOrganization$parentOrganization[["@id"]],
+                   "https://ror.org/03zqk4w67")
+})
+
+test_that("update_metadata() writes no parent organisations when the profile says none (#153)", {
+  create_metadata_fixture()
+  desc::desc_set(`Config/washr/parent-organizations` = "none")
+  d <- suppressMessages(update_metadata())
+  expect_identical(d$publisher$name, "openwashdata")
+  expect_null(d$publisher$parentOrganization)
+})
+
 test_that("update_metadata() lists one distribution per existing file with the right MIME type", {
   pkg <- create_metadata_fixture()
   d <- suppressMessages(update_metadata())

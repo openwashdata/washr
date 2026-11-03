@@ -10,7 +10,9 @@
 #                          (X-schema.org-* fields),
 #                          creators, maintainer, funder and publisher (Authors@R),
 #                          the website and the data catalogue of the
-#                          organisation (Config/washr/home and catalog)
+#                          organisation (Config/washr/home and catalog),
+#                          the organisations above the publisher
+#                          (Config/washr/parent-organizations)
 #   data-raw/dictionary.csv  datasets and variables
 #   CITATION.cff           DOI
 #   inst/extdata           one distribution per file that belongs to a dataset
@@ -85,6 +87,12 @@ build_dataset_jsonld <- function(path = ".") {
   if (is.null(publisher) && !is.null(org)) {
     publisher <- list("@type" = "Organization", name = org,
                       url = if (is_set(home)) home else paste0("https://github.com/", org))
+  }
+  # The organisations above the publisher, nearest first, nest under it as a
+  # parentOrganization chain on both paths (#153)
+  parents <- parent_organizations_jsonld(parent_organizations(path))
+  if (!is.null(publisher) && !is.null(parents)) {
+    publisher$parentOrganization <- parents
   }
   # The data catalogue of the organisation, where dataset search engines
   # file the package (#145)
@@ -206,6 +214,22 @@ person_jsonld <- function(p) {
     out$affiliation <- list("@type" = "Organization", name = comment[["affiliation"]])
   }
   out
+}
+
+# The parent organisations as a nested schema.org chain: each entry is an
+# Organization whose parentOrganization is the next entry. A ror.org URL is
+# the @id of the entry, any other URL its url. NULL for an empty chain (#153).
+parent_organizations_jsonld <- function(chain) {
+  node <- NULL
+  for (entry in rev(chain)) {
+    org <- list("@type" = "Organization")
+    if (is_ror_url(entry$url)) org[["@id"]] <- entry$url
+    org$name <- entry$name
+    if (!is.null(entry$url) && !is_ror_url(entry$url)) org$url <- entry$url
+    if (!is.null(node)) org$parentOrganization <- node
+    node <- org
+  }
+  node
 }
 
 # One PropertyValue per dictionary row. With several datasets the variable

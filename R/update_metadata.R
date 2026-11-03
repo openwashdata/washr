@@ -19,7 +19,7 @@
 #' | keywords | `X-schema.org-keywords` in DESCRIPTION, comma separated |
 #' | spatialCoverage, temporalCoverage | `X-schema.org-spatialCoverage` and `X-schema.org-temporalCoverage` in DESCRIPTION |
 #' | isBasedOn | the source article DOIs in `X-schema.org-isBasedOn` in DESCRIPTION, comma separated |
-#' | creator, maintainer, funder, publisher | `Authors@R` roles `aut`/`cre`, `cre`, `fnd`, `cph`; ORCID from the `comment` field. Without a `cph`, the publisher is the organisation with the website in `Config/washr/home` |
+#' | creator, maintainer, funder, publisher | `Authors@R` roles `aut`/`cre`, `cre`, `fnd`, `cph`; ORCID from the `comment` field. Without a `cph`, the publisher is the organisation with the website in `Config/washr/home`. The organisations in `Config/washr/parent-organizations` nest under the publisher as `parentOrganization`, a `https://ror.org/` URL as the `@id` |
 #' | includedInDataCatalog | the data catalogue of the organisation in `Config/washr/catalog` |
 #' | identifier, sameAs | the DOI in `CITATION.cff`, written by [update_citation()] |
 #' | variableMeasured | `data-raw/dictionary.csv` |

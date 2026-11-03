@@ -33,7 +33,7 @@ The sources are:\tabular{ll}{
    keywords \tab \code{X-schema.org-keywords} in DESCRIPTION, comma separated \cr
    spatialCoverage, temporalCoverage \tab \code{X-schema.org-spatialCoverage} and \code{X-schema.org-temporalCoverage} in DESCRIPTION \cr
    isBasedOn \tab the source article DOIs in \code{X-schema.org-isBasedOn} in DESCRIPTION, comma separated \cr
-   creator, maintainer, funder, publisher \tab \code{Authors@R} roles \code{aut}/\code{cre}, \code{cre}, \code{fnd}, \code{cph}; ORCID from the \code{comment} field. Without a \code{cph}, the publisher is the organisation with the website in \code{Config/washr/home} \cr
+   creator, maintainer, funder, publisher \tab \code{Authors@R} roles \code{aut}/\code{cre}, \code{cre}, \code{fnd}, \code{cph}; ORCID from the \code{comment} field. Without a \code{cph}, the publisher is the organisation with the website in \code{Config/washr/home}. The organisations in \code{Config/washr/parent-organizations} nest under the publisher as \code{parentOrganization}, a \verb{https://ror.org/} URL as the \verb{@id} \cr
    includedInDataCatalog \tab the data catalogue of the organisation in \code{Config/washr/catalog} \cr
    identifier, sameAs \tab the DOI in \code{CITATION.cff}, written by \code{\link[=update_citation]{update_citation()}} \cr
    variableMeasured \tab \code{data-raw/dictionary.csv} \cr
