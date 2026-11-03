@@ -110,6 +110,7 @@ Before: every step of the workflow, up to \code{\link[=update_citation]{update_c
 release the package.
 
 Other publishing functions:
+\code{\link[=data_availability_statement]{data_availability_statement()}},
 \code{\link[=setup_readme]{setup_readme()}},
 \code{\link[=setup_website]{setup_website()}},
 \code{\link[=update_website]{update_website()}},

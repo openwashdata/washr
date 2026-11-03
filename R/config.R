@@ -18,9 +18,11 @@
 #   pages-domain       the domain of the site, when it is not <org>.github.io
 #   version            the washr version that last ran update_description()
 #   brand              the brand ref that use_brand() last installed
+#   withheld           the sentence on data left out of the package, which
+#                      closes the statement of data_availability_statement()
 # A field set to "none" switches its feature off. update_description() writes
 # the first nine with their defaults and the version; use_brand() writes the
-# brand. pages-domain is only ever written by hand.
+# brand. pages-domain and withheld are only ever written by hand.
 #
 # The GitHub organisation, the repository URL, the license and the publisher
 # are not config: they are read from the standard DESCRIPTION fields.
