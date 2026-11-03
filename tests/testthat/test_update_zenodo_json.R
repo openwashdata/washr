@@ -36,9 +36,10 @@ test_that("update_zenodo_json() derives the deposit metadata from DESCRIPTION (#
   suppressMessages(update_zenodo_json())
   z <- read_zenodo_json()
   expect_identical(names(z), c("title", "description", "upload_type", "creators",
-                               "license", "keywords", "version", "communities"))
+                               "license", "keywords", "version", "communities",
+                               "related_identifiers"))
   expect_identical(z$title, "Trips and trucks in Kampala")
-  expect_identical(z$description, "Faecal sludge logistics data from Kampala. Two tables.")
+  expect_match(z$description, "^<p>Faecal sludge logistics data from Kampala. Two tables.</p>")
   expect_identical(z$upload_type, "dataset")
   expect_identical(z$license, "cc-by-4.0")
   expect_identical(z$keywords, list("sanitation", "faecal sludge", "Kampala"))
@@ -135,19 +136,86 @@ test_that("washr_config() reads Config/washr fields and falls back to the defaul
   expect_identical(washr_config("zenodo-community", default = "openwashdata"), "openwashdata")
 })
 
-test_that("source articles become related identifiers next to the repository (#56, #134)", {
+test_that("source articles become related identifiers next to the repository (#56, #134, #154)", {
   pkg <- create_zenodo_fixture()
+  repo <- list(identifier = paste0("https://github.com/openwashdata/", pkg),
+               relation = "isSupplementTo")
+  site <- list(identifier = paste0("https://openwashdata.github.io/", pkg, "/"),
+               relation = "isDocumentedBy", resource_type = "other")
   suppressMessages(update_zenodo_json())
-  # without a source Zenodo keeps its own link to the release tag
-  expect_null(read_zenodo_json()$related_identifiers)
+  # without a source the repository and the website are still written
+  expect_identical(read_zenodo_json()$related_identifiers, list(repo, site))
   desc::desc_set("X-schema.org-isBasedOn",
                  "https://doi.org/10.2166/wh.2026.173, 10.5281/zenodo.11185699")
   suppressMessages(update_zenodo_json())
   expect_identical(read_zenodo_json()$related_identifiers, list(
-    list(identifier = paste0("https://github.com/openwashdata/", pkg), relation = "isSupplementTo"),
+    repo, site,
     list(identifier = "10.2166/wh.2026.173", relation = "isDerivedFrom"),
     list(identifier = "10.5281/zenodo.11185699", relation = "isDerivedFrom")
   ))
+})
+
+test_that("the description links the package website (#154)", {
+  pkg <- create_zenodo_fixture()
+  site <- paste0("https://openwashdata.github.io/", pkg, "/")
+  suppressMessages(update_zenodo_json())
+  expect_identical(read_zenodo_json()$description, paste0(
+    "<p>Faecal sludge logistics data from Kampala. Two tables.</p>",
+    "<p>Explore the data on a curated website: <a href=\"", site, "\">", site, "</a></p>"
+  ))
+})
+
+test_that("the url of _pkgdown.yml is the website, as written (#154)", {
+  create_zenodo_fixture()
+  writeLines(c("url: https://data.example.org/trips", "template:", "  bootstrap: 5"),
+             "_pkgdown.yml")
+  suppressMessages(update_zenodo_json())
+  z <- read_zenodo_json()
+  expect_match(z$description,
+               "<a href=\"https://data.example.org/trips\">https://data.example.org/trips</a></p>$")
+  expect_identical(z$related_identifiers[[2]],
+                   list(identifier = "https://data.example.org/trips",
+                        relation = "isDocumentedBy", resource_type = "other"))
+})
+
+test_that("without a website the description is plain and only the repository is linked (#154)", {
+  pkg <- create_zenodo_fixture()
+  desc::desc_set_urls(paste0("https://github.com/openwashdata/", pkg))
+  suppressMessages(update_zenodo_json())
+  z <- read_zenodo_json()
+  expect_identical(z$description, "Faecal sludge logistics data from Kampala. Two tables.")
+  expect_identical(z$related_identifiers, list(
+    list(identifier = paste0("https://github.com/openwashdata/", pkg), relation = "isSupplementTo")
+  ))
+  # no repository and no source: no related_identifiers key
+  desc::desc_del("URL")
+  suppressMessages(update_zenodo_json())
+  expect_null(read_zenodo_json()$related_identifiers)
+})
+
+test_that("the HTML description escapes the Description field (#154)", {
+  create_zenodo_fixture()
+  desc::desc_set("Description", "Water & sanitation data with values < 5 mg/l.")
+  suppressMessages(update_zenodo_json())
+  expect_match(read_zenodo_json()$description,
+               "^<p>Water &amp; sanitation data with values &lt; 5 mg/l.</p><p>Explore")
+})
+
+test_that("an empty Description with a website writes only the website paragraph (#154)", {
+  pkg <- create_zenodo_fixture()
+  desc::desc_del("Description")
+  suppressMessages(update_zenodo_json())
+  expect_match(read_zenodo_json()$description,
+               "^<p>Explore the data on a curated website: <a href=")
+})
+
+test_that("build_zenodo_json() reads the website of the package at path (#154)", {
+  create_zenodo_fixture()
+  writeLines("url: https://data.example.org/trips", "_pkgdown.yml")
+  root <- getwd()
+  withr::local_dir(tempdir())
+  z <- build_zenodo_json(root)
+  expect_identical(z$related_identifiers[[2]]$identifier, "https://data.example.org/trips")
 })
 
 test_that("update_zenodo_json() is idempotent and build ignores the file (#56)", {
@@ -185,7 +253,7 @@ test_that("update_citation() writes .zenodo.json with the citation files (#56)",
   z <- read_zenodo_json()
   expect_identical(z$upload_type, "dataset")
   # the source is listed even when its lookup for CITATION.cff failed
-  expect_identical(z$related_identifiers[[2]]$identifier, "10.2166/wh.2026.173")
+  expect_identical(z$related_identifiers[[3]]$identifier, "10.2166/wh.2026.173")
   # a second run changes neither file
   before <- tools::md5sum(c("CITATION.cff", ".zenodo.json"))
   suppressWarnings(suppressMessages(update_citation(build = FALSE)))

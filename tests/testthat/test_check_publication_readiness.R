@@ -38,6 +38,8 @@ readiness_fixture <- function(env = parent.frame()) {
   usethis::use_template("_pkgdown.yml", save_as = "_pkgdown.yml",
                         data = pkgdown_template_data(),
                         package = "washr")
+  # .zenodo.json links the site once _pkgdown.yml names it (#154)
+  suppressMessages(update_zenodo_json())
   invisible(pkg)
 }
 
@@ -292,6 +294,13 @@ test_that("the .zenodo.json item follows DESCRIPTION", {
   stale <- quiet_check()
   expect_identical(status_of(stale, "zenodo_json"), "fail")
   expect_match(stale$detail[stale$id == "zenodo_json"], "differs")
+  # a new site URL also makes the file differ (#154)
+  suppressMessages(update_zenodo_json())
+  expect_identical(status_of(quiet_check(), "zenodo_json"), "pass")
+  config <- readLines("_pkgdown.yml")
+  config[startsWith(config, "url:")] <- "url: https://data.example.org/trips/"
+  writeLines(config, "_pkgdown.yml")
+  expect_identical(status_of(quiet_check(), "zenodo_json"), "fail")
   unlink(".zenodo.json")
   expect_match(quiet_check()$detail[quiet_check()$id == "zenodo_json"], "file missing")
 })
