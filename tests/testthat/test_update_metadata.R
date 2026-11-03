@@ -117,16 +117,45 @@ test_that("update_metadata() nests the parent organisations under the fallback p
                    "https://ror.org/05a28rw58")
 })
 
-test_that("update_metadata() nests the parent organisations under a cph publisher (#153)", {
+test_that("update_metadata() skips the chain up to a cph publisher that names its group (#153)", {
   create_metadata_fixture()
   desc::desc_set_authors(c(desc::desc_get_authors(),
                            utils::person("Global Health Engineering, ETH Zurich", role = "cph")))
   d <- suppressMessages(update_metadata())
   expect_identical(d$publisher$name, "Global Health Engineering, ETH Zurich")
   expect_null(d$publisher[["@id"]])
-  expect_identical(d$publisher$parentOrganization$name, "Global Health Engineering")
-  expect_identical(d$publisher$parentOrganization$parentOrganization[["@id"]],
-                   "https://ror.org/03zqk4w67")
+  # the institute, then ETH Zurich; Global Health Engineering is the publisher
+  expect_identical(d$publisher$parentOrganization, list(
+    "@type" = "Organization",
+    "@id" = "https://ror.org/03zqk4w67",
+    name = "Institute of Design, Materials and Fabrication",
+    parentOrganization = list(
+      "@type" = "Organization",
+      "@id" = "https://ror.org/05a28rw58",
+      name = "ETH Zurich"
+    )
+  ))
+})
+
+test_that("update_metadata() writes no parent organisations for a publisher at the end of the chain (#153)", {
+  create_metadata_fixture()
+  desc::desc_set_authors(c(desc::desc_get_authors(),
+                           utils::person(" eth zurich ", role = "cph")))
+  d <- suppressMessages(update_metadata())
+  expect_identical(trimws(d$publisher$name), "eth zurich")
+  expect_null(d$publisher$parentOrganization)
+})
+
+test_that("chain_above() matches names case-insensitively and by the name before a comma (#153)", {
+  chain <- list(list(name = "Group", url = NULL), list(name = "Institute", url = NULL),
+                list(name = "University", url = NULL))
+  names_of <- function(x) vapply(x, function(e) e$name, character(1))
+  expect_identical(names_of(chain_above(chain, "openwashdata")), c("Group", "Institute", "University"))
+  expect_identical(names_of(chain_above(chain, "group, University")), c("Institute", "University"))
+  expect_identical(names_of(chain_above(chain, " INSTITUTE ")), "University")
+  expect_identical(chain_above(chain, "University"), list())
+  # a name that only starts with an entry name, without a comma, is not a match
+  expect_identical(names_of(chain_above(chain, "Group of Friends")), c("Group", "Institute", "University"))
 })
 
 test_that("update_metadata() writes no parent organisations when the profile says none (#153)", {

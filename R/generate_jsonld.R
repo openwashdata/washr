@@ -89,8 +89,12 @@ build_dataset_jsonld <- function(path = ".") {
                       url = if (is_set(home)) home else paste0("https://github.com/", org))
   }
   # The organisations above the publisher, nearest first, nest under it as a
-  # parentOrganization chain on both paths (#153)
-  parents <- parent_organizations_jsonld(parent_organizations(path))
+  # parentOrganization chain on both paths (#153). The links up to and
+  # including the publisher itself are skipped, so a cph publisher never
+  # names its own group as its parent.
+  chain <- parent_organizations(path)
+  if (!is.null(publisher)) chain <- chain_above(chain, publisher$name)
+  parents <- parent_organizations_jsonld(chain)
   if (!is.null(publisher) && !is.null(parents)) {
     publisher$parentOrganization <- parents
   }
@@ -223,6 +227,24 @@ person_jsonld <- function(p) {
     out$affiliation <- list("@type" = "Organization", name = comment[["affiliation"]])
   }
   out
+}
+
+# The part of a parent organisations chain above the publisher: the entry
+# that names the publisher and every entry before it are dropped. An entry
+# names the publisher when the names agree, ignoring case and surrounding
+# whitespace, or when the publisher name starts with the entry name and a
+# comma ("Global Health Engineering, ETH Zurich" and "Global Health
+# Engineering"). A publisher outside the chain keeps the whole chain (#153).
+chain_above <- function(chain, publisher) {
+  if (length(chain) == 0 || is.null(publisher)) return(chain)
+  pub <- tolower(trimws(publisher))
+  hits <- which(vapply(chain, function(entry) {
+    name <- tolower(trimws(entry$name))
+    identical(pub, name) || startsWith(pub, paste0(name, ","))
+  }, logical(1)))
+  if (length(hits) == 0) return(chain)
+  last <- max(hits)
+  if (last >= length(chain)) list() else chain[(last + 1):length(chain)]
 }
 
 # The parent organisations as a nested schema.org chain: each entry is an
