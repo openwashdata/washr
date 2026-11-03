@@ -43,8 +43,12 @@ The sources are:\tabular{ll}{
 
 The JSON-LD lands in \verb{pkgdown/templates/in-header.html}, which pkgdown
 picks up on the next site build. The file also keeps the \code{in_header}
-includes from \verb{_pkgdown.yml} working. It is not shipped in the package
-tarball.
+includes from \verb{_pkgdown.yml} working. The same JSON-LD is also written to
+\code{pkgdown/assets/metadata.jsonld}, which pkgdown copies to the root of the
+site, so the metadata has its own address (\verb{<site>/metadata.jsonld}) for
+tools that read files rather than page heads; the README links it. Each
+file is written only when its content changed. Neither is shipped in the
+package tarball.
 }
 \examples{
 \dontrun{
