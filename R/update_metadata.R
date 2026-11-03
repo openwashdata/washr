@@ -27,8 +27,12 @@
 #'
 #' The JSON-LD lands in `pkgdown/templates/in-header.html`, which pkgdown
 #' picks up on the next site build. The file also keeps the `in_header`
-#' includes from `_pkgdown.yml` working. It is not shipped in the package
-#' tarball.
+#' includes from `_pkgdown.yml` working. The same JSON-LD is also written to
+#' `pkgdown/assets/metadata.jsonld`, which pkgdown copies to the root of the
+#' site, so the metadata has its own address (`<site>/metadata.jsonld`) for
+#' tools that read files rather than page heads; the README links it. Each
+#' file is written only when its content changed. Neither is shipped in the
+#' package tarball.
 #'
 #' @param quiet Logical. Suppress the messages and the report of blank
 #'   fields. Defaults to `FALSE`, or to `TRUE` when `options(washr.quiet = TRUE)`
@@ -65,20 +69,15 @@ update_metadata <- function(quiet = FALSE) {
   local_session()
 
   dataset <- build_dataset_jsonld(".")
-  html <- jsonld_template(dataset)
 
-  target <- file.path("pkgdown", "templates", "in-header.html")
-  dir.create(dirname(target), recursive = TRUE, showWarnings = FALSE)
-  current <- if (file.exists(target)) paste(readLines(target, warn = FALSE), collapse = "\n") else NULL
-  changed <- !identical(current, html)
-  if (changed) writeLines(html, target)
+  # The head of every page, and the same JSON-LD as a file at the root of
+  # the site (#137)
+  write_if_changed(jsonld_template(dataset),
+                   file.path("pkgdown", "templates", "in-header.html"))
+  write_if_changed(jsonld_json(dataset),
+                   file.path("pkgdown", "assets", "metadata.jsonld"))
   usethis::use_build_ignore("pkgdown")
 
-  if (changed) {
-    ui_done("Wrote {.path {target}}")
-  } else {
-    ui_done("{.path {target}} is up to date")
-  }
   if (file.exists("_pkgdown.yml")) {
     ui_todo("Rebuild the site with {.code pkgdown::build_site()} to embed the metadata.")
   } else {
@@ -86,6 +85,20 @@ update_metadata <- function(quiet = FALSE) {
   }
   report_blank(attr(dataset, "blank"))
   invisible(dataset)
+}
+
+# Write `text` to `target` only when the file differs, and say which.
+write_if_changed <- function(text, target) {
+  dir.create(dirname(target), recursive = TRUE, showWarnings = FALSE)
+  current <- if (file.exists(target)) paste(readLines(target, warn = FALSE), collapse = "\n") else NULL
+  changed <- !identical(current, text)
+  if (changed) {
+    writeLines(text, target)
+    ui_done("Wrote {.path {target}}")
+  } else {
+    ui_done("{.path {target}} is up to date")
+  }
+  invisible(changed)
 }
 
 report_blank <- function(blank) {

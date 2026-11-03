@@ -255,6 +255,30 @@ test_that("update_metadata() writes the pkgdown template and is idempotent", {
   expect_false(file.exists(file.path("inst", "extdata", "metadata.json")))
 })
 
+test_that("update_metadata() writes the JSON-LD as a file on the site, equal to the head (#137)", {
+  create_metadata_fixture()
+  target <- file.path("pkgdown", "assets", "metadata.jsonld")
+  d <- suppressMessages(update_metadata())
+  expect_true(file.exists(target))
+  file_json <- paste(readLines(target), collapse = "\n")
+  head_json <- embedded_jsonld(readLines(file.path("pkgdown", "templates", "in-header.html")))
+  expect_identical(file_json, head_json)
+  parsed <- jsonlite::fromJSON(file_json, simplifyVector = FALSE)
+  expect_identical(parsed[["@type"]], "Dataset")
+  expect_identical(parsed$alternateName, d$alternateName)
+  # a second run leaves the file alone
+  before <- tools::md5sum(target)
+  withr::with_options(list(usethis.quiet = FALSE),
+                      expect_message(update_metadata(), "metadata.jsonld.*up to date"))
+  expect_identical(tools::md5sum(target), before)
+  # a changed source rewrites both files, which stay equal
+  desc::desc_set(Title = "Trips and trucks in Kampala, revised")
+  suppressMessages(update_metadata())
+  expect_false(identical(tools::md5sum(target), before))
+  expect_identical(paste(readLines(target), collapse = "\n"),
+                   embedded_jsonld(readLines(file.path("pkgdown", "templates", "in-header.html"))))
+})
+
 test_that("update_metadata() reports the blank fields and where to fill them", {
   create_metadata_fixture(complete = FALSE)
   d <- suppressMessages(update_metadata())
@@ -299,6 +323,8 @@ test_that("the JSON-LD parses and the embedded site head carries it (#68)", {
   })
   head <- readLines(file.path("docs", "index.html"))
   expect_true(any(grepl("application/ld+json", head, fixed = TRUE)))
+  # pkgdown copies pkgdown/assets to the root of the site (#137)
+  expect_true(file.exists(file.path("docs", "metadata.jsonld")))
   expect_true(any(grepl("plausible.io", head, fixed = TRUE)))
 })
 

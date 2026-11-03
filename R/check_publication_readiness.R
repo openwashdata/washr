@@ -43,6 +43,7 @@
 #' | docs | `pkgdown_washr_version` | the footer in `_pkgdown.yml` names the washr version that `Config/washr/version` records |
 #' | docs | `pkgdown_brand` | the brand entry in `_pkgdown.yml` matches the organisation |
 #' | docs | `pkgdown_llm_docs` | `_pkgdown.yml` does not switch off the `llms.txt` of the site (`llm-docs: false`) |
+#' | docs | `site_jsonld` | `pkgdown/assets/metadata.jsonld` is present and equals the JSON-LD in the head of the pages (`pkgdown/templates/in-header.html`), both written by [update_metadata()] |
 #' | docs | `docs_untracked` | git tracks no file under `docs/` while the pkgdown workflow deploys the site |
 #' | tests | `check_workflow` | `.github/workflows/R-CMD-check.yaml` is present |
 #' | tests | `check_workflow_dev` | every `branches:` list in that workflow includes `dev` |
@@ -402,6 +403,10 @@ readiness_checks <- function() {
           "_pkgdown.yml keeps the llms.txt of the site",
           "Remove llm-docs: false from _pkgdown.yml.",
           readiness_pkgdown_llm_docs),
+    check("site_jsonld", "docs",
+          "The metadata file on the site equals the JSON-LD in the page head",
+          "Run update_metadata(), then rebuild the site.",
+          readiness_site_jsonld),
     check("docs_untracked", "docs",
           "docs/ untracked while the pkgdown workflow deploys the site",
           "Run git rm -r --cached docs and add docs to .gitignore.",
@@ -807,6 +812,19 @@ readiness_pkgdown_llm_docs <- function(ctx) {
   if (length(config) == 0) return(readiness_na("_pkgdown.yml missing"))
   off <- grep("^llm-docs:\\s*(false|no)\\s*$", config, ignore.case = TRUE, value = TRUE)
   readiness_result(length(off) == 0, if (length(off)) off[[1]] else "")
+}
+
+# The metadata file on the site and the JSON-LD in the head of the pages
+# carry the same text (#137).
+readiness_site_jsonld <- function(ctx) {
+  if (!ctx$has("_pkgdown.yml")) return(readiness_na("_pkgdown.yml missing"))
+  file <- file.path("pkgdown", "assets", "metadata.jsonld")
+  head <- file.path("pkgdown", "templates", "in-header.html")
+  if (!ctx$has(file)) return(readiness_result(FALSE, paste(file, "missing")))
+  embedded <- embedded_jsonld(ctx$lines(head))
+  if (is.null(embedded)) return(readiness_result(FALSE, paste(head, "carries no JSON-LD")))
+  same <- identical(paste(ctx$lines(file), collapse = "\n"), embedded)
+  readiness_result(same, if (same) "equal to the page head" else "differs from the page head")
 }
 
 readiness_pkgdown_brand <- function(ctx) {

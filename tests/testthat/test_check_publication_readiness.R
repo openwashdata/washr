@@ -40,6 +40,8 @@ readiness_fixture <- function(env = parent.frame()) {
                         package = "washr")
   # .zenodo.json links the site once _pkgdown.yml names it (#154)
   suppressMessages(update_zenodo_json())
+  # the JSON-LD in the page head and as a file on the site (#137)
+  suppressMessages(update_metadata())
   invisible(pkg)
 }
 
@@ -90,7 +92,7 @@ test_that("the report goes through cli, can be silenced and prints again (#82)",
   expect_no_message(quiet_check())
   expect_invisible(quiet_check())
   expect_output(print(result), "Publication readiness")
-  expect_output(print(result), "31 pass, 0 fail, 2 not applicable", fixed = TRUE)
+  expect_output(print(result), "32 pass, 0 fail, 2 not applicable", fixed = TRUE)
   expect_identical(length(format(result)) > nrow(result), TRUE)
 })
 
@@ -148,6 +150,9 @@ test_that("each item fails on its own gap and names the step that closes it (#82
       rewrite(file.path(p, "_pkgdown.yml"),
               function(x) sub("^url: .*$", "url: https://github.com/openwashdata/fixture", x))
     },
+    site_jsonld = function(p) {
+      cat("\n", file = file.path(p, "pkgdown", "assets", "metadata.jsonld"), append = TRUE)
+    },
     pkgdown_llm_docs = function(p) {
       cat("llm-docs: false\n", file = file.path(p, "_pkgdown.yml"), append = TRUE)
     },
@@ -194,7 +199,8 @@ test_that("items that cannot be decided are not applicable, with the reason (#82
               "dictionary_descriptions", "dictionary_schema", "roxygen_docs",
               "readme_citation", "pkgdown_analytics", "pkgdown_url", "pkgdown_funding",
               "pkgdown_publisher", "pkgdown_washr_version",
-              "pkgdown_brand", "pkgdown_llm_docs", "docs_untracked", "check_workflow_dev")
+              "pkgdown_brand", "pkgdown_llm_docs", "site_jsonld", "docs_untracked",
+              "check_workflow_dev")
   expect_identical(unname(result$status[match(na_ids, result$id)]), rep("na", length(na_ids)))
   expect_true(all(nzchar(result$detail[match(na_ids, result$id)])))
   expect_identical(status_of(result, "citation_cff"), "fail")
@@ -386,6 +392,23 @@ test_that("dictionary_schema allows named columns after the five and rejects unn
   result <- quiet_check(unnamed)
   expect_identical(status_of(result, "dictionary_schema"), "fail")
   expect_match(result$detail[result$id == "dictionary_schema"], "unnamed", fixed = TRUE)
+})
+
+test_that("site_jsonld fails without the metadata file and when it differs from the head (#137)", {
+  readiness_fixture()
+  expect_identical(status_of(quiet_check(), "site_jsonld"), "pass")
+  unlink(file.path("pkgdown", "assets", "metadata.jsonld"))
+  result <- quiet_check()
+  expect_identical(status_of(result, "site_jsonld"), "fail")
+  expect_match(result$detail[result$id == "site_jsonld"], "missing", fixed = TRUE)
+  suppressMessages(update_metadata())
+  expect_identical(status_of(quiet_check(), "site_jsonld"), "pass")
+  # a source changed after the last run: the head is rewritten by hand here
+  head <- file.path("pkgdown", "templates", "in-header.html")
+  writeLines(sub("Truck Trips", "Truck Journeys", readLines(head), fixed = TRUE), head)
+  result <- quiet_check()
+  expect_identical(status_of(result, "site_jsonld"), "fail")
+  expect_match(result$detail[result$id == "site_jsonld"], "differs", fixed = TRUE)
 })
 
 test_that("publisher_ror passes on a ROR in the parent organisations and is not applicable without them (#153)", {

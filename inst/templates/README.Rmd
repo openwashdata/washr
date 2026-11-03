@@ -179,6 +179,11 @@ if (!is.na(based_on)) {
 }
 ```
 
+{{#has_pages}}
+The schema.org metadata of the package, in machine readable form, are at
+[metadata.jsonld]({{{pages_url}}}metadata.jsonld).
+
+{{/has_pages}}
 Please cite this package using:
 
 ```{r}

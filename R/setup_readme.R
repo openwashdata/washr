@@ -9,7 +9,11 @@
 #' The Citation section names the publisher with its website, states in
 #' plain text which version to cite with which DOI, links the authors page
 #' of the site and `CITATION.cff`, and names the source article of
-#' republished data from `X-schema.org-isBasedOn`. When [use_brand()] has
+#' republished data from `X-schema.org-isBasedOn`. When the package names its
+#' site (the `url` of `_pkgdown.yml` or a site entry in the DESCRIPTION
+#' `URL` field), the section also links `metadata.jsonld` on the site, the
+#' schema.org metadata that [update_metadata()] writes, so the link reaches
+#' the `llms.txt` of the site. When [use_brand()] has
 #' installed the logo (`man/figures/logo.png`), the title line shows it,
 #' linked to the website of the organisation. The download links point at the release tag of
 #' the version in DESCRIPTION, and at the main branch for a development
@@ -154,6 +158,7 @@ readme_template_data <- function(file = ".") {
   list(
     repo_url = repo,
     pages_url = pkg_pages_url(file),
+    has_pages = !is.null(pkg_site_url(file)),
     repo_slug = sub("^https?://github\\.com/", "", repo),
     license_badge = badge,
     license_label = label,
