@@ -82,6 +82,7 @@ a review tool can pick the rows it needs.\tabular{lll}{
    docs \tab \code{pkgdown_washr_version} \tab the footer in \verb{_pkgdown.yml} names the washr version that \code{Config/washr/version} records \cr
    docs \tab \code{pkgdown_brand} \tab the brand entry in \verb{_pkgdown.yml} matches the organisation \cr
    docs \tab \code{pkgdown_llm_docs} \tab \verb{_pkgdown.yml} does not switch off the \code{llms.txt} of the site (\code{llm-docs: false}) \cr
+   docs \tab \code{site_jsonld} \tab \code{pkgdown/assets/metadata.jsonld} is present and equals the JSON-LD in the head of the pages (\verb{pkgdown/templates/in-header.html}), both written by \code{\link[=update_metadata]{update_metadata()}} \cr
    docs \tab \code{docs_untracked} \tab git tracks no file under \verb{docs/} while the pkgdown workflow deploys the site \cr
    tests \tab \code{check_workflow} \tab \code{.github/workflows/R-CMD-check.yaml} is present \cr
    tests \tab \code{check_workflow_dev} \tab every \verb{branches:} list in that workflow includes \code{dev} \cr
