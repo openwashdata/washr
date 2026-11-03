@@ -16,9 +16,14 @@
 #' version. pkgdown builds the `llms.txt` of the site from the README, so
 #' this is also what AI tools read about the package.
 #'
-#' The template documents the first data object in `data/` (alphabetically);
-#' add a section per further object by hand. It stops when `data/` holds no
-#' data object, because every data section needs one.
+#' The Data section has one section per data object: a preview of the first
+#' rows and the table of its variables from `data-raw/dictionary.csv`. Without
+#' `datasets`, every data object in `data/` gets a section, in alphabetical
+#' order. With several objects the introduction of the Data section names
+#' their number. The Example section, with `has_example = TRUE`, starts from
+#' the first object. An object without rows in the dictionary gets a warning,
+#' because its table of variables would be empty. The function stops when
+#' `data/` holds no data object, because every data section needs one.
 #'
 #' @param force Logical. If FALSE (the default), the function stops when a
 #' README.Rmd already exists. Set to TRUE to overwrite the existing file.
@@ -26,6 +31,10 @@
 #'   with a commented ggplot2 scaffold for a first plot of the data? Defaults
 #'   to FALSE. Pairs with the `has_example` argument of [setup_website()],
 #'   which adds the matching article to the site.
+#' @param datasets Character vector. The data objects in `data/` that get a
+#'   section, in this order, such as `c("trips", "trucks")`. The default
+#'   `NULL` takes every data object in `data/`, alphabetically. A name that is
+#'   not a data object in `data/` stops the run.
 #'
 #' @returns The path of README.Rmd, invisibly.
 #'
@@ -43,8 +52,10 @@
 #' setup_readme()
 #' # With an Example section to fill with a first plot
 #' setup_readme(has_example = TRUE)
+#' # Sections for two of the data objects only
+#' setup_readme(datasets = c("trips", "trucks"))
 #' }
-setup_readme <- function(force = FALSE, has_example = FALSE){
+setup_readme <- function(force = FALSE, has_example = FALSE, datasets = NULL){
   local_session()
   # Get metadata
   readmermd_path <- file.path("README.Rmd")
@@ -55,32 +66,63 @@ setup_readme <- function(force = FALSE, has_example = FALSE){
     ))
   }
   pkgname <- desc::desc_get("Package")[[1]]
-  datasets <- dataset_names()
-  if (length(datasets) == 0) {
+  available <- sort(dataset_names())
+  if (length(available) == 0) {
     cli::cli_abort(c(
       "No data object found in {.path data/}.",
       "i" = "Export the tidy data with {.fun usethis::use_data} first. The README documents it."
     ))
   }
+  if (is.null(datasets)) {
+    datasets <- available
+  } else {
+    unknown <- setdiff(datasets, available)
+    if (!is.character(datasets) || length(datasets) == 0 || length(unknown)) {
+      cli::cli_abort(c(
+        "{.arg datasets} names {cli::qty(length(unknown))}{?an object/objects} that {.path data/} does not hold: {.val {unknown}}.",
+        "i" = "{.path data/} holds {.val {available}}."
+      ))
+    }
+    datasets <- unique(datasets)
+  }
   # Only now, with everything in place for the new file, the old one goes
   if (file.exists(readmermd_path)) file.remove(readmermd_path)
-  dataname <- datasets[[1]]
-  if (length(datasets) > 1) {
-    ui_info("data/ holds {length(datasets)} data objects; the template documents {.val {dataname}}. Add a section for each of the others.")
-  }
+  warn_undocumented_datasets(datasets)
   # Create README RMarkdown with a template
   usethis::use_readme_rmd(open = FALSE)
   file.remove(readmermd_path)
   usethis::use_template(template = "README.Rmd",
                         save_as = readmermd_path,
                         data = c(list(packagename = pkgname,
-                                      dataname = dataname,
+                                      dataname = datasets[[1]],
+                                      datasets = lapply(datasets, function(x) list(dataname = x)),
+                                      multiple = length(datasets) > 1,
+                                      n_datasets = length(datasets),
                                       has_example = has_example),
                                  readme_template_data()),
                         open = rlang::is_interactive(),
                         package = "washr")
   ui_todo("Finish writing {.path {readmermd_path}}, then run {.code devtools::build_readme()}.")
   invisible(readmermd_path)
+}
+
+# Warn about the data objects without a row in data-raw/dictionary.csv: their
+# table of variables in the README would be empty (#103).
+warn_undocumented_datasets <- function(datasets, path = ".") {
+  dict_path <- file.path(path, "data-raw", "dictionary.csv")
+  documented <- character()
+  if (file.exists(dict_path)) {
+    dictionary <- tryCatch(utils::read.csv(dict_path, stringsAsFactors = FALSE),
+                           error = function(e) NULL)
+    if (is.data.frame(dictionary) && "file_name" %in% names(dictionary)) {
+      documented <- tools::file_path_sans_ext(dictionary$file_name)
+    }
+  }
+  missing <- setdiff(datasets, documented)
+  if (length(missing)) {
+    ui_warn("{.val {missing}} ha{?s/ve} no rows in {.path data-raw/dictionary.csv}; the table of variables in the README stays empty. Run {.fun setup_dictionary} or {.fun update_dictionary} first.")
+  }
+  invisible(missing)
 }
 
 # The repository, site, license and publisher values of the README template,

@@ -20,9 +20,12 @@ library(openxlsx)
 
 
 # Export Data ------------------------------------------------------------------
+{{#datasets}}
 usethis::use_data({{{name}}}, overwrite = TRUE)
+{{/datasets}}
 fs::dir_create(here::here("inst", "extdata"))
-readr::write_csv({{{name}}},
-                 here::here("inst", "extdata", paste0("{{{name}}}", ".csv")))
-openxlsx::write.xlsx({{{name}}},
-                     here::here("inst", "extdata", paste0("{{{name}}}", ".xlsx")))
+for (name in c({{{dataset_vector}}})) {
+  obj <- get(name)
+  readr::write_csv(obj, here::here("inst", "extdata", paste0(name, ".csv")))
+  openxlsx::write.xlsx(obj, here::here("inst", "extdata", paste0(name, ".xlsx")))
+}
