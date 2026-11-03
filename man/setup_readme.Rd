@@ -32,7 +32,11 @@ license come from DESCRIPTION, so run \code{\link[=update_description]{update_de
 The Citation section names the publisher with its website, states in
 plain text which version to cite with which DOI, links the authors page
 of the site and \code{CITATION.cff}, and names the source article of
-republished data from \code{X-schema.org-isBasedOn}. When \code{\link[=use_brand]{use_brand()}} has
+republished data from \code{X-schema.org-isBasedOn}. When the package names its
+site (the \code{url} of \verb{_pkgdown.yml} or a site entry in the DESCRIPTION
+\code{URL} field), the section also links \code{metadata.jsonld} on the site, the
+schema.org metadata that \code{\link[=update_metadata]{update_metadata()}} writes, so the link reaches
+the \code{llms.txt} of the site. When \code{\link[=use_brand]{use_brand()}} has
 installed the logo (\code{man/figures/logo.png}), the title line shows it,
 linked to the website of the organisation. The download links point at the release tag of
 the version in DESCRIPTION, and at the main branch for a development

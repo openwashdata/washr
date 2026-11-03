@@ -239,3 +239,18 @@ test_that("setup_readme() warns about a data object without dictionary rows (#10
   })
   expect_false(grepl("no rows", out, fixed = TRUE))
 })
+
+test_that("the Citation section links the metadata file of the site when the package names its site (#137)", {
+  pkg <- multi_readme_fixture("d1")
+  suppressMessages(setup_readme())
+  expect_false(any(grepl("metadata.jsonld", readLines("README.Rmd"), fixed = TRUE)))
+  desc::desc_set_urls(c(paste0("https://github.com/openwashdata/", pkg),
+                        paste0("https://openwashdata.github.io/", pkg, "/")))
+  suppressMessages(setup_readme(force = TRUE))
+  readme <- readLines("README.Rmd")
+  link <- paste0("[metadata.jsonld](https://openwashdata.github.io/", pkg, "/metadata.jsonld).")
+  expect_true(link %in% readme)
+  # in the Citation section, before the citation() chunk
+  expect_true(which(readme == link) > which(readme == "## Citation"))
+  expect_true(which(readme == link) < which(readme == "Please cite this package using:"))
+})
