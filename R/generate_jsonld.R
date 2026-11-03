@@ -174,7 +174,8 @@ read_dictionary <- function(path = ".") {
 }
 
 # Creators (aut, cre), maintainer (cre), funder (fnd) and publisher (cph) from
-# a person vector. A person without a family name is treated as an organisation.
+# a person vector. A person without a family name is treated as an organisation,
+# with its ROR comment key as @id.
 authors_jsonld <- function(authors) {
   creator <- list()
   funder <- list()
@@ -201,7 +202,15 @@ person_jsonld <- function(p) {
   family <- p$family
   comment <- p$comment
   if (is.null(family)) {
-    return(list("@type" = "Organization", name = paste(given, collapse = " ")))
+    out <- list("@type" = "Organization")
+    # An organisation (cph, fnd) names its ROR in the comment field, as
+    # utils::person() documents it: the identifier or its URL (#153)
+    if (!is.null(comment) && "ROR" %in% names(comment)) {
+      ror <- trimws(comment[["ROR"]])
+      out[["@id"]] <- if (grepl("^https?://", ror)) ror else paste0("https://ror.org/", ror)
+    }
+    out$name <- paste(given, collapse = " ")
+    return(out)
   }
   out <- list("@type" = "Person",
               givenName = paste(given, collapse = " "),

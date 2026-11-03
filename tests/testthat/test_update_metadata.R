@@ -137,6 +137,25 @@ test_that("update_metadata() writes no parent organisations when the profile say
   expect_null(d$publisher$parentOrganization)
 })
 
+test_that("update_metadata() reads the ROR comment key of an organisation as @id (#153)", {
+  create_metadata_fixture()
+  desc::desc_set_authors(c(
+    utils::person("Jane", "Doe", email = "jane@example.org", role = c("aut", "cre"),
+                  comment = c(ORCID = "0000-0002-1825-0097")),
+    utils::person("Swiss National Science Foundation", role = "fnd",
+                  comment = c(ROR = "00yjd3n13")),
+    utils::person("ETH Zurich", role = "cph",
+                  comment = c(ROR = "https://ror.org/05a28rw58"))
+  ))
+  d <- suppressMessages(update_metadata())
+  expect_identical(d$funder[[1]][["@id"]], "https://ror.org/00yjd3n13")
+  expect_identical(d$funder[[1]]$name, "Swiss National Science Foundation")
+  expect_identical(d$publisher[["@id"]], "https://ror.org/05a28rw58")
+  expect_identical(names(d$publisher)[1:3], c("@type", "@id", "name"))
+  # a person keeps ORCID as sameAs and gets no @id
+  expect_null(d$creator[[1]][["@id"]])
+})
+
 test_that("update_metadata() lists one distribution per existing file with the right MIME type", {
   pkg <- create_metadata_fixture()
   d <- suppressMessages(update_metadata())
