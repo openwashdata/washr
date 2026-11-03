@@ -1,5 +1,9 @@
 # washr (development version)
 
+## New
+
+- `data_availability_statement()` drafts the text for the authors of an article that uses a data package, once the DOI is on file: the reference list entry in APA style (authors with roles `aut` and `cre` in Authors@R order, "&" before the last author, the first 19, an ellipsis and the last with more than 20, version, `[Data set]`, the DOI link and the repository), the data availability statement (licence, package, version, DOI, the website for the CSV and Excel downloads) and the in-text citation ("Feni et al., 2026"). The opening words of the statement come from the `subject` argument ("The data" by default). An optional last sentence on data left out of the package comes from the new field `Config/washr/withheld` in DESCRIPTION. `clipboard = TRUE` copies the reference and the statement with clipr, a new Suggests. The function stops when `CITATION.cff` carries no DOI yet and warns on a development version (#155).
+
 ## Changed
 
 - `update_zenodo_json()`, and with it `update_citation()`, links the package website on the Zenodo record. The description gets a second paragraph, "Explore the data on a curated website", with the link, written as HTML, which Zenodo renders. The website is also a related identifier with the relation `isDocumentedBy`. The website is the `url` in `_pkgdown.yml`, or else the `github.io` entry of the DESCRIPTION `URL` field; without one, the description stays as it was. The repository link (`isSupplementTo`) is now written always, not only when the package names source articles. Existing packages get a new `.zenodo.json`: `check_publication_readiness()` reports the `zenodo_json` item as differing until `update_citation()` runs again, which belongs to the next release of each package (#154).

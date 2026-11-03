@@ -33,6 +33,7 @@ Imports:
     lifecycle
 Suggests:
     brand.yml,
+    clipr,
     devtools (>= 2.4.5),
     knitr,
     remotes,
