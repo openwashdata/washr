@@ -27,6 +27,7 @@
 #' | `Config/washr/home` | the website of the organisation: the navbar link, the line under the README badges, the publisher url in the metadata | `https://openwashdata.org` |
 #' | `Config/washr/catalog` | the data catalogue named in the metadata (`includedInDataCatalog`) | the Data page of openwashdata.org |
 #' | `Config/washr/community` | the text of the community block in the sidebar of the site | the openwashdata block with the catalogue and the newsletter |
+#' | `Config/washr/parent-organizations` | the organisations above the publisher in the metadata (`parentOrganization`), nearest first, as `Name <url>` entries separated by semicolons; a `https://ror.org/` URL becomes the ROR identifier | Global Health Engineering, the Institute of Design, Materials and Fabrication and ETH Zurich, the last two with their ROR |
 #' | `Config/washr/version` | the washr version that last ran this function; also named in the footer of the site | |
 #'
 #' A field that you edited is never overwritten, so a group other than
@@ -36,7 +37,7 @@
 #' old organisation follow; with `github_user`, the repository in `URL` is
 #' replaced as well. Set a field to `none` to switch its feature off. For a package under another GitHub
 #' organisation the funding, analytics, Zenodo community, brand, publisher,
-#' website, catalogue and community fields are written as `none`, because
+#' website, catalogue, community and parent organisations fields are written as `none`, because
 #' the openwashdata values would be wrong there.
 #' One more field is only ever written by hand: `Config/washr/pages-domain`,
 #' for a site that is not served from `<organisation>.github.io`.

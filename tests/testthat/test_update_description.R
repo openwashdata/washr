@@ -111,3 +111,32 @@ test_that("update_description() names the accepted forms for an invalid date and
   suppressMessages(update_description(date = "2026-01-15"))
   expect_identical(desc::desc_get_field("Date"), "2026-01-15")
 })
+
+test_that("update_description() writes the parent organisations of the organisation (#153)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  suppressMessages(update_description())
+  expect_identical(washr_config("parent-organizations"),
+                   washr_defaults()[["parent-organizations"]])
+  chain <- parent_organizations()
+  expect_identical(vapply(chain, function(x) x$name, character(1)),
+                   c("Global Health Engineering",
+                     "Institute of Design, Materials and Fabrication", "ETH Zurich"))
+  expect_identical(vapply(chain, function(x) x$url, character(1)),
+                   c("https://ghe.ethz.ch/", "https://ror.org/03zqk4w67",
+                     "https://ror.org/05a28rw58"))
+  # an edited chain is kept
+  desc::desc_set(`Config/washr/parent-organizations` = "Water Lab; Example University <https://ror.org/00example>")
+  suppressMessages(update_description())
+  chain <- parent_organizations()
+  expect_identical(chain[[1]], list(name = "Water Lab", url = NULL))
+  expect_identical(chain[[2]]$url, "https://ror.org/00example")
+})
+
+test_that("update_description() writes no parent organisations for another organisation (#153)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  suppressMessages(update_description(github_user = "https://github.com/otherlab"))
+  expect_identical(washr_config("parent-organizations"), "none")
+  expect_identical(parent_organizations(), list())
+})

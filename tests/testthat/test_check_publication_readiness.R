@@ -90,7 +90,7 @@ test_that("the report goes through cli, can be silenced and prints again (#82)",
   expect_no_message(quiet_check())
   expect_invisible(quiet_check())
   expect_output(print(result), "Publication readiness")
-  expect_output(print(result), "30 pass, 0 fail, 2 not applicable", fixed = TRUE)
+  expect_output(print(result), "31 pass, 0 fail, 2 not applicable", fixed = TRUE)
   expect_identical(length(format(result)) > nrow(result), TRUE)
 })
 
@@ -110,6 +110,10 @@ test_that("each item fails on its own gap and names the step that closes it (#82
     keywords = function(p) desc::desc_del("X-schema.org-keywords", file = p),
     coverage = function(p) desc::desc_del("X-schema.org-spatialCoverage", file = p),
     title_length = function(p) desc::desc_set(Title = strrep("Long Title ", 7), file = p),
+    publisher_ror = function(p) {
+      desc::desc_set(`Config/washr/parent-organizations` = "Global Health Engineering <https://ghe.ethz.ch/>",
+                     file = p)
+    },
     data_present = function(p) unlink(file.path(p, "data"), recursive = TRUE),
     dictionary_present = function(p) unlink(file.path(p, "data-raw", "dictionary.csv")),
     dictionary_coverage = function(p) {
@@ -382,4 +386,26 @@ test_that("dictionary_schema allows named columns after the five and rejects unn
   result <- quiet_check(unnamed)
   expect_identical(status_of(result, "dictionary_schema"), "fail")
   expect_match(result$detail[result$id == "dictionary_schema"], "unnamed", fixed = TRUE)
+})
+
+test_that("publisher_ror passes on a ROR in the parent organisations and is not applicable without them (#153)", {
+  readiness_fixture()
+  result <- quiet_check()
+  expect_identical(status_of(result, "publisher_ror"), "pass")
+  expect_match(result$detail[result$id == "publisher_ror"],
+               "https://ror.org/03zqk4w67, https://ror.org/05a28rw58", fixed = TRUE)
+
+  desc::desc_set(`Config/washr/parent-organizations` = "Water Lab <https://example.org/lab>; Example University")
+  result <- quiet_check()
+  expect_identical(status_of(result, "publisher_ror"), "fail")
+  expect_match(result$detail[result$id == "publisher_ror"], "no ROR among the 2", fixed = TRUE)
+
+  desc::desc_set(`Config/washr/parent-organizations` = "none")
+  result <- quiet_check()
+  expect_identical(status_of(result, "publisher_ror"), "na")
+  expect_true(nzchar(result$detail[result$id == "publisher_ror"]))
+
+  # a review profile without the entry leaves the item not applicable
+  result <- quiet_check(profile = list(license = "any"))
+  expect_identical(status_of(result, "publisher_ror"), "na")
 })

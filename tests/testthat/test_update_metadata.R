@@ -91,6 +91,100 @@ test_that("update_metadata() names the website and the data catalogue of the org
   expect_null(d$includedInDataCatalog)
 })
 
+test_that("update_metadata() nests the parent organisations under the fallback publisher (#153)", {
+  create_metadata_fixture()
+  d <- suppressMessages(update_metadata())
+  # openwashdata as publisher is the first link of the chain
+  expect_identical(d$publisher$name, "openwashdata")
+  ghe <- d$publisher$parentOrganization
+  expect_identical(ghe, list(
+    "@type" = "Organization",
+    name = "Global Health Engineering",
+    url = "https://ghe.ethz.ch/",
+    parentOrganization = list(
+      "@type" = "Organization",
+      "@id" = "https://ror.org/03zqk4w67",
+      name = "Institute of Design, Materials and Fabrication",
+      parentOrganization = list(
+        "@type" = "Organization",
+        "@id" = "https://ror.org/05a28rw58",
+        name = "ETH Zurich"
+      )
+    )
+  ))
+  json <- jsonlite::fromJSON(jsonlite::toJSON(d, auto_unbox = TRUE), simplifyVector = FALSE)
+  expect_identical(json$publisher$parentOrganization$parentOrganization$parentOrganization[["@id"]],
+                   "https://ror.org/05a28rw58")
+})
+
+test_that("update_metadata() skips the chain up to a cph publisher that names its group (#153)", {
+  create_metadata_fixture()
+  desc::desc_set_authors(c(desc::desc_get_authors(),
+                           utils::person("Global Health Engineering, ETH Zurich", role = "cph")))
+  d <- suppressMessages(update_metadata())
+  expect_identical(d$publisher$name, "Global Health Engineering, ETH Zurich")
+  expect_null(d$publisher[["@id"]])
+  # the institute, then ETH Zurich; Global Health Engineering is the publisher
+  expect_identical(d$publisher$parentOrganization, list(
+    "@type" = "Organization",
+    "@id" = "https://ror.org/03zqk4w67",
+    name = "Institute of Design, Materials and Fabrication",
+    parentOrganization = list(
+      "@type" = "Organization",
+      "@id" = "https://ror.org/05a28rw58",
+      name = "ETH Zurich"
+    )
+  ))
+})
+
+test_that("update_metadata() writes no parent organisations for a publisher at the end of the chain (#153)", {
+  create_metadata_fixture()
+  desc::desc_set_authors(c(desc::desc_get_authors(),
+                           utils::person(" eth zurich ", role = "cph")))
+  d <- suppressMessages(update_metadata())
+  expect_identical(trimws(d$publisher$name), "eth zurich")
+  expect_null(d$publisher$parentOrganization)
+})
+
+test_that("chain_above() matches names case-insensitively and by the name before a comma (#153)", {
+  chain <- list(list(name = "Group", url = NULL), list(name = "Institute", url = NULL),
+                list(name = "University", url = NULL))
+  names_of <- function(x) vapply(x, function(e) e$name, character(1))
+  expect_identical(names_of(chain_above(chain, "openwashdata")), c("Group", "Institute", "University"))
+  expect_identical(names_of(chain_above(chain, "group, University")), c("Institute", "University"))
+  expect_identical(names_of(chain_above(chain, " INSTITUTE ")), "University")
+  expect_identical(chain_above(chain, "University"), list())
+  # a name that only starts with an entry name, without a comma, is not a match
+  expect_identical(names_of(chain_above(chain, "Group of Friends")), c("Group", "Institute", "University"))
+})
+
+test_that("update_metadata() writes no parent organisations when the profile says none (#153)", {
+  create_metadata_fixture()
+  desc::desc_set(`Config/washr/parent-organizations` = "none")
+  d <- suppressMessages(update_metadata())
+  expect_identical(d$publisher$name, "openwashdata")
+  expect_null(d$publisher$parentOrganization)
+})
+
+test_that("update_metadata() reads the ROR comment key of an organisation as @id (#153)", {
+  create_metadata_fixture()
+  desc::desc_set_authors(c(
+    utils::person("Jane", "Doe", email = "jane@example.org", role = c("aut", "cre"),
+                  comment = c(ORCID = "0000-0002-1825-0097")),
+    utils::person("Swiss National Science Foundation", role = "fnd",
+                  comment = c(ROR = "00yjd3n13")),
+    utils::person("ETH Zurich", role = "cph",
+                  comment = c(ROR = "https://ror.org/05a28rw58"))
+  ))
+  d <- suppressMessages(update_metadata())
+  expect_identical(d$funder[[1]][["@id"]], "https://ror.org/00yjd3n13")
+  expect_identical(d$funder[[1]]$name, "Swiss National Science Foundation")
+  expect_identical(d$publisher[["@id"]], "https://ror.org/05a28rw58")
+  expect_identical(names(d$publisher)[1:3], c("@type", "@id", "name"))
+  # a person keeps ORCID as sameAs and gets no @id
+  expect_null(d$creator[[1]][["@id"]])
+})
+
 test_that("update_metadata() lists one distribution per existing file with the right MIME type", {
   pkg <- create_metadata_fixture()
   d <- suppressMessages(update_metadata())
