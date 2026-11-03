@@ -4,7 +4,7 @@
 \alias{setup_readme}
 \title{Generate the README RMarkdown file}
 \usage{
-setup_readme(force = FALSE, has_example = FALSE)
+setup_readme(force = FALSE, has_example = FALSE, datasets = NULL)
 }
 \arguments{
 \item{force}{Logical. If FALSE (the default), the function stops when a
@@ -14,6 +14,11 @@ README.Rmd already exists. Set to TRUE to overwrite the existing file.}
 with a commented ggplot2 scaffold for a first plot of the data? Defaults
 to FALSE. Pairs with the \code{has_example} argument of \code{\link[=setup_website]{setup_website()}},
 which adds the matching article to the site.}
+
+\item{datasets}{Character vector. The data objects in \verb{data/} that get a
+section, in this order, such as \code{c("trips", "trucks")}. The default
+\code{NULL} takes every data object in \verb{data/}, alphabetically. A name that is
+not a data object in \verb{data/} stops the run.}
 }
 \value{
 The path of README.Rmd, invisibly.
@@ -34,9 +39,14 @@ the version in DESCRIPTION, and at the main branch for a development
 version. pkgdown builds the \code{llms.txt} of the site from the README, so
 this is also what AI tools read about the package.
 
-The template documents the first data object in \verb{data/} (alphabetically);
-add a section per further object by hand. It stops when \verb{data/} holds no
-data object, because every data section needs one.
+The Data section has one section per data object: a preview of the first
+rows and the table of its variables from \code{data-raw/dictionary.csv}. Without
+\code{datasets}, every data object in \verb{data/} gets a section, in alphabetical
+order. With several objects the introduction of the Data section names
+their number. The Example section, with \code{has_example = TRUE}, starts from
+the first object. An object without rows in the dictionary gets a warning,
+because its table of variables would be empty. The function stops when
+\verb{data/} holds no data object, because every data section needs one.
 }
 \examples{
 \dontrun{
@@ -46,6 +56,8 @@ setup_dictionary()
 setup_readme()
 # With an Example section to fill with a first plot
 setup_readme(has_example = TRUE)
+# Sections for two of the data objects only
+setup_readme(datasets = c("trips", "trucks"))
 }
 }
 \seealso{

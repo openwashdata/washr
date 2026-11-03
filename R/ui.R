@@ -1,10 +1,11 @@
 # User-facing messages (#84). Every message goes through cli, with the same
 # three kinds in every function: a success line for what was written, an info
 # line for what was kept or skipped, and an arrow line for the next step that
-# is left to the user. Errors use cli::cli_abort() and warnings
+# is left to the user. A fourth kind, a warning line, flags a gap that does
+# not stop the function (#103). Errors use cli::cli_abort() and warnings
 # cli::cli_warn() directly.
 #
-# options(washr.quiet = TRUE) silences the three kinds and the usethis and
+# options(washr.quiet = TRUE) silences the four kinds and the usethis and
 # cffr helpers washr calls. Warnings and errors are never silenced.
 
 is_quiet <- function() {
@@ -18,6 +19,11 @@ ui_done <- function(text, .envir = parent.frame()) {
 
 ui_info <- function(text, .envir = parent.frame()) {
   if (!is_quiet()) cli::cli_alert_info(text, .envir = .envir)
+  invisible(NULL)
+}
+
+ui_warn <- function(text, .envir = parent.frame()) {
+  if (!is_quiet()) cli::cli_alert_warning(text, .envir = .envir)
   invisible(NULL)
 }
 

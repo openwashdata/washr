@@ -115,7 +115,7 @@ build_dataset_jsonld <- function(path = ".") {
   }
 
   # Distributions from the files that exist in inst/extdata
-  dist <- distributions_jsonld(path, datasets, org, repo)
+  dist <- distributions_jsonld(path, datasets, org, repo, ref = release_ref(version))
   if (length(dist$distribution) == 0) {
     note_blank("distribution", "export the datasets to inst/extdata (csv, xlsx, csv.gz)")
   }
@@ -258,8 +258,9 @@ variables_jsonld <- function(dictionary, datasets) {
 
 # One DataDownload per file in inst/extdata whose name starts with a dataset
 # name. Files that belong to no dataset are returned as `ignored`. The
-# contentUrl points at the raw file on the main branch of the repository.
-distributions_jsonld <- function(path, datasets, org, repo) {
+# contentUrl points at the raw file on `ref` of the repository: the release
+# tag for a release, the main branch for a development version (#137).
+distributions_jsonld <- function(path, datasets, org, repo, ref = "main") {
   dir <- file.path(path, "inst", "extdata")
   files <- sort(list.files(dir))
   belongs <- vapply(files, function(f) {
@@ -268,12 +269,22 @@ distributions_jsonld <- function(path, datasets, org, repo) {
   distribution <- lapply(files[belongs], function(f) {
     out <- list("@type" = "DataDownload", name = f, encodingFormat = mime_type(f))
     if (!is.null(org) && !is.null(repo)) {
-      out$contentUrl <- sprintf("https://raw.githubusercontent.com/%s/%s/main/inst/extdata/%s",
-                                org, repo, f)
+      out$contentUrl <- sprintf("https://raw.githubusercontent.com/%s/%s/%s/inst/extdata/%s",
+                                org, repo, ref, f)
     }
     out
   })
   list(distribution = unname(distribution), ignored = files[!belongs])
+}
+
+# The git ref that holds the files of a version: the tag `v<version>` for a
+# release (three components, such as 1.0.0), the main branch for a
+# development version (a fourth component, such as 1.0.0.9000). A citation of
+# a release then gets the same files later (#137). The README template
+# (inst/templates/README.Rmd) applies the same rule to its download links; it
+# runs in the data package, so it carries its own copy of the pattern.
+release_ref <- function(version) {
+  if (grepl("^[0-9]+\\.[0-9]+\\.[0-9]+$", version)) paste0("v", version) else "main"
 }
 
 mime_type <- function(file) {

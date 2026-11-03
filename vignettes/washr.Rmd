@@ -123,7 +123,7 @@ The function ends with the fields it could not fill and where to fill them. Noth
 
 ## 7. Write the README
 
-`setup_readme()` writes `README.Rmd` from the openwashdata template, with the installation instructions, the download table, and a section for the first data object. With `has_example = TRUE` it adds an Example section with a scaffold for a first plot.
+`setup_readme()` writes `README.Rmd` from the openwashdata template, with the installation instructions, the download table, and a section per data object. With `has_example = TRUE` it adds an Example section with a scaffold for a first plot.
 
 ```{r}
 setup_readme(has_example = TRUE)
@@ -195,7 +195,13 @@ Every function above reads what is there, merges its changes, and writes only wh
 
 ## More than one dataset
 
-The processing script and the README template are written for one dataset that carries the name of the package. A package can hold more. In `data-raw/data_processing.R`, repeat the export block for each data frame, so each one is saved with `usethis::use_data()` and exported to `inst/extdata/`. `setup_dictionary()`, `setup_roxygen()`, `setup_website()` and `update_metadata()` cover every data object in `data/` on their own. `setup_readme()` documents the first one, so add a section per further data object to `README.Rmd` by hand.
+A package can hold more than one dataset. Name them when you write the processing script:
+
+```{r}
+setup_rawdata(datasets = c("trips", "trucks"))
+```
+
+The export block of `data-raw/data_processing.R` then has one `usethis::use_data()` line per dataset and exports each of them to `inst/extdata/` as CSV and XLSX in one loop over the names. Without `datasets`, the script exports one dataset named after the package, through the same loop. `setup_dictionary()`, `setup_roxygen()`, `setup_website()` and `update_metadata()` cover every data object in `data/` on their own, and so does `setup_readme()`: it writes one data section per object, in alphabetical order, or for the objects named in its own `datasets` argument, in that order. It warns about an object that has no rows in the dictionary yet, because the table of its variables would stay empty.
 
 ## Publishing outside openwashdata
 
