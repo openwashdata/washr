@@ -15,13 +15,18 @@
 #                      (includedInDataCatalog in the JSON-LD)
 #   community          the text of the community block in the site sidebar
 #                      (Markdown)
+#   parent-organizations
+#                      the organisations above the publisher, nearest first,
+#                      as "Name <url>" entries separated by semicolons
+#                      (parentOrganization chain in the JSON-LD; a ror.org
+#                      URL becomes the @id) (#153)
 #   pages-domain       the domain of the site, when it is not <org>.github.io
 #   version            the washr version that last ran update_description()
 #   brand              the brand ref that use_brand() last installed
 #   withheld           the sentence on data left out of the package, which
 #                      closes the statement of data_availability_statement()
 # A field set to "none" switches its feature off. update_description() writes
-# the first nine with their defaults and the version; use_brand() writes the
+# the first ten with their defaults and the version; use_brand() writes the
 # brand. pages-domain and withheld are only ever written by hand.
 #
 # The GitHub organisation, the repository URL, the license and the publisher
@@ -53,7 +58,8 @@ washr_defaults <- function(org = "openwashdata") {
       "publisher" = "Published by [openwashdata](https://openwashdata.org), a project of [Global Health Engineering](https://ghe.ethz.ch/) at ETH Zurich.",
       "home" = "https://openwashdata.org",
       "catalog" = "https://openwashdata.org/pages/gallery/data/",
-      "community" = "This package is part of [openwashdata](https://openwashdata.org). Browse the [data catalogue](https://openwashdata.org/pages/gallery/data/) or get the [newsletter](https://openwashdata.org/pages/newsletter/)."
+      "community" = "This package is part of [openwashdata](https://openwashdata.org). Browse the [data catalogue](https://openwashdata.org/pages/gallery/data/) or get the [newsletter](https://openwashdata.org/pages/newsletter/).",
+      "parent-organizations" = "Global Health Engineering <https://ghe.ethz.ch/>; Institute of Design, Materials and Fabrication <https://ror.org/03zqk4w67>; ETH Zurich <https://ror.org/05a28rw58>"
     )
   } else {
     c(
@@ -65,7 +71,8 @@ washr_defaults <- function(org = "openwashdata") {
       "publisher" = "none",
       "home" = "none",
       "catalog" = "none",
-      "community" = "none"
+      "community" = "none",
+      "parent-organizations" = "none"
     )
   }
 }
@@ -74,6 +81,27 @@ washr_defaults <- function(org = "openwashdata") {
 # else the default for the organisation of the package.
 pkg_config <- function(key, file = ".") {
   washr_config(key, default = washr_defaults(pkg_org(file))[[key]], file = file)
+}
+
+# The parent-organizations field of the package as a list of entries, each
+# with `name` and `url` (NULL when the entry names no URL), nearest
+# organisation first. An empty list when the field is "none" (#153).
+parent_organizations <- function(file = ".") {
+  value <- pkg_config("parent-organizations", file)
+  if (!is_set(value)) return(list())
+  entries <- trimws(strsplit(value, ";", fixed = TRUE)[[1]])
+  entries <- entries[nzchar(entries)]
+  lapply(entries, function(entry) {
+    url <- regmatches(entry, regexpr("<[^>]*>", entry))
+    name <- trimws(sub("<[^>]*>", "", entry))
+    url <- if (length(url)) trimws(gsub("^<|>$", "", url)) else ""
+    list(name = name, url = if (nzchar(url)) url else NULL)
+  })
+}
+
+# TRUE for a ROR identifier written as a URL (https://ror.org/...).
+is_ror_url <- function(url) {
+  !is.null(url) && grepl("^https?://(www\\.)?ror\\.org/[0-9a-z]+/?$", url)
 }
 
 # TRUE when a config value switches its feature on.
