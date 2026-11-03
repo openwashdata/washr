@@ -42,7 +42,8 @@
 #' for a site that is not served from `<organisation>.github.io`.
 #'
 #' @param file Character. The file path to the DESCRIPTION file of the R package. Defaults to the current working directory.
-#' @param date The `Date` field for a release: `"today"` or a `Date`. The
+#' @param date The `Date` field for a release: `"today"`, a `Date`, or a
+#'   `"YYYY-MM-DD"` string; any other value stops the run. The
 #'   default `NULL` keeps an existing date and writes today only when the
 #'   field is absent, so a run that changes nothing about the data does not
 #'   move the date of the package (#150).
@@ -77,6 +78,8 @@ update_description <- function(file = ".", github_user = NULL, date = NULL){
   if(!file.exists(desc_path)){
     cli::cli_abort("No DESCRIPTION file found at {.path {desc_path}}.")
   }
+  # checked before anything is written, so a bad value leaves the file as it was
+  date_value <- if (is.null(date)) NULL else release_date(date)
   local_session()
   pkgname <- desc::desc_get("Package", file = file)[[1]]
   # author
@@ -108,8 +111,7 @@ update_description <- function(file = ".", github_user = NULL, date = NULL){
   # change must not move their date
   current_date <- desc::desc_get_field("Date", default = "", file = file)
   if (!is.null(date)) {
-    value <- if (identical(date, "today")) Sys.Date() else as.Date(date)
-    desc::desc_set("Date", format(value), file = file)
+    desc::desc_set("Date", format(date_value), file = file)
   } else if (identical(current_date, "")) {
     desc::desc_set("Date", Sys.Date(), file = file)
   } else {
@@ -175,4 +177,25 @@ update_description <- function(file = ".", github_user = NULL, date = NULL){
     ui_todo("Set {.field {fields}} in {.path {desc_path}} for your organisation, or leave {cli::qty(length(fields))}{?it/them} at {.val none}.")
   }
   invisible(desc_path)
+}
+
+# The `date` of update_description() as a Date: "today", a Date, or a
+# "YYYY-MM-DD" string that names a real day. Anything else stops with the
+# accepted forms named (#150).
+release_date <- function(date) {
+  if (identical(date, "today")) return(Sys.Date())
+  value <- if (inherits(date, "Date") && length(date) == 1) {
+    date
+  } else if (is.character(date) && length(date) == 1 && grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", date)) {
+    as.Date(date, format = "%Y-%m-%d")
+  } else {
+    as.Date(NA)
+  }
+  if (is.na(value)) {
+    cli::cli_abort(c(
+      "{.arg date} must be {.val today}, a {.cls Date}, or a {.val YYYY-MM-DD} string, not {.val {format(date)}}.",
+      "i" = "Use {.code date = \"today\"} for a release today, or leave {.arg date} out to keep the current date."
+    ))
+  }
+  value
 }

@@ -13,6 +13,7 @@
 ## Fixed
 
 - `setup_roxygen()` no longer stops on its first call in a package without an `R/` folder; it creates the folder itself (#144).
+- `update_description(date = )` with a value that is not `"today"`, a `Date` or a `"YYYY-MM-DD"` string now stops with those accepted forms named, before the file is touched, in place of the error from `as.Date()` (#150).
 
 # washr 1.2.2
 
