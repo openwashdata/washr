@@ -35,7 +35,6 @@ build_dataset_jsonld <- function(path = ".") {
   spatial <- field("X-schema.org-spatialCoverage")
   temporal <- field("X-schema.org-temporalCoverage")
   based_on <- source_dois(desc_file)
-  urls <- desc::desc_get_urls(file = desc_file)
   authors <- tryCatch(desc::desc_get_authors(file = desc_file),
                       error = function(e) NULL)
 
@@ -54,9 +53,8 @@ build_dataset_jsonld <- function(path = ".") {
 
   # Repository and site from the DESCRIPTION URL field
   repo_url <- github_repo_url(path)
-  pages_domain <- washr_config("pages-domain", default = "github.io", file = desc_file)
-  site_url <- urls[grepl(pages_domain, urls, fixed = TRUE)]
-  site_url <- if (length(site_url)) site_url[[1]] else repo_url
+  site_url <- pkg_site_url(path, pkgdown = FALSE)
+  if (is.null(site_url)) site_url <- repo_url
   if (is.null(repo_url)) {
     note_blank("url", "add the GitHub repository to URL in DESCRIPTION (update_description() does this)")
   }

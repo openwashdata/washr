@@ -103,6 +103,31 @@ pkg_pages_url <- function(file = ".") {
          desc::desc_get_field("Package", file = file), "/")
 }
 
+# The URL of the published site, as the package records it, or NULL. The url
+# of _pkgdown.yml comes first, then the entry of the DESCRIPTION URL field on
+# the pages domain (Config/washr/pages-domain, github.io by default). A
+# GitHub repository URL is not a site and is passed over. The URL is returned
+# as written. With `pkgdown = FALSE` only DESCRIPTION is read, which is what
+# the JSON-LD uses. `path` is the package root.
+pkg_site_url <- function(path = ".", pkgdown = TRUE) {
+  is_site <- function(u) {
+    length(u) == 1 && is.character(u) && !is.na(u) && nzchar(trimws(u)) &&
+      is.na(normalise_github_url(u))
+  }
+  config <- file.path(path, "_pkgdown.yml")
+  if (pkgdown && file.exists(config)) {
+    url <- tryCatch(yaml::read_yaml(config)$url, error = function(e) NULL)
+    if (is_site(url)) return(trimws(url))
+  }
+  desc_file <- file.path(path, "DESCRIPTION")
+  urls <- tryCatch(desc::desc_get_urls(file = desc_file),
+                   error = function(e) character())
+  domain <- washr_config("pages-domain", default = "github.io", file = desc_file)
+  urls <- urls[grepl(domain, urls, fixed = TRUE)]
+  urls <- urls[vapply(urls, is_site, logical(1))]
+  if (length(urls)) urls[[1]] else NULL
+}
+
 pkg_pages_domain <- function(file = ".") {
   washr_config("pages-domain",
                default = paste0(tolower(pkg_org(file)), ".github.io"),

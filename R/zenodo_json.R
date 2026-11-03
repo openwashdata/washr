@@ -18,13 +18,14 @@
 #'
 #' | Key | Source |
 #' |---|---|
-#' | title, description, version | `Title`, `Description`, `Version` in DESCRIPTION |
+#' | title, version | `Title`, `Version` in DESCRIPTION |
+#' | description | `Description` in DESCRIPTION, followed by a link to the package website when the package has one |
 #' | upload_type | always `dataset` |
 #' | creators | `Authors@R` roles `aut` and `cre`; ORCID and affiliation from the `comment` field |
 #' | license | `License` in DESCRIPTION, as the identifier Zenodo uses (e.g., `cc-by-4.0`) |
 #' | keywords | `X-schema.org-keywords` in DESCRIPTION, comma separated |
 #' | communities | `Config/washr/zenodo-community` in DESCRIPTION: `openwashdata` for an openwashdata package, none for another organisation until it sets one |
-#' | related_identifiers | the source article DOIs in `X-schema.org-isBasedOn` in DESCRIPTION |
+#' | related_identifiers | the repository from `URL` in DESCRIPTION, the package website, and the source article DOIs in `X-schema.org-isBasedOn` in DESCRIPTION |
 #'
 #' @details
 #' Zenodo uses `.zenodo.json` in place of `CITATION.cff` for the record, and
@@ -35,10 +36,20 @@
 #' another community, to several (comma separated), or to `none` for no
 #' community.
 #'
-#' A source article is written as a related identifier with the relation
-#' `isDerivedFrom`. Zenodo then drops its own link to the release tag on
-#' GitHub, so the repository from the `URL` field is added as a second
-#' related identifier.
+#' The package website is the `url` in `_pkgdown.yml`, or else the entry
+#' of the DESCRIPTION `URL` field on the pages domain (`github.io` unless
+#' `Config/washr/pages-domain` names another). When there is one, the
+#' description becomes HTML, which Zenodo renders: the `Description` field
+#' as the first paragraph and "Explore the data on a curated website" with
+#' the link as the second. The website is also written as a related
+#' identifier with the relation `isDocumentedBy`. Without a website the
+#' description is the `Description` field as it is.
+#'
+#' The repository from the `URL` field is always written as a related
+#' identifier with the relation `isSupplementTo`, because any related
+#' identifier replaces the link to the release tag on GitHub that Zenodo
+#' adds by default. A source article is written with the relation
+#' `isDerivedFrom`.
 #'
 #' When washr does not know the license, the file carries none. Zenodo then
 #' takes the license GitHub detects for the repository, and CC0 1.0 for a
@@ -127,21 +138,42 @@ build_zenodo_json <- function(path = ".", sources = NULL) {
   communities <- split_field(pkg_config("zenodo-community", desc_file))
   if (identical(tolower(communities), "none")) communities <- character()
 
-  # A related_identifiers key replaces the link to the release tag that
-  # Zenodo adds by default, so the repository goes in with the sources.
-  if (is.null(sources)) sources <- source_dois(desc_file)
-  related <- lapply(sources, function(doi) {
-    list(identifier = doi, relation = "isDerivedFrom")
-  })
-  repo_url <- github_repo_url(path)
-  if (length(related) > 0 && !is.null(repo_url)) {
-    related <- c(list(list(identifier = repo_url, relation = "isSupplementTo")),
-                 related)
+  # The package website goes into the description and the related
+  # identifiers (#154). Zenodo renders the description as HTML once it
+  # carries the link, so the Description field is escaped.
+  site_url <- pkg_site_url(path)
+  description <- field("Description")
+  if (!is.null(site_url)) {
+    site_link <- paste0(
+      "<p>Explore the data on a curated website: <a href=\"",
+      html_escape(site_url, quote = TRUE), "\">", html_escape(site_url), "</a></p>"
+    )
+    description <- paste0(
+      if (!identical(description, "")) paste0("<p>", html_escape(description), "</p>"),
+      site_link
+    )
   }
+
+  # A related_identifiers key replaces the link to the release tag that
+  # Zenodo adds by default, so the repository is always written.
+  if (is.null(sources)) sources <- source_dois(desc_file)
+  repo_url <- github_repo_url(path)
+  related <- c(
+    if (!is.null(repo_url)) {
+      list(list(identifier = repo_url, relation = "isSupplementTo"))
+    },
+    if (!is.null(site_url)) {
+      list(list(identifier = site_url, relation = "isDocumentedBy",
+                resource_type = "other"))
+    },
+    lapply(sources, function(doi) {
+      list(identifier = doi, relation = "isDerivedFrom")
+    })
+  )
 
   out <- list(
     title = or_null(field("Title")),
-    description = or_null(field("Description")),
+    description = or_null(description),
     upload_type = "dataset",
     creators = if (length(creators)) creators,
     license = license_id,
@@ -179,6 +211,16 @@ zenodo_creators <- function(authors) {
     creators[[length(creators) + 1]] <- creator
   }
   creators
+}
+
+# Text for an HTML description: &, < and > escaped, and the double quote
+# with `quote = TRUE` for an attribute value.
+html_escape <- function(x, quote = FALSE) {
+  x <- gsub("&", "&amp;", x, fixed = TRUE)
+  x <- gsub("<", "&lt;", x, fixed = TRUE)
+  x <- gsub(">", "&gt;", x, fixed = TRUE)
+  if (quote) x <- gsub("\"", "&quot;", x, fixed = TRUE)
+  x
 }
 
 # The JSON text of the file: pretty printed, keys in the order of the list.
