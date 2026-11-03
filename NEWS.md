@@ -12,6 +12,7 @@
 
 ## Fixed
 
+- `update_metadata()` pins the download URLs of the JSON-LD (`contentUrl`) to the release tag `v<version>`, so a citation of a release gets the same files later. A development version still points at the main branch. It is the rule the README template uses for its download links (#137).
 - `setup_roxygen()` no longer stops on its first call in a package without an `R/` folder; it creates the folder itself (#144).
 - `update_description(date = )` with a value that is not `"today"`, a `Date` or a `"YYYY-MM-DD"` string now stops with those accepted forms named, before the file is touched, in place of the error from `as.Date()` (#150).
 

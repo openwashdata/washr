@@ -106,6 +106,34 @@ test_that("update_metadata() lists one distribution per existing file with the r
   expect_false(any(grepl("openwashdata/trips/", urls, fixed = TRUE)))
 })
 
+test_that("update_metadata() points a development version at the main branch (#137)", {
+  pkg <- create_metadata_fixture()
+  expect_identical(desc::desc_get_version()[[1]], package_version("0.0.0.9000"))
+  d <- suppressMessages(update_metadata())
+  urls <- vapply(d$distribution, function(x) x$contentUrl, character(1))
+  expect_identical(urls[[1]], paste0("https://raw.githubusercontent.com/openwashdata/",
+                                     pkg, "/main/inst/extdata/trips.csv"))
+  expect_true(all(grepl("/main/inst/extdata/", urls, fixed = TRUE)))
+})
+
+test_that("update_metadata() pins the download URLs of a release to its tag (#137)", {
+  pkg <- create_metadata_fixture()
+  desc::desc_set_version("1.2.0")
+  d <- suppressMessages(update_metadata())
+  urls <- vapply(d$distribution, function(x) x$contentUrl, character(1))
+  expect_identical(urls, paste0("https://raw.githubusercontent.com/openwashdata/", pkg,
+                                "/v1.2.0/inst/extdata/",
+                                c("trips.csv", "trips.xlsx", "trucks.csv.gz")))
+  expect_false(any(grepl("/main/", urls, fixed = TRUE)))
+})
+
+test_that("release_ref() follows the rule of the README template (#137)", {
+  expect_identical(release_ref("1.0.0"), "v1.0.0")
+  expect_identical(release_ref("10.2.33"), "v10.2.33")
+  expect_identical(release_ref("1.0.0.9000"), "main")
+  expect_identical(release_ref("0.0.0.9000"), "main")
+})
+
 test_that("update_metadata() prefixes variables by dataset when there are several", {
   create_metadata_fixture()
   d <- suppressMessages(update_metadata())
