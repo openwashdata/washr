@@ -96,3 +96,18 @@ test_that("update_description() keeps an existing Date and sets it on purpose (#
   suppressMessages(update_description(date = "today"))
   expect_identical(desc::desc_get_field("Date"), as.character(Sys.Date()))
 })
+
+test_that("update_description() names the accepted forms for an invalid date and writes nothing (#150)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  desc::desc_set("Date", "2025-03-01")
+  before <- readLines("DESCRIPTION")
+  for (bad in list("yesterday", "2026-02-30", "15.01.2026", 20260115, c("today", "today"))) {
+    err <- rlang::catch_cnd(update_description(date = bad), "error")
+    expect_s3_class(err, "rlang_error")
+    expect_match(conditionMessage(err), "must be \"today\", a <Date>, or a \"YYYY-MM-DD\" string", fixed = TRUE)
+  }
+  expect_identical(readLines("DESCRIPTION"), before)
+  suppressMessages(update_description(date = "2026-01-15"))
+  expect_identical(desc::desc_get_field("Date"), "2026-01-15")
+})

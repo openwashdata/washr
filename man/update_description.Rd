@@ -14,7 +14,8 @@ that hosts the package, e.g., \code{"https://github.com/yourorg"}. Defaults
 to the organisation of the repository already listed in \code{URL}, and to
 \code{"https://github.com/openwashdata"} when \code{URL} lists none.}
 
-\item{date}{The \code{Date} field for a release: \code{"today"} or a \code{Date}. The
+\item{date}{The \code{Date} field for a release: \code{"today"}, a \code{Date}, or a
+\code{"YYYY-MM-DD"} string; any other value stops the run. The
 default \code{NULL} keeps an existing date and writes today only when the
 field is absent, so a run that changes nothing about the data does not
 move the date of the package (#150).}
