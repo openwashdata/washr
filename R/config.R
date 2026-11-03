@@ -87,7 +87,11 @@ pkg_config <- function(key, file = ".") {
 # with `name` and `url` (NULL when the entry names no URL), nearest
 # organisation first. An empty list when the field is "none" (#153).
 parent_organizations <- function(file = ".") {
-  value <- pkg_config("parent-organizations", file)
+  parse_parent_organizations(pkg_config("parent-organizations", file))
+}
+
+# The same for a value of the field as text.
+parse_parent_organizations <- function(value) {
   if (!is_set(value)) return(list())
   entries <- trimws(strsplit(value, ";", fixed = TRUE)[[1]])
   entries <- entries[nzchar(entries)]
