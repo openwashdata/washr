@@ -205,3 +205,34 @@ test_that("check_publication_readiness() holds a package to its own Config/washr
   desc::desc_set(`Config/washr/funding` = "Funded by the Example Foundation.")
   expect_identical(package_profile()$funding_text, "Funded by the Example Foundation.")
 })
+
+test_that("pkg_site_url() reads _pkgdown.yml first, then the URL field (#154)", {
+  pkg <- config_fixture()
+  repo <- paste0("https://github.com/exampleorg/", pkg)
+  desc::desc_set_urls(repo)
+  expect_null(pkg_site_url())
+  site <- paste0("https://exampleorg.github.io/", pkg, "/")
+  desc::desc_set_urls(c(repo, site))
+  expect_identical(pkg_site_url(), site)
+  # the url of _pkgdown.yml wins, as written
+  writeLines(c("url: https://data.example.org/trips", "template:", "  bootstrap: 5"),
+             "_pkgdown.yml")
+  expect_identical(pkg_site_url(), "https://data.example.org/trips")
+  expect_identical(pkg_site_url(pkgdown = FALSE), site)
+  # a repository URL in _pkgdown.yml is not a site
+  writeLines(paste0("url: ", repo), "_pkgdown.yml")
+  expect_identical(pkg_site_url(), site)
+  # a file YAML cannot read falls back to DESCRIPTION
+  writeLines("url: [unclosed", "_pkgdown.yml")
+  expect_identical(pkg_site_url(), site)
+  # another pages domain
+  desc::desc_set(`Config/washr/pages-domain` = "pages.example.org")
+  unlink("_pkgdown.yml")
+  expect_null(pkg_site_url())
+  desc::desc_set_urls(c(repo, paste0("https://pages.example.org/", pkg)))
+  expect_identical(pkg_site_url(), paste0("https://pages.example.org/", pkg))
+  # read from another working directory
+  root <- getwd()
+  withr::local_dir(tempdir())
+  expect_identical(pkg_site_url(root), paste0("https://pages.example.org/", pkg))
+})
