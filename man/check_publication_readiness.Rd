@@ -31,6 +31,10 @@ for word. Without it, the publisher item is not applicable.
 to carry.
 \item \code{brand}: \code{"none"} when the organisation has no brand, or the name of
 its brand. Without it, the brand item is not applicable.
+\item \code{parent_organizations}: the organisations above the publisher, in the
+form of \code{Config/washr/parent-organizations} (\verb{Name <url>} entries
+separated by semicolons). Without it, or with \code{"none"}, the ROR item
+is not applicable.
 }}
 }
 \value{
@@ -63,6 +67,7 @@ a review tool can pick the rows it needs.\tabular{lll}{
    metadata \tab \code{keywords} \tab DESCRIPTION carries \code{X-schema.org-keywords}; the detail says whether \code{CITATION.cff} agrees \cr
    metadata \tab \code{coverage} \tab DESCRIPTION carries \code{X-schema.org-spatialCoverage} and \code{X-schema.org-temporalCoverage} \cr
    metadata \tab \code{title_length} \tab \code{Title} has at most 65 characters \cr
+   metadata \tab \code{publisher_ror} \tab the parent organisations of the publisher (\code{Config/washr/parent-organizations}) carry at least one ROR; not applicable when the profile names none \cr
    data \tab \code{data_present} \tab \verb{data/} holds at least one \code{.rda} file that loads \cr
    data \tab \code{dictionary_present} \tab \code{data-raw/dictionary.csv} is present \cr
    data \tab \code{dictionary_coverage} \tab the dictionary covers every variable of every data object \cr

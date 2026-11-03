@@ -23,6 +23,7 @@
 #' | metadata | `keywords` | DESCRIPTION carries `X-schema.org-keywords`; the detail says whether `CITATION.cff` agrees |
 #' | metadata | `coverage` | DESCRIPTION carries `X-schema.org-spatialCoverage` and `X-schema.org-temporalCoverage` |
 #' | metadata | `title_length` | `Title` has at most 65 characters |
+#' | metadata | `publisher_ror` | the parent organisations of the publisher (`Config/washr/parent-organizations`) carry at least one ROR; not applicable when the profile names none |
 #' | data | `data_present` | `data/` holds at least one `.rda` file that loads |
 #' | data | `dictionary_present` | `data-raw/dictionary.csv` is present |
 #' | data | `dictionary_coverage` | the dictionary covers every variable of every data object |
@@ -75,6 +76,10 @@
 #'     to carry.
 #'   * `brand`: `"none"` when the organisation has no brand, or the name of
 #'     its brand. Without it, the brand item is not applicable.
+#'   * `parent_organizations`: the organisations above the publisher, in the
+#'     form of `Config/washr/parent-organizations` (`Name <url>` entries
+#'     separated by semicolons). Without it, or with `"none"`, the ROR item
+#'     is not applicable.
 #'
 #' @returns A data frame of class `washr_readiness`, invisibly, with one row
 #'   per item and the columns `id`, `area`, `check` (the item in words),
@@ -207,6 +212,8 @@ package_profile <- function(path = ".") {
   if (is_set(funding)) profile$funding_text <- funding
   publisher <- pkg_config("publisher", path)
   if (is_set(publisher)) profile$publisher_text <- publisher
+  parents <- pkg_config("parent-organizations", path)
+  if (is_set(parents)) profile$parent_organizations <- parents
   profile
 }
 
@@ -325,6 +332,10 @@ readiness_checks <- function() {
     check("title_length", "metadata", "Title is at most 65 characters",
           "Shorten Title in DESCRIPTION.",
           readiness_title_length),
+    check("publisher_ror", "metadata",
+          "The parent organisations of the publisher carry a ROR",
+          "Add an organisation above the publisher with its ROR to Config/washr/parent-organizations in DESCRIPTION, as Name <https://ror.org/...>, then run update_metadata().",
+          readiness_publisher_ror),
     check("data_present", "data", "Primary data present in data/ as .rda and loads",
           "Export the tidy data with usethis::use_data() in data-raw/data_processing.R, the script that setup_rawdata() writes.",
           readiness_data_present),
@@ -542,6 +553,23 @@ readiness_title_length <- function(ctx) {
   title <- ctx$field("Title")
   readiness_result(!is.na(title) && nchar(title) <= 65,
                    sprintf("%d characters", if (is.na(title)) 0L else nchar(title)))
+}
+
+# The parent organisations of the profile (#153): at least one entry is a
+# ror.org URL, which update_metadata() writes as the @id of the entry.
+readiness_publisher_ror <- function(ctx) {
+  value <- ctx$profile$parent_organizations
+  chain <- if (length(value)) parse_parent_organizations(value[[1]]) else list()
+  if (length(chain) == 0) {
+    return(readiness_na("the organisation profile names no parent organisations"))
+  }
+  rors <- unlist(lapply(chain, function(x) if (is_ror_url(x$url)) x$url))
+  readiness_result(length(rors) > 0,
+                   if (length(rors)) {
+                     paste("ROR:", paste(rors, collapse = ", "))
+                   } else {
+                     paste0("no ROR among the ", length(chain), " parent organisation(s)")
+                   })
 }
 
 # data -----------------------------------------------------------------------

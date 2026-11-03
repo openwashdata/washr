@@ -10,7 +10,9 @@
 #                          (X-schema.org-* fields),
 #                          creators, maintainer, funder and publisher (Authors@R),
 #                          the website and the data catalogue of the
-#                          organisation (Config/washr/home and catalog)
+#                          organisation (Config/washr/home and catalog),
+#                          the organisations above the publisher
+#                          (Config/washr/parent-organizations)
 #   data-raw/dictionary.csv  datasets and variables
 #   CITATION.cff           DOI
 #   inst/extdata           one distribution per file that belongs to a dataset
@@ -85,6 +87,16 @@ build_dataset_jsonld <- function(path = ".") {
   if (is.null(publisher) && !is.null(org)) {
     publisher <- list("@type" = "Organization", name = org,
                       url = if (is_set(home)) home else paste0("https://github.com/", org))
+  }
+  # The organisations above the publisher, nearest first, nest under it as a
+  # parentOrganization chain on both paths (#153). The links up to and
+  # including the publisher itself are skipped, so a cph publisher never
+  # names its own group as its parent.
+  chain <- parent_organizations(path)
+  if (!is.null(publisher)) chain <- chain_above(chain, publisher$name)
+  parents <- parent_organizations_jsonld(chain)
+  if (!is.null(publisher) && !is.null(parents)) {
+    publisher$parentOrganization <- parents
   }
   # The data catalogue of the organisation, where dataset search engines
   # file the package (#145)
@@ -166,7 +178,8 @@ read_dictionary <- function(path = ".") {
 }
 
 # Creators (aut, cre), maintainer (cre), funder (fnd) and publisher (cph) from
-# a person vector. A person without a family name is treated as an organisation.
+# a person vector. A person without a family name is treated as an organisation,
+# with its ROR comment key as @id.
 authors_jsonld <- function(authors) {
   creator <- list()
   funder <- list()
@@ -193,7 +206,15 @@ person_jsonld <- function(p) {
   family <- p$family
   comment <- p$comment
   if (is.null(family)) {
-    return(list("@type" = "Organization", name = paste(given, collapse = " ")))
+    out <- list("@type" = "Organization")
+    # An organisation (cph, fnd) names its ROR in the comment field, as
+    # utils::person() documents it: the identifier or its URL (#153)
+    if (!is.null(comment) && "ROR" %in% names(comment)) {
+      ror <- trimws(comment[["ROR"]])
+      out[["@id"]] <- if (grepl("^https?://", ror)) ror else paste0("https://ror.org/", ror)
+    }
+    out$name <- paste(given, collapse = " ")
+    return(out)
   }
   out <- list("@type" = "Person",
               givenName = paste(given, collapse = " "),
@@ -206,6 +227,40 @@ person_jsonld <- function(p) {
     out$affiliation <- list("@type" = "Organization", name = comment[["affiliation"]])
   }
   out
+}
+
+# The part of a parent organisations chain above the publisher: the entry
+# that names the publisher and every entry before it are dropped. An entry
+# names the publisher when the names agree, ignoring case and surrounding
+# whitespace, or when the publisher name starts with the entry name and a
+# comma ("Global Health Engineering, ETH Zurich" and "Global Health
+# Engineering"). A publisher outside the chain keeps the whole chain (#153).
+chain_above <- function(chain, publisher) {
+  if (length(chain) == 0 || is.null(publisher)) return(chain)
+  pub <- tolower(trimws(publisher))
+  hits <- which(vapply(chain, function(entry) {
+    name <- tolower(trimws(entry$name))
+    identical(pub, name) || startsWith(pub, paste0(name, ","))
+  }, logical(1)))
+  if (length(hits) == 0) return(chain)
+  last <- max(hits)
+  if (last >= length(chain)) list() else chain[(last + 1):length(chain)]
+}
+
+# The parent organisations as a nested schema.org chain: each entry is an
+# Organization whose parentOrganization is the next entry. A ror.org URL is
+# the @id of the entry, any other URL its url. NULL for an empty chain (#153).
+parent_organizations_jsonld <- function(chain) {
+  node <- NULL
+  for (entry in rev(chain)) {
+    org <- list("@type" = "Organization")
+    if (is_ror_url(entry$url)) org[["@id"]] <- entry$url
+    org$name <- entry$name
+    if (!is.null(entry$url) && !is_ror_url(entry$url)) org$url <- entry$url
+    if (!is.null(node)) org$parentOrganization <- node
+    node <- org
+  }
+  node
 }
 
 # One PropertyValue per dictionary row. With several datasets the variable

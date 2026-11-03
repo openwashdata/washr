@@ -48,6 +48,7 @@ function reads them from there:\tabular{lll}{
    \code{Config/washr/home} \tab the website of the organisation: the navbar link, the line under the README badges, the publisher url in the metadata \tab \verb{https://openwashdata.org} \cr
    \code{Config/washr/catalog} \tab the data catalogue named in the metadata (\code{includedInDataCatalog}) \tab the Data page of openwashdata.org \cr
    \code{Config/washr/community} \tab the text of the community block in the sidebar of the site \tab the openwashdata block with the catalogue and the newsletter \cr
+   \code{Config/washr/parent-organizations} \tab the organisations above the publisher in the metadata (\code{parentOrganization}), nearest first, as \verb{Name <url>} entries separated by semicolons; a \verb{https://ror.org/} URL becomes the ROR identifier \tab Global Health Engineering, the Institute of Design, Materials and Fabrication and ETH Zurich, the last two with their ROR \cr
    \code{Config/washr/version} \tab the washr version that last ran this function; also named in the footer of the site \tab  \cr
 }
 
@@ -59,7 +60,7 @@ package moves to another organisation, whether \code{github_user} names it or
 old organisation follow; with \code{github_user}, the repository in \code{URL} is
 replaced as well. Set a field to \code{none} to switch its feature off. For a package under another GitHub
 organisation the funding, analytics, Zenodo community, brand, publisher,
-website, catalogue and community fields are written as \code{none}, because
+website, catalogue, community and parent organisations fields are written as \code{none}, because
 the openwashdata values would be wrong there.
 One more field is only ever written by hand: \code{Config/washr/pages-domain},
 for a site that is not served from \verb{<organisation>.github.io}.

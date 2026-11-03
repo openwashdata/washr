@@ -29,5 +29,6 @@
       Config/washr/home: https://openwashdata.org
       Config/washr/catalog: https://openwashdata.org/pages/gallery/data/
       Config/washr/community: This package is part of [openwashdata](https://openwashdata.org). Browse the [data catalogue](https://openwashdata.org/pages/gallery/data/) or get the [newsletter](https://openwashdata.org/pages/newsletter/).
+      Config/washr/parent-organizations: Global Health Engineering <https://ghe.ethz.ch/>; Institute of Design, Materials and Fabrication <https://ror.org/03zqk4w67>; ETH Zurich <https://ror.org/05a28rw58>
       Config/washr/version: WASHR_VERSION
 
