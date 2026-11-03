@@ -336,3 +336,34 @@ test_that("update_dictionary() keeps extra columns after the five and stops on a
   expect_match(conditionMessage(err), "match no data object")
   expect_identical(readLines(dict_path), before)
 })
+
+test_that("update_dictionary() drops an unnamed index column with gaps and stops on an unnamed text column (#151)", {
+  dict_fixture()
+  # row numbers with gaps from deleted rows, as in the fecalcanuga package
+  write_dict_bytes(c(
+    ",directory,file_name,variable_name,variable_type,description",
+    "1,data/,trips.rda,id,integer,Trip id",
+    "2,data/,trips.rda,volume,character,Volume emptied",
+    "5,data/,trips.rda,site,character,Site name"
+  ))
+  msgs <- messages_of(update_dictionary())
+  d <- read_cells()
+  expect_identical(names(d), c("directory", "file_name", "variable_name", "variable_type", "description"))
+  expect_identical(d$variable_name, c("id", "volume", "site"))
+  expect_identical(d$description, c("Trip id", "Volume emptied", "Site name"))
+  expect_match(msgs, "Dropped the unnamed index column")
+
+  # an unnamed column that holds text is not guessed away
+  write_dict_bytes(c(
+    "directory,file_name,variable_name,variable_type,description,",
+    "data/,trips.rda,id,integer,Trip id,check",
+    "data/,trips.rda,volume,character,Volume emptied,",
+    "data/,trips.rda,site,character,Site name,unit m3"
+  ))
+  before <- readLines(dict_path)
+  err <- rlang::catch_cnd(update_dictionary(), "error")
+  expect_s3_class(err, "rlang_error")
+  expect_match(conditionMessage(err), "column without a name that holds text")
+  expect_match(conditionMessage(err), "Name the column, or remove it")
+  expect_identical(readLines(dict_path), before)
+})
