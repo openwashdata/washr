@@ -81,3 +81,62 @@ test_that("DESCRIPTION full-file snapshot (#65)", {
   lines <- sub("^(Config/washr/version:).*$", "\\1 WASHR_VERSION", lines)
   expect_snapshot(cat(lines, sep = "\n"))
 })
+
+test_that("update_description() keeps an existing Date and sets it on purpose (#150)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  suppressMessages(update_description())
+  expect_identical(desc::desc_get_field("Date"), as.character(Sys.Date()))
+  desc::desc_set("Date", "2025-03-01")
+  withr::with_options(list(usethis.quiet = FALSE),
+                      expect_message(update_description(), "Date stays"))
+  expect_identical(desc::desc_get_field("Date"), "2025-03-01")
+  suppressMessages(update_description(date = as.Date("2026-01-15")))
+  expect_identical(desc::desc_get_field("Date"), "2026-01-15")
+  suppressMessages(update_description(date = "today"))
+  expect_identical(desc::desc_get_field("Date"), as.character(Sys.Date()))
+})
+
+test_that("update_description() names the accepted forms for an invalid date and writes nothing (#150)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  desc::desc_set("Date", "2025-03-01")
+  before <- readLines("DESCRIPTION")
+  for (bad in list("yesterday", "2026-02-30", "15.01.2026", 20260115, c("today", "today"))) {
+    err <- rlang::catch_cnd(update_description(date = bad), "error")
+    expect_s3_class(err, "rlang_error")
+    expect_match(conditionMessage(err), "must be \"today\", a <Date>, or a \"YYYY-MM-DD\" string", fixed = TRUE)
+  }
+  expect_identical(readLines("DESCRIPTION"), before)
+  suppressMessages(update_description(date = "2026-01-15"))
+  expect_identical(desc::desc_get_field("Date"), "2026-01-15")
+})
+
+test_that("update_description() writes the parent organisations of the organisation (#153)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  suppressMessages(update_description())
+  expect_identical(washr_config("parent-organizations"),
+                   washr_defaults()[["parent-organizations"]])
+  chain <- parent_organizations()
+  expect_identical(vapply(chain, function(x) x$name, character(1)),
+                   c("Global Health Engineering",
+                     "Institute of Design, Materials and Fabrication", "ETH Zurich"))
+  expect_identical(vapply(chain, function(x) x$url, character(1)),
+                   c("https://ghe.ethz.ch/", "https://ror.org/03zqk4w67",
+                     "https://ror.org/05a28rw58"))
+  # an edited chain is kept
+  desc::desc_set(`Config/washr/parent-organizations` = "Water Lab; Example University <https://ror.org/00example>")
+  suppressMessages(update_description())
+  chain <- parent_organizations()
+  expect_identical(chain[[1]], list(name = "Water Lab", url = NULL))
+  expect_identical(chain[[2]]$url, "https://ror.org/00example")
+})
+
+test_that("update_description() writes no parent organisations for another organisation (#153)", {
+  create_local_package()
+  rlang::local_interactive(FALSE)
+  suppressMessages(update_description(github_user = "https://github.com/otherlab"))
+  expect_identical(washr_config("parent-organizations"), "none")
+  expect_identical(parent_organizations(), list())
+})

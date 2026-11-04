@@ -31,6 +31,10 @@ for word. Without it, the publisher item is not applicable.
 to carry.
 \item \code{brand}: \code{"none"} when the organisation has no brand, or the name of
 its brand. Without it, the brand item is not applicable.
+\item \code{parent_organizations}: the organisations above the publisher, in the
+form of \code{Config/washr/parent-organizations} (\verb{Name <url>} entries
+separated by semicolons). Without it, or with \code{"none"}, the ROR item
+is not applicable.
 }}
 }
 \value{
@@ -58,16 +62,18 @@ a review tool can pick the rows it needs.\tabular{lll}{
    metadata \tab \code{description_complete} \tab \code{Title}, \code{Description} and \code{Authors@R} no longer hold the placeholder text of a new package \cr
    metadata \tab \code{citation_cff} \tab \code{CITATION.cff} is present \cr
    metadata \tab \code{citation_version} \tab the \code{version} in \code{CITATION.cff} equals \code{Version} in DESCRIPTION \cr
+   metadata \tab \code{version_follows_data} \tab on a release version with a tag \verb{v<version>}, \verb{data/}, \verb{inst/extdata/} and \code{data-raw/dictionary.csv} are unchanged since that tag \cr
    metadata \tab \code{citation_authors} \tab \code{CITATION.cff} and \code{inst/CITATION} carry real authors, not "Firstname Lastname" \cr
    metadata \tab \code{zenodo_json} \tab \code{.zenodo.json} is present and equals what DESCRIPTION gives now \cr
    metadata \tab \code{keywords} \tab DESCRIPTION carries \code{X-schema.org-keywords}; the detail says whether \code{CITATION.cff} agrees \cr
    metadata \tab \code{coverage} \tab DESCRIPTION carries \code{X-schema.org-spatialCoverage} and \code{X-schema.org-temporalCoverage} \cr
    metadata \tab \code{title_length} \tab \code{Title} has at most 65 characters \cr
+   metadata \tab \code{publisher_ror} \tab the parent organisations of the publisher (\code{Config/washr/parent-organizations}) carry at least one ROR; not applicable when the profile names none \cr
    data \tab \code{data_present} \tab \verb{data/} holds at least one \code{.rda} file that loads \cr
    data \tab \code{dictionary_present} \tab \code{data-raw/dictionary.csv} is present \cr
    data \tab \code{dictionary_coverage} \tab the dictionary covers every variable of every data object \cr
    data \tab \code{dictionary_descriptions} \tab no description is empty or a placeholder \cr
-   data \tab \code{dictionary_schema} \tab the five washr columns in order, UTF-8 without a byte order mark, one class name per \code{variable_type} \cr
+   data \tab \code{dictionary_schema} \tab the five washr columns first, in order, further named columns allowed, UTF-8 without a byte order mark, one class name per \code{variable_type} \cr
    docs \tab \code{roxygen_docs} \tab every data object has a help page in \verb{man/} \cr
    docs \tab \code{readme} \tab \code{README.Rmd} and the rendered \code{README.md} are present \cr
    docs \tab \code{rd_source} \tab at least one help page in \verb{man/} carries a source \cr
@@ -82,6 +88,7 @@ a review tool can pick the rows it needs.\tabular{lll}{
    docs \tab \code{pkgdown_washr_version} \tab the footer in \verb{_pkgdown.yml} names the washr version that \code{Config/washr/version} records \cr
    docs \tab \code{pkgdown_brand} \tab the brand entry in \verb{_pkgdown.yml} matches the organisation \cr
    docs \tab \code{pkgdown_llm_docs} \tab \verb{_pkgdown.yml} does not switch off the \code{llms.txt} of the site (\code{llm-docs: false}) \cr
+   docs \tab \code{site_jsonld} \tab \code{pkgdown/assets/metadata.jsonld} is present and equals the JSON-LD in the head of the pages (\verb{pkgdown/templates/in-header.html}), both written by \code{\link[=update_metadata]{update_metadata()}} \cr
    docs \tab \code{docs_untracked} \tab git tracks no file under \verb{docs/} while the pkgdown workflow deploys the site \cr
    tests \tab \code{check_workflow} \tab \code{.github/workflows/R-CMD-check.yaml} is present \cr
    tests \tab \code{check_workflow_dev} \tab every \verb{branches:} list in that workflow includes \code{dev} \cr
@@ -93,6 +100,17 @@ An item that cannot be decided is reported as not applicable, with the
 reason: for example the version comparison when \code{CITATION.cff} is missing,
 or the \verb{docs/} item when the package has no pkgdown workflow. Not
 applicable items never count against the package.
+
+The version of a data package changes only when the data, or their
+meaning, change. \code{version_follows_data} compares the working tree,
+uncommitted and untracked files included, with the tag \verb{v<version>} of
+the release the version names. An \code{.rda} file counts as changed only when
+the objects it holds differ, and an \code{.xlsx} file in \verb{inst/extdata/} only
+when the \code{.csv} file of the same name changed as well, since both formats
+change their bytes when they are written again. The item is not
+applicable on a development version, without git, without the tag (also
+in a shallow clone that lacks it) or when the package is not the root of
+its git repository.
 }
 \examples{
 \dontrun{
@@ -110,6 +128,7 @@ Before: every step of the workflow, up to \code{\link[=update_citation]{update_c
 release the package.
 
 Other publishing functions:
+\code{\link[=data_availability_statement]{data_availability_statement()}},
 \code{\link[=setup_readme]{setup_readme()}},
 \code{\link[=setup_website]{setup_website()}},
 \code{\link[=update_website]{update_website()}},

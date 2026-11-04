@@ -4,6 +4,7 @@
 #' @description
 #' This function updates the DESCRIPTION file of an R package to comply with openwashdata standards.
 #' It ensures that fields such as `License`, `Language`, `Date`, `URL`, and others are correctly specified.
+#' `Date` is written once and then kept; a release sets it through `date`.
 #' Existing `URL` and `Config/Needs/website` entries are preserved and merged
 #' with the openwashdata defaults. A CC BY 4.0 license is only set when the
 #' package does not have a license yet; an existing license is left untouched.
@@ -26,6 +27,7 @@
 #' | `Config/washr/home` | the website of the organisation: the navbar link, the line under the README badges, the publisher url in the metadata | `https://openwashdata.org` |
 #' | `Config/washr/catalog` | the data catalogue named in the metadata (`includedInDataCatalog`) | the Data page of openwashdata.org |
 #' | `Config/washr/community` | the text of the community block in the sidebar of the site | the openwashdata block with the catalogue and the newsletter |
+#' | `Config/washr/parent-organizations` | the organisations above the publisher in the metadata (`parentOrganization`), nearest first, as `Name <url>` entries separated by semicolons; a `https://ror.org/` URL becomes the ROR identifier | Global Health Engineering, the Institute of Design, Materials and Fabrication and ETH Zurich, the last two with their ROR |
 #' | `Config/washr/version` | the washr version that last ran this function; also named in the footer of the site | |
 #'
 #' A field that you edited is never overwritten, so a group other than
@@ -35,12 +37,17 @@
 #' old organisation follow; with `github_user`, the repository in `URL` is
 #' replaced as well. Set a field to `none` to switch its feature off. For a package under another GitHub
 #' organisation the funding, analytics, Zenodo community, brand, publisher,
-#' website, catalogue and community fields are written as `none`, because
+#' website, catalogue, community and parent organisations fields are written as `none`, because
 #' the openwashdata values would be wrong there.
 #' One more field is only ever written by hand: `Config/washr/pages-domain`,
 #' for a site that is not served from `<organisation>.github.io`.
 #'
 #' @param file Character. The file path to the DESCRIPTION file of the R package. Defaults to the current working directory.
+#' @param date The `Date` field for a release: `"today"`, a `Date`, or a
+#'   `"YYYY-MM-DD"` string; any other value stops the run. The
+#'   default `NULL` keeps an existing date and writes today only when the
+#'   field is absent, so a run that changes nothing about the data does not
+#'   move the date of the package (#150).
 #' @param github_user Character. The URL of the GitHub user or organization
 #'   that hosts the package, e.g., `"https://github.com/yourorg"`. Defaults
 #'   to the organisation of the repository already listed in `URL`, and to
@@ -67,11 +74,13 @@
 #' }
 #'
 #'
-update_description <- function(file = ".", github_user = NULL){
+update_description <- function(file = ".", github_user = NULL, date = NULL){
   desc_path <- if (dir.exists(file)) file.path(file, "DESCRIPTION") else file
   if(!file.exists(desc_path)){
     cli::cli_abort("No DESCRIPTION file found at {.path {desc_path}}.")
   }
+  # checked before anything is written, so a bad value leaves the file as it was
+  date_value <- if (is.null(date)) NULL else release_date(date)
   local_session()
   pkgname <- desc::desc_get("Package", file = file)[[1]]
   # author
@@ -98,10 +107,17 @@ update_description <- function(file = ".", github_user = NULL){
                  paste(union("rmarkdown", website), collapse = ", "),
                  file = file)
 
-  # Date
-  desc::desc_set("Date",
-                 Sys.Date(),
-                 file = file)
+  # Date: written when absent, kept when set, and set on purpose through
+  # `date` for a release (#150); a pass over packages whose data did not
+  # change must not move their date
+  current_date <- desc::desc_get_field("Date", default = "", file = file)
+  if (!is.null(date)) {
+    desc::desc_set("Date", format(date_value), file = file)
+  } else if (identical(current_date, "")) {
+    desc::desc_set("Date", Sys.Date(), file = file)
+  } else {
+    ui_info("Date stays {.val {current_date}}; set it with {.code update_description(date = \"today\")} for a release.")
+  }
   # The repository: the one under the GitHub user given, else the one URL
   # already lists, else the conventional one under openwashdata. URL entries
   # are merged, never replaced.
@@ -162,4 +178,25 @@ update_description <- function(file = ".", github_user = NULL){
     ui_todo("Set {.field {fields}} in {.path {desc_path}} for your organisation, or leave {cli::qty(length(fields))}{?it/them} at {.val none}.")
   }
   invisible(desc_path)
+}
+
+# The `date` of update_description() as a Date: "today", a Date, or a
+# "YYYY-MM-DD" string that names a real day. Anything else stops with the
+# accepted forms named (#150).
+release_date <- function(date) {
+  if (identical(date, "today")) return(Sys.Date())
+  value <- if (inherits(date, "Date") && length(date) == 1) {
+    date
+  } else if (is.character(date) && length(date) == 1 && grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", date)) {
+    as.Date(date, format = "%Y-%m-%d")
+  } else {
+    as.Date(NA)
+  }
+  if (is.na(value)) {
+    cli::cli_abort(c(
+      "{.arg date} must be {.val today}, a {.cls Date}, or a {.val YYYY-MM-DD} string, not {.val {format(date)}}.",
+      "i" = "Use {.code date = \"today\"} for a release today, or leave {.arg date} out to keep the current date."
+    ))
+  }
+  value
 }

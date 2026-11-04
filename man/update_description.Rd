@@ -4,7 +4,7 @@
 \alias{update_description}
 \title{Update the DESCRIPTION file to conform with openwashdata standards}
 \usage{
-update_description(file = ".", github_user = NULL)
+update_description(file = ".", github_user = NULL, date = NULL)
 }
 \arguments{
 \item{file}{Character. The file path to the DESCRIPTION file of the R package. Defaults to the current working directory.}
@@ -13,6 +13,12 @@ update_description(file = ".", github_user = NULL)
 that hosts the package, e.g., \code{"https://github.com/yourorg"}. Defaults
 to the organisation of the repository already listed in \code{URL}, and to
 \code{"https://github.com/openwashdata"} when \code{URL} lists none.}
+
+\item{date}{The \code{Date} field for a release: \code{"today"}, a \code{Date}, or a
+\code{"YYYY-MM-DD"} string; any other value stops the run. The
+default \code{NULL} keeps an existing date and writes today only when the
+field is absent, so a run that changes nothing about the data does not
+move the date of the package (#150).}
 }
 \value{
 The path of the DESCRIPTION file, invisibly. The fields are
@@ -21,6 +27,7 @@ updated in the file.
 \description{
 This function updates the DESCRIPTION file of an R package to comply with openwashdata standards.
 It ensures that fields such as \code{License}, \code{Language}, \code{Date}, \code{URL}, and others are correctly specified.
+\code{Date} is written once and then kept; a release sets it through \code{date}.
 Existing \code{URL} and \code{Config/Needs/website} entries are preserved and merged
 with the openwashdata defaults. A CC BY 4.0 license is only set when the
 package does not have a license yet; an existing license is left untouched.
@@ -41,6 +48,7 @@ function reads them from there:\tabular{lll}{
    \code{Config/washr/home} \tab the website of the organisation: the navbar link, the line under the README badges, the publisher url in the metadata \tab \verb{https://openwashdata.org} \cr
    \code{Config/washr/catalog} \tab the data catalogue named in the metadata (\code{includedInDataCatalog}) \tab the Data page of openwashdata.org \cr
    \code{Config/washr/community} \tab the text of the community block in the sidebar of the site \tab the openwashdata block with the catalogue and the newsletter \cr
+   \code{Config/washr/parent-organizations} \tab the organisations above the publisher in the metadata (\code{parentOrganization}), nearest first, as \verb{Name <url>} entries separated by semicolons; a \verb{https://ror.org/} URL becomes the ROR identifier \tab Global Health Engineering, the Institute of Design, Materials and Fabrication and ETH Zurich, the last two with their ROR \cr
    \code{Config/washr/version} \tab the washr version that last ran this function; also named in the footer of the site \tab  \cr
 }
 
@@ -52,7 +60,7 @@ package moves to another organisation, whether \code{github_user} names it or
 old organisation follow; with \code{github_user}, the repository in \code{URL} is
 replaced as well. Set a field to \code{none} to switch its feature off. For a package under another GitHub
 organisation the funding, analytics, Zenodo community, brand, publisher,
-website, catalogue and community fields are written as \code{none}, because
+website, catalogue, community and parent organisations fields are written as \code{none}, because
 the openwashdata values would be wrong there.
 One more field is only ever written by hand: \code{Config/washr/pages-domain},
 for a site that is not served from \verb{<organisation>.github.io}.

@@ -51,6 +51,7 @@ Before: \code{\link[=setup_readme]{setup_readme()}}. Next: \code{\link[=use_bran
 
 Other publishing functions:
 \code{\link[=check_publication_readiness]{check_publication_readiness()}},
+\code{\link[=data_availability_statement]{data_availability_statement()}},
 \code{\link[=setup_readme]{setup_readme()}},
 \code{\link[=update_website]{update_website()}},
 \code{\link[=use_brand]{use_brand()}}

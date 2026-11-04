@@ -38,6 +38,10 @@ readiness_fixture <- function(env = parent.frame()) {
   usethis::use_template("_pkgdown.yml", save_as = "_pkgdown.yml",
                         data = pkgdown_template_data(),
                         package = "washr")
+  # .zenodo.json links the site once _pkgdown.yml names it (#154)
+  suppressMessages(update_zenodo_json())
+  # the JSON-LD in the page head and as a file on the site (#137)
+  suppressMessages(update_metadata())
   invisible(pkg)
 }
 
@@ -74,8 +78,9 @@ test_that("a package taken through the workflow passes every applicable item (#8
   expect_true(all(result$status %in% c("pass", "fail", "na")))
   expect_identical(result$id[result$status == "fail"], character())
   # the package is held to its own Config/washr values; no pkgdown workflow
-  # no DOI yet
-  expect_identical(result$id[result$status == "na"], c("readme_citation", "docs_untracked"))
+  # no DOI yet; a development version outside git
+  expect_identical(result$id[result$status == "na"],
+                   c("version_follows_data", "readme_citation", "docs_untracked"))
 
   expect_true(attr(result, "ready"))
   expect_identical(attr(result, "washr_version"), as.character(utils::packageVersion("washr")))
@@ -88,7 +93,7 @@ test_that("the report goes through cli, can be silenced and prints again (#82)",
   expect_no_message(quiet_check())
   expect_invisible(quiet_check())
   expect_output(print(result), "Publication readiness")
-  expect_output(print(result), "30 pass, 0 fail, 2 not applicable", fixed = TRUE)
+  expect_output(print(result), "32 pass, 0 fail, 3 not applicable", fixed = TRUE)
   expect_identical(length(format(result)) > nrow(result), TRUE)
 })
 
@@ -108,6 +113,10 @@ test_that("each item fails on its own gap and names the step that closes it (#82
     keywords = function(p) desc::desc_del("X-schema.org-keywords", file = p),
     coverage = function(p) desc::desc_del("X-schema.org-spatialCoverage", file = p),
     title_length = function(p) desc::desc_set(Title = strrep("Long Title ", 7), file = p),
+    publisher_ror = function(p) {
+      desc::desc_set(`Config/washr/parent-organizations` = "Global Health Engineering <https://ghe.ethz.ch/>",
+                     file = p)
+    },
     data_present = function(p) unlink(file.path(p, "data"), recursive = TRUE),
     dictionary_present = function(p) unlink(file.path(p, "data-raw", "dictionary.csv")),
     dictionary_coverage = function(p) {
@@ -141,6 +150,9 @@ test_that("each item fails on its own gap and names the step that closes it (#82
     pkgdown_url = function(p) {
       rewrite(file.path(p, "_pkgdown.yml"),
               function(x) sub("^url: .*$", "url: https://github.com/openwashdata/fixture", x))
+    },
+    site_jsonld = function(p) {
+      cat("\n", file = file.path(p, "pkgdown", "assets", "metadata.jsonld"), append = TRUE)
     },
     pkgdown_llm_docs = function(p) {
       cat("llm-docs: false\n", file = file.path(p, "_pkgdown.yml"), append = TRUE)
@@ -184,11 +196,12 @@ test_that("items that cannot be decided are not applicable, with the reason (#82
   unlink(file.path(target, ".github"), recursive = TRUE)
   unlink(file.path(target, "data"), recursive = TRUE)
   result <- quiet_check(target)
-  na_ids <- c("citation_version", "citation_authors", "dictionary_coverage",
+  na_ids <- c("citation_version", "version_follows_data", "citation_authors", "dictionary_coverage",
               "dictionary_descriptions", "dictionary_schema", "roxygen_docs",
               "readme_citation", "pkgdown_analytics", "pkgdown_url", "pkgdown_funding",
               "pkgdown_publisher", "pkgdown_washr_version",
-              "pkgdown_brand", "pkgdown_llm_docs", "docs_untracked", "check_workflow_dev")
+              "pkgdown_brand", "pkgdown_llm_docs", "site_jsonld", "docs_untracked",
+              "check_workflow_dev")
   expect_identical(unname(result$status[match(na_ids, result$id)]), rep("na", length(na_ids)))
   expect_true(all(nzchar(result$detail[match(na_ids, result$id)])))
   expect_identical(status_of(result, "citation_cff"), "fail")
@@ -292,6 +305,13 @@ test_that("the .zenodo.json item follows DESCRIPTION", {
   stale <- quiet_check()
   expect_identical(status_of(stale, "zenodo_json"), "fail")
   expect_match(stale$detail[stale$id == "zenodo_json"], "differs")
+  # a new site URL also makes the file differ (#154)
+  suppressMessages(update_zenodo_json())
+  expect_identical(status_of(quiet_check(), "zenodo_json"), "pass")
+  config <- readLines("_pkgdown.yml")
+  config[startsWith(config, "url:")] <- "url: https://data.example.org/trips/"
+  writeLines(config, "_pkgdown.yml")
+  expect_identical(status_of(quiet_check(), "zenodo_json"), "fail")
   unlink(".zenodo.json")
   expect_match(quiet_check()$detail[quiet_check()$id == "zenodo_json"], "file missing")
 })
@@ -356,4 +376,163 @@ test_that("the footer items follow the washr line and the version DESCRIPTION re
   unrecorded <- broken_copy()
   desc::desc_del("Config/washr/version", file = unrecorded)
   expect_identical(status_of(quiet_check(unrecorded), "pkgdown_washr_version"), "na")
+})
+
+test_that("dictionary_schema allows named columns after the five and rejects unnamed ones (#151)", {
+  readiness_fixture()
+  extra <- broken_copy()
+  path <- file.path(extra, "data-raw", "dictionary.csv")
+  lines <- readLines(path)
+  writeLines(c(paste0(lines[1], ",unit"), paste0(lines[-1], ",m")), path)
+  expect_identical(status_of(quiet_check(extra), "dictionary_schema"), "pass")
+
+  unnamed <- broken_copy()
+  path <- file.path(unnamed, "data-raw", "dictionary.csv")
+  lines <- readLines(path)
+  writeLines(c(paste0(lines[1], ","), paste0(lines[-1], ",x")), path)
+  result <- quiet_check(unnamed)
+  expect_identical(status_of(result, "dictionary_schema"), "fail")
+  expect_match(result$detail[result$id == "dictionary_schema"], "unnamed", fixed = TRUE)
+})
+
+test_that("site_jsonld fails without the metadata file and when it differs from the head (#137)", {
+  readiness_fixture()
+  expect_identical(status_of(quiet_check(), "site_jsonld"), "pass")
+  unlink(file.path("pkgdown", "assets", "metadata.jsonld"))
+  result <- quiet_check()
+  expect_identical(status_of(result, "site_jsonld"), "fail")
+  expect_match(result$detail[result$id == "site_jsonld"], "missing", fixed = TRUE)
+  suppressMessages(update_metadata())
+  expect_identical(status_of(quiet_check(), "site_jsonld"), "pass")
+  # a source changed after the last run: the head is rewritten by hand here
+  head <- file.path("pkgdown", "templates", "in-header.html")
+  writeLines(sub("Truck Trips", "Truck Journeys", readLines(head), fixed = TRUE), head)
+  result <- quiet_check()
+  expect_identical(status_of(result, "site_jsonld"), "fail")
+  expect_match(result$detail[result$id == "site_jsonld"], "differs", fixed = TRUE)
+})
+
+test_that("publisher_ror passes on a ROR in the parent organisations and is not applicable without them (#153)", {
+  readiness_fixture()
+  result <- quiet_check()
+  expect_identical(status_of(result, "publisher_ror"), "pass")
+  expect_match(result$detail[result$id == "publisher_ror"],
+               "https://ror.org/03zqk4w67, https://ror.org/05a28rw58", fixed = TRUE)
+
+  desc::desc_set(`Config/washr/parent-organizations` = "Water Lab <https://example.org/lab>; Example University")
+  result <- quiet_check()
+  expect_identical(status_of(result, "publisher_ror"), "fail")
+  expect_match(result$detail[result$id == "publisher_ror"], "no ROR among the 2", fixed = TRUE)
+
+  desc::desc_set(`Config/washr/parent-organizations` = "none")
+  result <- quiet_check()
+  expect_identical(status_of(result, "publisher_ror"), "na")
+  expect_true(nzchar(result$detail[result$id == "publisher_ror"]))
+
+  # a review profile without the entry leaves the item not applicable
+  result <- quiet_check(profile = list(license = "any"))
+  expect_identical(status_of(result, "publisher_ror"), "na")
+})
+
+# The fixture as a git repository on the release 1.0.0, tagged v1.0.0.
+release_repo <- function() {
+  git <- function(...) {
+    system2("git", c("-c", "user.name=washr", "-c", "user.email=washr@example.org", ...),
+            stdout = FALSE, stderr = FALSE)
+  }
+  desc::desc_set(Version = "1.0.0")
+  dir.create(file.path("inst", "extdata"), recursive = TRUE, showWarnings = FALSE)
+  utils::write.csv(data.frame(id = 1:3), file.path("inst", "extdata", "trips.csv"), row.names = FALSE)
+  writeLines("first", file.path("inst", "extdata", "trips.xlsx"))
+  git("init", "-q")
+  git("add", "-A")
+  git("commit", "-q", "-m", "release")
+  git("tag", "v1.0.0")
+  git
+}
+
+test_that("version_follows_data fails when data change on a release version (#163)", {
+  skip_if(Sys.which("git") == "", "git is not available")
+  readiness_fixture()
+  git <- release_repo()
+  detail <- function(result) result$detail[result$id == "version_follows_data"]
+
+  result <- quiet_check()
+  expect_identical(status_of(result, "version_follows_data"), "pass")
+  expect_match(detail(result), "unchanged since v1.0.0", fixed = TRUE)
+
+  # an .rda written again with the same objects is no change
+  load(file.path("data", "trips.rda"))
+  save(trips, file = file.path("data", "trips.rda"), compress = "xz")
+  expect_identical(status_of(quiet_check(), "version_follows_data"), "pass")
+
+  # an .xlsx written again follows its unchanged CSV twin
+  writeLines("second", file.path("inst", "extdata", "trips.xlsx"))
+  expect_identical(status_of(quiet_check(), "version_follows_data"), "pass")
+
+  # a corrected value in the dictionary, uncommitted, then committed
+  dict <- file.path("data-raw", "dictionary.csv")
+  writeLines(sub("Describes volume", "Volume in cubic metres", readLines(dict)), dict)
+  result <- quiet_check()
+  expect_identical(status_of(result, "version_follows_data"), "fail")
+  expect_match(detail(result), "1 file(s) changed since v1.0.0 while Version is still 1.0.0: data-raw/dictionary.csv",
+               fixed = TRUE)
+  expect_false(attr(result, "ready"))
+  git("commit", "-q", "-am", "correct the dictionary")
+  expect_identical(status_of(quiet_check(), "version_follows_data"), "fail")
+
+  # a new untracked export counts, and so does the xlsx once its CSV changed
+  utils::write.csv(data.frame(id = 4), file.path("inst", "extdata", "more.csv"), row.names = FALSE)
+  utils::write.csv(data.frame(id = 1:4), file.path("inst", "extdata", "trips.csv"), row.names = FALSE)
+  result <- quiet_check()
+  expect_match(detail(result), "inst/extdata/more.csv", fixed = TRUE)
+  expect_match(detail(result), "inst/extdata/trips.xlsx", fixed = TRUE)
+  expect_match(detail(result), "4 file(s)", fixed = TRUE)
+
+  # the development version announces the change
+  desc::desc_set(Version = "1.0.0.9000")
+  result <- quiet_check()
+  expect_identical(status_of(result, "version_follows_data"), "na")
+  expect_match(detail(result), "development version 1.0.0.9000", fixed = TRUE)
+})
+
+test_that("version_follows_data is not applicable when it cannot be decided (#163)", {
+  skip_if(Sys.which("git") == "", "git is not available")
+  readiness_fixture()
+  desc::desc_set(Version = "1.0.0")
+  detail <- function(result) result$detail[result$id == "version_follows_data"]
+
+  result <- quiet_check()
+  expect_identical(status_of(result, "version_follows_data"), "na")
+  expect_match(detail(result), "not a git repository", fixed = TRUE)
+
+  git <- release_repo()
+  git("tag", "-d", "v1.0.0")
+  result <- quiet_check()
+  expect_identical(status_of(result, "version_follows_data"), "na")
+  expect_match(detail(result), "no tag v1.0.0; this version is not released yet", fixed = TRUE)
+
+  # a package in a subfolder of another repository
+  git("tag", "v1.0.0")
+  target <- broken_copy()
+  outer <- withr::local_tempdir()
+  system2("git", c("-C", shQuote(outer), "init", "-q"), stdout = FALSE, stderr = FALSE)
+  inner <- file.path(outer, "pkg")
+  dir.create(inner)
+  file.copy(list.files(target, all.files = TRUE, no.. = TRUE, full.names = TRUE),
+            inner, recursive = TRUE)
+  unlink(file.path(inner, ".git"), recursive = TRUE)
+  result <- quiet_check(inner)
+  expect_identical(status_of(result, "version_follows_data"), "na")
+  expect_match(detail(result), "not the root of its git repository", fixed = TRUE)
+
+  # a shallow clone without the tag
+  shallow <- file.path(withr::local_tempdir(), "shallow")
+  system2("git", c("clone", "-q", "--depth", "1", "--no-tags",
+                   paste0("file://", normalizePath(".", winslash = "/")), shQuote(shallow)),
+          stdout = FALSE, stderr = FALSE)
+  skip_if_not(dir.exists(shallow), "git could not make a shallow clone")
+  result <- quiet_check(shallow)
+  expect_identical(status_of(result, "version_follows_data"), "na")
+  expect_match(detail(result), "no tag v1.0.0 in this shallow clone", fixed = TRUE)
 })

@@ -10,7 +10,9 @@
 #                          (X-schema.org-* fields),
 #                          creators, maintainer, funder and publisher (Authors@R),
 #                          the website and the data catalogue of the
-#                          organisation (Config/washr/home and catalog)
+#                          organisation (Config/washr/home and catalog),
+#                          the organisations above the publisher
+#                          (Config/washr/parent-organizations)
 #   data-raw/dictionary.csv  datasets and variables
 #   CITATION.cff           DOI
 #   inst/extdata           one distribution per file that belongs to a dataset
@@ -35,7 +37,6 @@ build_dataset_jsonld <- function(path = ".") {
   spatial <- field("X-schema.org-spatialCoverage")
   temporal <- field("X-schema.org-temporalCoverage")
   based_on <- source_dois(desc_file)
-  urls <- desc::desc_get_urls(file = desc_file)
   authors <- tryCatch(desc::desc_get_authors(file = desc_file),
                       error = function(e) NULL)
 
@@ -54,9 +55,8 @@ build_dataset_jsonld <- function(path = ".") {
 
   # Repository and site from the DESCRIPTION URL field
   repo_url <- github_repo_url(path)
-  pages_domain <- washr_config("pages-domain", default = "github.io", file = desc_file)
-  site_url <- urls[grepl(pages_domain, urls, fixed = TRUE)]
-  site_url <- if (length(site_url)) site_url[[1]] else repo_url
+  site_url <- pkg_site_url(path, pkgdown = FALSE)
+  if (is.null(site_url)) site_url <- repo_url
   if (is.null(repo_url)) {
     note_blank("url", "add the GitHub repository to URL in DESCRIPTION (update_description() does this)")
   }
@@ -88,6 +88,16 @@ build_dataset_jsonld <- function(path = ".") {
     publisher <- list("@type" = "Organization", name = org,
                       url = if (is_set(home)) home else paste0("https://github.com/", org))
   }
+  # The organisations above the publisher, nearest first, nest under it as a
+  # parentOrganization chain on both paths (#153). The links up to and
+  # including the publisher itself are skipped, so a cph publisher never
+  # names its own group as its parent.
+  chain <- parent_organizations(path)
+  if (!is.null(publisher)) chain <- chain_above(chain, publisher$name)
+  parents <- parent_organizations_jsonld(chain)
+  if (!is.null(publisher) && !is.null(parents)) {
+    publisher$parentOrganization <- parents
+  }
   # The data catalogue of the organisation, where dataset search engines
   # file the package (#145)
   catalog <- pkg_config("catalog", path)
@@ -109,7 +119,7 @@ build_dataset_jsonld <- function(path = ".") {
   }
 
   # Distributions from the files that exist in inst/extdata
-  dist <- distributions_jsonld(path, datasets, org, repo)
+  dist <- distributions_jsonld(path, datasets, org, repo, ref = release_ref(version))
   if (length(dist$distribution) == 0) {
     note_blank("distribution", "export the datasets to inst/extdata (csv, xlsx, csv.gz)")
   }
@@ -168,7 +178,8 @@ read_dictionary <- function(path = ".") {
 }
 
 # Creators (aut, cre), maintainer (cre), funder (fnd) and publisher (cph) from
-# a person vector. A person without a family name is treated as an organisation.
+# a person vector. A person without a family name is treated as an organisation,
+# with its ROR comment key as @id.
 authors_jsonld <- function(authors) {
   creator <- list()
   funder <- list()
@@ -195,7 +206,15 @@ person_jsonld <- function(p) {
   family <- p$family
   comment <- p$comment
   if (is.null(family)) {
-    return(list("@type" = "Organization", name = paste(given, collapse = " ")))
+    out <- list("@type" = "Organization")
+    # An organisation (cph, fnd) names its ROR in the comment field, as
+    # utils::person() documents it: the identifier or its URL (#153)
+    if (!is.null(comment) && "ROR" %in% names(comment)) {
+      ror <- trimws(comment[["ROR"]])
+      out[["@id"]] <- if (grepl("^https?://", ror)) ror else paste0("https://ror.org/", ror)
+    }
+    out$name <- paste(given, collapse = " ")
+    return(out)
   }
   out <- list("@type" = "Person",
               givenName = paste(given, collapse = " "),
@@ -208,6 +227,40 @@ person_jsonld <- function(p) {
     out$affiliation <- list("@type" = "Organization", name = comment[["affiliation"]])
   }
   out
+}
+
+# The part of a parent organisations chain above the publisher: the entry
+# that names the publisher and every entry before it are dropped. An entry
+# names the publisher when the names agree, ignoring case and surrounding
+# whitespace, or when the publisher name starts with the entry name and a
+# comma ("Global Health Engineering, ETH Zurich" and "Global Health
+# Engineering"). A publisher outside the chain keeps the whole chain (#153).
+chain_above <- function(chain, publisher) {
+  if (length(chain) == 0 || is.null(publisher)) return(chain)
+  pub <- tolower(trimws(publisher))
+  hits <- which(vapply(chain, function(entry) {
+    name <- tolower(trimws(entry$name))
+    identical(pub, name) || startsWith(pub, paste0(name, ","))
+  }, logical(1)))
+  if (length(hits) == 0) return(chain)
+  last <- max(hits)
+  if (last >= length(chain)) list() else chain[(last + 1):length(chain)]
+}
+
+# The parent organisations as a nested schema.org chain: each entry is an
+# Organization whose parentOrganization is the next entry. A ror.org URL is
+# the @id of the entry, any other URL its url. NULL for an empty chain (#153).
+parent_organizations_jsonld <- function(chain) {
+  node <- NULL
+  for (entry in rev(chain)) {
+    org <- list("@type" = "Organization")
+    if (is_ror_url(entry$url)) org[["@id"]] <- entry$url
+    org$name <- entry$name
+    if (!is.null(entry$url) && !is_ror_url(entry$url)) org$url <- entry$url
+    if (!is.null(node)) org$parentOrganization <- node
+    node <- org
+  }
+  node
 }
 
 # One PropertyValue per dictionary row. With several datasets the variable
@@ -227,8 +280,9 @@ variables_jsonld <- function(dictionary, datasets) {
 
 # One DataDownload per file in inst/extdata whose name starts with a dataset
 # name. Files that belong to no dataset are returned as `ignored`. The
-# contentUrl points at the raw file on the main branch of the repository.
-distributions_jsonld <- function(path, datasets, org, repo) {
+# contentUrl points at the raw file on `ref` of the repository: the release
+# tag for a release, the main branch for a development version (#137).
+distributions_jsonld <- function(path, datasets, org, repo, ref = "main") {
   dir <- file.path(path, "inst", "extdata")
   files <- sort(list.files(dir))
   belongs <- vapply(files, function(f) {
@@ -237,12 +291,22 @@ distributions_jsonld <- function(path, datasets, org, repo) {
   distribution <- lapply(files[belongs], function(f) {
     out <- list("@type" = "DataDownload", name = f, encodingFormat = mime_type(f))
     if (!is.null(org) && !is.null(repo)) {
-      out$contentUrl <- sprintf("https://raw.githubusercontent.com/%s/%s/main/inst/extdata/%s",
-                                org, repo, f)
+      out$contentUrl <- sprintf("https://raw.githubusercontent.com/%s/%s/%s/inst/extdata/%s",
+                                org, repo, ref, f)
     }
     out
   })
   list(distribution = unname(distribution), ignored = files[!belongs])
+}
+
+# The git ref that holds the files of a version: the tag `v<version>` for a
+# release (three components, such as 1.0.0), the main branch for a
+# development version (a fourth component, such as 1.0.0.9000). A citation of
+# a release then gets the same files later (#137). The README template
+# (inst/templates/README.Rmd) applies the same rule to its download links; it
+# runs in the data package, so it carries its own copy of the pattern.
+release_ref <- function(version) {
+  if (grepl("^[0-9]+\\.[0-9]+\\.[0-9]+$", version)) paste0("v", version) else "main"
 }
 
 mime_type <- function(file) {
@@ -296,11 +360,29 @@ license_zenodo <- function(license) {
   if (key %in% names(license_map)) license_map[[key]][["zenodo"]] else NULL
 }
 
+# The Dataset as JSON text, the one serialisation that both the head of the
+# pages (jsonld_template()) and the metadata file on the site
+# (pkgdown/assets/metadata.jsonld) carry, so the two never differ (#137).
+jsonld_json <- function(dataset) {
+  attr(dataset, "blank") <- NULL
+  as.character(jsonlite::toJSON(dataset, pretty = TRUE, auto_unbox = TRUE))
+}
+
+# The JSON-LD embedded in the text of in-header.html, or NULL when the text
+# carries no JSON-LD script block.
+embedded_jsonld <- function(lines) {
+  start <- grep('<script type="application/ld+json">', lines, fixed = TRUE)
+  if (length(start) == 0) return(NULL)
+  end <- which(lines == "</script>")
+  end <- end[end > start[[1]]]
+  if (length(end) == 0) return(NULL)
+  paste(lines[seq(start[[1]] + 1, length.out = end[[1]] - start[[1]] - 1)], collapse = "\n")
+}
+
 # The pkgdown template that carries the JSON-LD. The first line keeps the
 # in_header includes from _pkgdown.yml working (it is pkgdown's own template).
 jsonld_template <- function(dataset) {
-  attr(dataset, "blank") <- NULL
-  json <- jsonlite::toJSON(dataset, pretty = TRUE, auto_unbox = TRUE)
+  json <- jsonld_json(dataset)
   paste(c(
     "{{#includes}}{{{in_header}}}{{/includes}}",
     "<!-- schema.org Dataset metadata generated by washr::update_metadata() from DESCRIPTION, data-raw/dictionary.csv, CITATION.cff and inst/extdata. Do not edit: change the source and run it again. -->",

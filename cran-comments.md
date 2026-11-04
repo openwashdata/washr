@@ -1,3 +1,49 @@
+## Version 1.3.0
+
+Minor release. The maintainer is unchanged. It includes the changes of
+1.2.1 and 1.2.2, which were released on GitHub only; the version on CRAN
+is 1.2.0.
+
+### Changes
+
+- Two new exports: `data_availability_statement()`, which drafts the
+  reference entry and the data availability statement for an article that
+  uses a data package, and `update_website()` (from 1.2.1), which brings
+  an existing `_pkgdown.yml` in line with the organisation profile.
+- `setup_rawdata()` and `setup_readme()` handle packages with several
+  datasets through a new `datasets` argument; the output for a single
+  dataset is unchanged.
+- `update_metadata()` writes the schema.org metadata also as a file on the
+  package site, pins its download URLs to the release tag, and nests the
+  parent organisations (with ROR identifiers) under the publisher.
+- `update_zenodo_json()` links the package website in the Zenodo
+  description and related identifiers.
+- `update_description()` keeps an existing `Date` and sets it on purpose
+  with a new `date` argument; `update_dictionary()` migrates older
+  dictionary layouts.
+- `check_publication_readiness()` gains items for the site metadata file,
+  the ROR chain and whether the version follows changes to the data.
+- clipr is a new suggested package, used only when
+  `data_availability_statement(clipboard = TRUE)` is called and checked
+  with `rlang::check_installed()`.
+
+The new readiness item `version_follows_data` runs `git` on the package
+directory; its tests create a temporary repository under `tempdir()` and
+are skipped when git is not available. No test, example or vignette needs
+the network.
+
+The two ror.org addresses in the package (in code and documentation, not
+as links in NEWS) answer automated requests with HTTP 429; they resolve
+in a browser.
+
+### R CMD check results
+
+0 errors | 0 warnings | 0 notes
+
+### Reverse dependencies
+
+None on CRAN.
+
 ## Version 1.2.0
 
 Minor release. The maintainer is unchanged. It includes the changes of

@@ -18,16 +18,18 @@
 #' | metadata | `description_complete` | `Title`, `Description` and `Authors@R` no longer hold the placeholder text of a new package |
 #' | metadata | `citation_cff` | `CITATION.cff` is present |
 #' | metadata | `citation_version` | the `version` in `CITATION.cff` equals `Version` in DESCRIPTION |
+#' | metadata | `version_follows_data` | on a release version with a tag `v<version>`, `data/`, `inst/extdata/` and `data-raw/dictionary.csv` are unchanged since that tag |
 #' | metadata | `citation_authors` | `CITATION.cff` and `inst/CITATION` carry real authors, not "Firstname Lastname" |
 #' | metadata | `zenodo_json` | `.zenodo.json` is present and equals what DESCRIPTION gives now |
 #' | metadata | `keywords` | DESCRIPTION carries `X-schema.org-keywords`; the detail says whether `CITATION.cff` agrees |
 #' | metadata | `coverage` | DESCRIPTION carries `X-schema.org-spatialCoverage` and `X-schema.org-temporalCoverage` |
 #' | metadata | `title_length` | `Title` has at most 65 characters |
+#' | metadata | `publisher_ror` | the parent organisations of the publisher (`Config/washr/parent-organizations`) carry at least one ROR; not applicable when the profile names none |
 #' | data | `data_present` | `data/` holds at least one `.rda` file that loads |
 #' | data | `dictionary_present` | `data-raw/dictionary.csv` is present |
 #' | data | `dictionary_coverage` | the dictionary covers every variable of every data object |
 #' | data | `dictionary_descriptions` | no description is empty or a placeholder |
-#' | data | `dictionary_schema` | the five washr columns in order, UTF-8 without a byte order mark, one class name per `variable_type` |
+#' | data | `dictionary_schema` | the five washr columns first, in order, further named columns allowed, UTF-8 without a byte order mark, one class name per `variable_type` |
 #' | docs | `roxygen_docs` | every data object has a help page in `man/` |
 #' | docs | `readme` | `README.Rmd` and the rendered `README.md` are present |
 #' | docs | `rd_source` | at least one help page in `man/` carries a source |
@@ -42,6 +44,7 @@
 #' | docs | `pkgdown_washr_version` | the footer in `_pkgdown.yml` names the washr version that `Config/washr/version` records |
 #' | docs | `pkgdown_brand` | the brand entry in `_pkgdown.yml` matches the organisation |
 #' | docs | `pkgdown_llm_docs` | `_pkgdown.yml` does not switch off the `llms.txt` of the site (`llm-docs: false`) |
+#' | docs | `site_jsonld` | `pkgdown/assets/metadata.jsonld` is present and equals the JSON-LD in the head of the pages (`pkgdown/templates/in-header.html`), both written by [update_metadata()] |
 #' | docs | `docs_untracked` | git tracks no file under `docs/` while the pkgdown workflow deploys the site |
 #' | tests | `check_workflow` | `.github/workflows/R-CMD-check.yaml` is present |
 #' | tests | `check_workflow_dev` | every `branches:` list in that workflow includes `dev` |
@@ -51,6 +54,17 @@
 #' reason: for example the version comparison when `CITATION.cff` is missing,
 #' or the `docs/` item when the package has no pkgdown workflow. Not
 #' applicable items never count against the package.
+#'
+#' The version of a data package changes only when the data, or their
+#' meaning, change. `version_follows_data` compares the working tree,
+#' uncommitted and untracked files included, with the tag `v<version>` of
+#' the release the version names. An `.rda` file counts as changed only when
+#' the objects it holds differ, and an `.xlsx` file in `inst/extdata/` only
+#' when the `.csv` file of the same name changed as well, since both formats
+#' change their bytes when they are written again. The item is not
+#' applicable on a development version, without git, without the tag (also
+#' in a shallow clone that lacks it) or when the package is not the root of
+#' its git repository.
 #'
 #' @param path Path to the root of the data package. Defaults to the working
 #'   directory.
@@ -74,6 +88,10 @@
 #'     to carry.
 #'   * `brand`: `"none"` when the organisation has no brand, or the name of
 #'     its brand. Without it, the brand item is not applicable.
+#'   * `parent_organizations`: the organisations above the publisher, in the
+#'     form of `Config/washr/parent-organizations` (`Name <url>` entries
+#'     separated by semicolons). Without it, or with `"none"`, the ROR item
+#'     is not applicable.
 #'
 #' @returns A data frame of class `washr_readiness`, invisibly, with one row
 #'   per item and the columns `id`, `area`, `check` (the item in words),
@@ -206,6 +224,8 @@ package_profile <- function(path = ".") {
   if (is_set(funding)) profile$funding_text <- funding
   publisher <- pkg_config("publisher", path)
   if (is_set(publisher)) profile$publisher_text <- publisher
+  parents <- pkg_config("parent-organizations", path)
+  if (is_set(parents)) profile$parent_organizations <- parents
   profile
 }
 
@@ -255,9 +275,22 @@ readiness_context <- function(path, profile) {
     )
   }
 
+  # A file as it was at a git ref, written to a temporary file; NULL when git
+  # cannot give it. Binary files survive, which ctx$git() would garble.
+  git_file <- function(ref, name) {
+    dest <- tempfile(fileext = paste0(".", tools::file_ext(name)))
+    status <- tryCatch(
+      system2("git", c("-C", shQuote(path), "show", shQuote(paste0(ref, ":", name))),
+              stdout = dest, stderr = FALSE),
+      warning = function(w) 1L, error = function(e) 1L
+    )
+    if (identical(as.integer(status), 0L) && file.exists(dest)) dest else NULL
+  }
+
   list(path = path, profile = profile, file = file, has = has, lines = lines,
        field = field, rda_files = rda_files, datasets = datasets,
-       dict_path = dict_path, dictionary = dictionary, git = git)
+       dict_path = dict_path, dictionary = dictionary, git = git,
+       git_file = git_file)
 }
 
 # Run the checks (all of them, or the ones named in `ids`) and return one
@@ -307,6 +340,10 @@ readiness_checks <- function() {
     check("citation_version", "metadata", "CITATION.cff version matches DESCRIPTION",
           "Run update_citation() again, so CITATION.cff follows Version in DESCRIPTION.",
           readiness_citation_version),
+    check("version_follows_data", "metadata",
+          "Version changes only with the data: data unchanged since the release tag",
+          "Set the development version with usethis::use_dev_version(), then run update_citation(build = FALSE) and update_metadata().",
+          readiness_version_follows_data),
     check("citation_authors", "metadata",
           "Citation files carry real authors, not template placeholders",
           "Write the authors in Authors@R in DESCRIPTION, then run update_citation().",
@@ -324,6 +361,10 @@ readiness_checks <- function() {
     check("title_length", "metadata", "Title is at most 65 characters",
           "Shorten Title in DESCRIPTION.",
           readiness_title_length),
+    check("publisher_ror", "metadata",
+          "The parent organisations of the publisher carry a ROR",
+          "Add an organisation above the publisher with its ROR to Config/washr/parent-organizations in DESCRIPTION, as Name <https://ror.org/...>, then run update_metadata().",
+          readiness_publisher_ror),
     check("data_present", "data", "Primary data present in data/ as .rda and loads",
           "Export the tidy data with usethis::use_data() in data-raw/data_processing.R, the script that setup_rawdata() writes.",
           readiness_data_present),
@@ -340,7 +381,7 @@ readiness_checks <- function() {
           readiness_dictionary_descriptions),
     check("dictionary_schema", "data",
           "Dictionary schema: five washr columns, UTF-8 without BOM, single-class variable_type",
-          "Keep the five columns that setup_dictionary() writes and save the file as UTF-8 without a byte order mark.",
+          "Keep the five columns that setup_dictionary() writes first in the file, or run update_dictionary(), and save the file as UTF-8 without a byte order mark.",
           readiness_dictionary_schema),
     check("roxygen_docs", "docs", "Every dataset has a help page in man/",
           "Run setup_roxygen(), then devtools::document().",
@@ -391,6 +432,10 @@ readiness_checks <- function() {
           "_pkgdown.yml keeps the llms.txt of the site",
           "Remove llm-docs: false from _pkgdown.yml.",
           readiness_pkgdown_llm_docs),
+    check("site_jsonld", "docs",
+          "The metadata file on the site equals the JSON-LD in the page head",
+          "Run update_metadata(), then rebuild the site.",
+          readiness_site_jsonld),
     check("docs_untracked", "docs",
           "docs/ untracked while the pkgdown workflow deploys the site",
           "Run git rm -r --cached docs and add docs to .gitignore.",
@@ -460,6 +505,102 @@ readiness_citation_authors <- function(ctx) {
     any(grepl("Firstname|Lastname", ctx$lines("inst", "CITATION")))
   readiness_result(!placeholder,
                    if (placeholder) "\"Firstname Lastname\" found in citation files" else "")
+}
+
+# The version and the DOI of a release identify the data someone cites, so
+# the data stay as they were at the release tag until the version moves on
+# to a development version (#163, openwashdata/pkgreview#103).
+readiness_version_follows_data <- function(ctx) {
+  version <- ctx$field("Version")
+  if (is.na(version)) return(readiness_na("DESCRIPTION carries no Version"))
+  tag <- release_ref(version)
+  if (identical(tag, "main")) {
+    return(readiness_na(sprintf("development version %s", version)))
+  }
+  inside <- ctx$git("rev-parse", "--is-inside-work-tree")
+  if (!(length(inside) && identical(trimws(inside[1]), "true"))) {
+    return(readiness_na("package directory is not a git repository"))
+  }
+  # A package inside the repository of another project would be compared
+  # with the tags of that project.
+  top <- ctx$git("rev-parse", "--show-toplevel")
+  if (!length(top) || !same_directory(top[1], ctx$path)) {
+    return(readiness_na("the package is not the root of its git repository"))
+  }
+  found <- ctx$git("rev-parse", "--verify", "--quiet",
+                   shQuote(paste0("refs/tags/", tag, "^{commit}")))
+  if (!length(found)) {
+    shallow <- ctx$git("rev-parse", "--is-shallow-repository")
+    return(readiness_na(
+      if (length(shallow) && identical(trimws(shallow[1]), "true")) {
+        sprintf("no tag %s in this shallow clone; run git fetch --tags to decide", tag)
+      } else {
+        sprintf("no tag %s; this version is not released yet", tag)
+      }
+    ))
+  }
+
+  paths <- c("data", "inst/extdata", "data-raw/dictionary.csv")
+  changed <- c(
+    ctx$git("-c", "core.quotepath=off", "diff", "--name-only", "--no-renames",
+            shQuote(tag), "--", paths),
+    ctx$git("-c", "core.quotepath=off", "ls-files", "--others", "--exclude-standard",
+            "--", paths)
+  )
+  changed <- unique(changed[nzchar(changed)])
+  # save() records the R version that wrote the file, so an .rda written
+  # again under another R differs in its bytes and not in its data.
+  same_rda <- vapply(changed, function(f) {
+    if (!grepl("\\.rda$", f, ignore.case = TRUE) || !ctx$has(f)) return(FALSE)
+    old <- ctx$git_file(tag, f)
+    if (is.null(old)) return(FALSE)
+    on.exit(unlink(old))
+    rda_objects_identical(old, ctx$file(f))
+  }, logical(1))
+  changed <- changed[!same_rda]
+  # An Excel file carries the time it was written; it follows its CSV twin.
+  same_xlsx <- vapply(changed, function(f) {
+    if (!grepl("^inst/extdata/.*\\.xlsx$", f, ignore.case = TRUE)) return(FALSE)
+    twin <- sub("\\.xlsx$", ".csv", f, ignore.case = TRUE)
+    ctx$has(f) && ctx$has(twin) && !twin %in% changed
+  }, logical(1))
+  changed <- changed[!same_xlsx]
+
+  if (!length(changed)) {
+    return(readiness_result(
+      TRUE, sprintf("data/, inst/extdata/ and data-raw/dictionary.csv unchanged since %s", tag)
+    ))
+  }
+  shown <- utils::head(changed, 5)
+  more <- length(changed) - length(shown)
+  readiness_result(FALSE, sprintf(
+    "%d file(s) changed since %s while Version is still %s: %s%s",
+    length(changed), tag, version, paste(shown, collapse = ", "),
+    if (more > 0) sprintf(" and %d more", more) else ""
+  ))
+}
+
+# Two paths that name the same directory, symbolic links resolved.
+same_directory <- function(a, b) {
+  norm <- function(x) normalizePath(x, winslash = "/", mustWork = FALSE)
+  a <- norm(a)
+  b <- norm(b)
+  if (.Platform$OS.type == "windows") identical(tolower(a), tolower(b)) else identical(a, b)
+}
+
+# Whether two .rda files hold the same objects with the same values.
+rda_objects_identical <- function(a, b) {
+  read <- function(f) {
+    env <- new.env()
+    ok <- tryCatch({
+      suppressWarnings(load(f, envir = env))
+      TRUE
+    }, error = function(e) FALSE)
+    if (ok) as.list(env, sorted = TRUE, all.names = TRUE)
+  }
+  x <- read(a)
+  y <- read(b)
+  !is.null(x) && !is.null(y) && identical(x, y)
 }
 
 # Zenodo takes the record of a release from .zenodo.json, version included,
@@ -539,6 +680,23 @@ readiness_title_length <- function(ctx) {
                    sprintf("%d characters", if (is.na(title)) 0L else nchar(title)))
 }
 
+# The parent organisations of the profile (#153): at least one entry is a
+# ror.org URL, which update_metadata() writes as the @id of the entry.
+readiness_publisher_ror <- function(ctx) {
+  value <- ctx$profile$parent_organizations
+  chain <- if (length(value)) parse_parent_organizations(value[[1]]) else list()
+  if (length(chain) == 0) {
+    return(readiness_na("the organisation profile names no parent organisations"))
+  }
+  rors <- unlist(lapply(chain, function(x) if (is_ror_url(x$url)) x$url))
+  readiness_result(length(rors) > 0,
+                   if (length(rors)) {
+                     paste("ROR:", paste(rors, collapse = ", "))
+                   } else {
+                     paste0("no ROR among the ", length(chain), " parent organisation(s)")
+                   })
+}
+
 # data -----------------------------------------------------------------------
 
 readiness_data_present <- function(ctx) {
@@ -607,9 +765,12 @@ readiness_dictionary_schema <- function(ctx) {
   problems <- c(
     if (has_bom) "UTF-8 byte order mark at the start of the file",
     if (bad_utf8) "non-UTF-8 bytes in the file",
-    if (!identical(cols, expected)) {
-      sprintf("columns are [%s], expected [%s]",
+    if (!identical(cols[seq_along(expected)], expected)) {
+      sprintf("columns are [%s], expected [%s] first",
               paste(cols, collapse = ", "), paste(expected, collapse = ", "))
+    },
+    if (length(cols) > length(expected) && any(!nzchar(trimws(cols[-seq_along(expected)])))) {
+      "unnamed columns after the five washr columns"
     },
     if (any(type_bad)) {
       sprintf("variable_type is not a single class name for: %s",
@@ -776,6 +937,19 @@ readiness_pkgdown_llm_docs <- function(ctx) {
   if (length(config) == 0) return(readiness_na("_pkgdown.yml missing"))
   off <- grep("^llm-docs:\\s*(false|no)\\s*$", config, ignore.case = TRUE, value = TRUE)
   readiness_result(length(off) == 0, if (length(off)) off[[1]] else "")
+}
+
+# The metadata file on the site and the JSON-LD in the head of the pages
+# carry the same text (#137).
+readiness_site_jsonld <- function(ctx) {
+  if (!ctx$has("_pkgdown.yml")) return(readiness_na("_pkgdown.yml missing"))
+  file <- file.path("pkgdown", "assets", "metadata.jsonld")
+  head <- file.path("pkgdown", "templates", "in-header.html")
+  if (!ctx$has(file)) return(readiness_result(FALSE, paste(file, "missing")))
+  embedded <- embedded_jsonld(ctx$lines(head))
+  if (is.null(embedded)) return(readiness_result(FALSE, paste(head, "carries no JSON-LD")))
+  same <- identical(paste(ctx$lines(file), collapse = "\n"), embedded)
+  readiness_result(same, if (same) "equal to the page head" else "differs from the page head")
 }
 
 readiness_pkgdown_brand <- function(ctx) {

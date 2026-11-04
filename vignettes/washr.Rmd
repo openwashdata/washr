@@ -113,7 +113,7 @@ The keywords are a comma separated list. The spatial coverage is a place name. T
 
 ## 6. Generate the metadata
 
-`update_metadata()` derives a schema.org description of the dataset from `DESCRIPTION`, the dictionary, the citation file and the files in `inst/extdata`, and writes it as JSON-LD into `pkgdown/templates/in-header.html`. The website build embeds it in the head of every page, where dataset search engines read it.
+`update_metadata()` derives a schema.org description of the dataset from `DESCRIPTION`, the dictionary, the citation file and the files in `inst/extdata`, and writes it as JSON-LD into `pkgdown/templates/in-header.html`. The website build embeds it in the head of every page, where dataset search engines read it. The same JSON-LD goes to `pkgdown/assets/metadata.jsonld`, which the build copies to the root of the site, so the metadata also has its own address, `<site>/metadata.jsonld`. The README links it in the Citation section once the package names its site.
 
 ```{r}
 update_metadata()
@@ -123,7 +123,7 @@ The function ends with the fields it could not fill and where to fill them. Noth
 
 ## 7. Write the README
 
-`setup_readme()` writes `README.Rmd` from the openwashdata template, with the installation instructions, the download table, and a section for the first data object. With `has_example = TRUE` it adds an Example section with a scaffold for a first plot.
+`setup_readme()` writes `README.Rmd` from the openwashdata template, with the installation instructions, the download table, and a section per data object. With `has_example = TRUE` it adds an Example section with a scaffold for a first plot.
 
 ```{r}
 setup_readme(has_example = TRUE)
@@ -183,13 +183,46 @@ With a DOI the function also adds the DOI badge to the README and rebuilds it an
 
 The same call writes `.zenodo.json` from `DESCRIPTION`. Zenodo reads this file when it archives a GitHub release and takes the resource type (Dataset), the community, the creators and the license from it. Commit the file before you create the release. `update_zenodo_json()` writes it on its own.
 
+Once the DOI is on file, `data_availability_statement()` drafts the text for the authors of an article that uses the data: the reference list entry in APA style, the data availability statement and the in-text citation. Name the data the article uses with `subject`; when some data was left out of the package, write one sentence that says what and why into `Config/washr/withheld` in `DESCRIPTION`, and the statement ends with it.
+
+```{r}
+data_availability_statement(subject = "The household survey data")
+```
+
+## 10. Versions after the release
+
+The version and the DOI of a release identify the data someone cites. The version of a data package therefore changes only when the data, or the meaning of the data, change:
+
+| Change | Version |
+|---|---|
+| Columns renamed or removed, the structure breaks | major |
+| New data, rows or variables | minor |
+| Corrected values, or a documentation fix that changes how the data are read (unit, variable description, dictionary) | patch |
+| Website, articles, styling, CI, wording that does not change the meaning | none |
+
+Work on the website or the documentation stays on the release version and can reach the main branch without a new release. The first commit that changes the data or their meaning sets the development version:
+
+```{r}
+usethis::use_dev_version()
+update_citation(build = FALSE)
+update_metadata()
+```
+
+`check_publication_readiness()` reports when `data/`, `inst/extdata/` or `data-raw/dictionary.csv` differ from the tag of the release while the version still names that release. A change of meaning outside these files, for example in the description of a dataset in `R/`, is not detected; the reviewer decides on it.
+
 ## Running steps again
 
 Every function above reads what is there, merges its changes, and writes only what changed. The two exceptions stop instead of overwriting: `setup_dictionary()` when the dictionary exists (run `update_dictionary()` instead, which keeps what you wrote), and `setup_readme()` when `README.Rmd` exists (pass `force = TRUE` to replace it). `setup_website()` keeps an existing `_pkgdown.yml`; `update_website()` is the function that changes it. A full second run of the other steps on an unchanged package changes no file.
 
 ## More than one dataset
 
-The processing script and the README template are written for one dataset that carries the name of the package. A package can hold more. In `data-raw/data_processing.R`, repeat the export block for each data frame, so each one is saved with `usethis::use_data()` and exported to `inst/extdata/`. `setup_dictionary()`, `setup_roxygen()`, `setup_website()` and `update_metadata()` cover every data object in `data/` on their own. `setup_readme()` documents the first one, so add a section per further data object to `README.Rmd` by hand.
+A package can hold more than one dataset. Name them when you write the processing script:
+
+```{r}
+setup_rawdata(datasets = c("trips", "trucks"))
+```
+
+The export block of `data-raw/data_processing.R` then has one `usethis::use_data()` line per dataset and exports each of them to `inst/extdata/` as CSV and XLSX in one loop over the names. Without `datasets`, the script exports one dataset named after the package, through the same loop. `setup_dictionary()`, `setup_roxygen()`, `setup_website()` and `update_metadata()` cover every data object in `data/` on their own, and so does `setup_readme()`: it writes one data section per object, in alphabetical order, or for the objects named in its own `datasets` argument, in that order. It warns about an object that has no rows in the dictionary yet, because the table of its variables would stay empty.
 
 ## Publishing outside openwashdata
 
@@ -214,8 +247,9 @@ From then on the organisation, the repository URL, the license and the people ar
 | `Config/washr/home` | the website of your group: the navbar link, the line under the README badges, the publisher url in the metadata | the URL, or `none` |
 | `Config/washr/catalog` | the data catalogue named in the metadata | the URL of your catalogue, or `none` |
 | `Config/washr/community` | the text of the community block in the sidebar of the site | your text, Markdown allowed, or `none` |
+| `Config/washr/parent-organizations` | the organisations above the publisher in the metadata (`parentOrganization`), nearest first; a `https://ror.org/` URL becomes the ROR identifier | `Name <url>` entries separated by semicolons, such as `Your Institute <https://ror.org/...>; Your University <https://ror.org/...>`, or `none` |
 | `Config/washr/pages-domain` | the domain of the site | only when the site is not served from `yourorg.github.io` |
 
-For a package under another organisation, `update_description()` writes the funding, analytics, Zenodo community, brand, publisher, website, catalogue and community fields as `none` and lists them, because the openwashdata values would be wrong there. The footer then names washr and nothing else. Edit them, then run the steps as above. A field that is set is never overwritten. `check_publication_readiness()` holds the package to these values.
+For a package under another organisation, `update_description()` writes the funding, analytics, Zenodo community, brand, publisher, website, catalogue, community and parent organisations fields as `none` and lists them, because the openwashdata values would be wrong there. The footer then names washr and nothing else. Edit them, then run the steps as above. A field that is set is never overwritten. `check_publication_readiness()` holds the package to these values.
 
 A license other than CC BY 4.0 is set in `License` before the first `update_description()`, for example with `usethis::use_cc0_license()` or another `usethis::use_*_license()` function. `update_description()` leaves a license that is set as it is.

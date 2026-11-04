@@ -63,17 +63,16 @@ test_that("setup_readme(has_example = TRUE) adds the Example section with a ggpl
   expect_false(any(grepl("{{{", readme, fixed = TRUE)))
 })
 
-test_that("setup_readme() omits the Example section by default and documents the first data object (#74)", {
+test_that("setup_readme() omits the Example section by default and documents every data object (#74, #103)", {
   create_local_package()
   rlang::local_interactive(FALSE)
   zebra <- data.frame(id = 1)
   apple <- data.frame(id = 1)
   usethis::use_data(zebra, apple)
-  withr::with_options(list(usethis.quiet = FALSE),
-                      expect_message(setup_readme(), "2 data objects"))
+  suppressMessages(setup_readme())
   readme <- readLines("README.Rmd")
   expect_false("## Example" %in% readme)
-  expect_true(any(grepl("### apple", readme, fixed = TRUE)))
+  expect_identical(grep("^### ", readme, value = TRUE), c("### apple", "### zebra"))
   expect_false(any(grepl("{{{", readme, fixed = TRUE)))
 })
 
@@ -157,4 +156,101 @@ test_that("setup_readme() names the publisher under Citation and shows the insta
   readme <- readLines("README.Rmd")
   expect_false(any(grepl("Published by", readme, fixed = TRUE)))
   expect_match(readme[readme_title_line(readme)], '^# [a-z0-9]+ <img src="man/figures/logo.png" align="right" width="120" alt="openwashdata" />$')
+})
+
+# A package with the data objects named in `...` and dictionary rows for the
+# ones in `documented`.
+multi_readme_fixture <- function(objects, documented = objects, env = parent.frame()) {
+  create_local_package(env = env)
+  rlang::local_interactive(FALSE, frame = env)
+  for (nm in objects) {
+    assign(nm, data.frame(id = 1:3, value = c(1.5, 2, 3)))
+    do.call(usethis::use_data, list(as.name(nm)))
+  }
+  dir.create("data-raw", showWarnings = FALSE)
+  utils::write.csv(data.frame(
+    directory = rep("data", 2 * length(documented)),
+    file_name = rep(paste0(documented, ".rda"), each = 2),
+    variable_name = rep(c("id", "value"), length(documented)),
+    variable_type = rep(c("integer", "numeric"), length(documented)),
+    description = rep(c("Identifier", "Value"), length(documented)),
+    stringsAsFactors = FALSE
+  ), file.path("data-raw", "dictionary.csv"), row.names = FALSE)
+  invisible(desc::desc_get("Package")[[1]])
+}
+
+test_that("setup_readme() keeps the README of a single dataset as it was (#103)", {
+  pkg <- multi_readme_fixture("d1")
+  suppressMessages(setup_readme(has_example = TRUE))
+  readme <- gsub(pkg, "PKGNAME", readLines("README.Rmd"), fixed = TRUE)
+  expect_identical(sum(grepl("^### ", readme)), 1L)
+  expect_true("The package provides access to ..." %in% readme)
+  expect_false(any(grepl("{{", readme, fixed = TRUE)))
+  # the snapshot is the README that washr 1.2.2 wrote for one dataset
+  expect_snapshot(cat(readme, sep = "\n"))
+})
+
+test_that("setup_readme() writes one section per data object in data/, alphabetically (#103)", {
+  multi_readme_fixture(c("zebra", "apple", "mango"))
+  suppressMessages(setup_readme(has_example = TRUE))
+  readme <- readLines("README.Rmd")
+  expect_identical(grep("^### ", readme, value = TRUE),
+                   c("### apple", "### mango", "### zebra"))
+  for (nm in c("apple", "mango", "zebra")) {
+    expect_true(paste0("The dataset `", nm, "` contains data about ... It has") %in% readme)
+    expect_true(any(grepl(paste0('file_name == "', nm, '.rda"'), readme, fixed = TRUE)))
+  }
+  expect_true("The package provides access to 3 datasets ..." %in% readme)
+  expect_false("The package provides access to ..." %in% readme)
+  # the Example section keeps the first object
+  example <- readme[seq(which(readme == "## Example"), which(readme == "## License"))]
+  expect_true(any(grepl("# apple |>", example, fixed = TRUE)))
+  expect_false(any(grepl("zebra", example, fixed = TRUE)))
+  expect_false(any(grepl("{{", readme, fixed = TRUE)))
+})
+
+test_that("setup_readme(datasets = ) documents the named objects in their order (#103)", {
+  multi_readme_fixture(c("apple", "mango", "zebra"))
+  suppressMessages(setup_readme(datasets = c("zebra", "apple")))
+  readme <- readLines("README.Rmd")
+  expect_identical(grep("^### ", readme, value = TRUE), c("### zebra", "### apple"))
+  expect_true("The package provides access to 2 datasets ..." %in% readme)
+})
+
+test_that("setup_readme() stops on a name that data/ does not hold and keeps the old README (#103)", {
+  multi_readme_fixture(c("apple", "zebra"))
+  writeLines("# OLD README", "README.Rmd")
+  expect_error(setup_readme(force = TRUE, datasets = c("apple", "mango")), "mango")
+  expect_identical(readLines("README.Rmd"), "# OLD README")
+})
+
+test_that("setup_readme() warns about a data object without dictionary rows (#103)", {
+  multi_readme_fixture(c("apple", "zebra"), documented = "apple")
+  withr::with_options(list(washr.quiet = FALSE), {
+    out <- paste(utils::capture.output(setup_readme(), type = "message"), collapse = "\n")
+  })
+  expect_match(out, "zebra", fixed = TRUE)
+  expect_match(out, "no rows", fixed = TRUE)
+  expect_false(grepl("apple\" ha", out, fixed = TRUE))
+  # a dictionary that covers every object gives no warning
+  multi_readme_fixture(c("apple", "zebra"))
+  withr::with_options(list(washr.quiet = FALSE), {
+    out <- paste(utils::capture.output(setup_readme(), type = "message"), collapse = "\n")
+  })
+  expect_false(grepl("no rows", out, fixed = TRUE))
+})
+
+test_that("the Citation section links the metadata file of the site when the package names its site (#137)", {
+  pkg <- multi_readme_fixture("d1")
+  suppressMessages(setup_readme())
+  expect_false(any(grepl("metadata.jsonld", readLines("README.Rmd"), fixed = TRUE)))
+  desc::desc_set_urls(c(paste0("https://github.com/openwashdata/", pkg),
+                        paste0("https://openwashdata.github.io/", pkg, "/")))
+  suppressMessages(setup_readme(force = TRUE))
+  readme <- readLines("README.Rmd")
+  link <- paste0("[metadata.jsonld](https://openwashdata.github.io/", pkg, "/metadata.jsonld).")
+  expect_true(link %in% readme)
+  # in the Citation section, before the citation() chunk
+  expect_true(which(readme == link) > which(readme == "## Citation"))
+  expect_true(which(readme == link) < which(readme == "Please cite this package using:"))
 })
