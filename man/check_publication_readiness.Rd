@@ -62,6 +62,7 @@ a review tool can pick the rows it needs.\tabular{lll}{
    metadata \tab \code{description_complete} \tab \code{Title}, \code{Description} and \code{Authors@R} no longer hold the placeholder text of a new package \cr
    metadata \tab \code{citation_cff} \tab \code{CITATION.cff} is present \cr
    metadata \tab \code{citation_version} \tab the \code{version} in \code{CITATION.cff} equals \code{Version} in DESCRIPTION \cr
+   metadata \tab \code{version_follows_data} \tab on a release version with a tag \verb{v<version>}, \verb{data/}, \verb{inst/extdata/} and \code{data-raw/dictionary.csv} are unchanged since that tag \cr
    metadata \tab \code{citation_authors} \tab \code{CITATION.cff} and \code{inst/CITATION} carry real authors, not "Firstname Lastname" \cr
    metadata \tab \code{zenodo_json} \tab \code{.zenodo.json} is present and equals what DESCRIPTION gives now \cr
    metadata \tab \code{keywords} \tab DESCRIPTION carries \code{X-schema.org-keywords}; the detail says whether \code{CITATION.cff} agrees \cr
@@ -99,6 +100,17 @@ An item that cannot be decided is reported as not applicable, with the
 reason: for example the version comparison when \code{CITATION.cff} is missing,
 or the \verb{docs/} item when the package has no pkgdown workflow. Not
 applicable items never count against the package.
+
+The version of a data package changes only when the data, or their
+meaning, change. \code{version_follows_data} compares the working tree,
+uncommitted and untracked files included, with the tag \verb{v<version>} of
+the release the version names. An \code{.rda} file counts as changed only when
+the objects it holds differ, and an \code{.xlsx} file in \verb{inst/extdata/} only
+when the \code{.csv} file of the same name changed as well, since both formats
+change their bytes when they are written again. The item is not
+applicable on a development version, without git, without the tag (also
+in a shallow clone that lacks it) or when the package is not the root of
+its git repository.
 }
 \examples{
 \dontrun{
