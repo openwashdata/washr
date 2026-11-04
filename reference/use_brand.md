@@ -95,6 +95,7 @@ extension [quarto-owd](https://github.com/openwashdata/quarto-owd).
 
 Other publishing functions:
 [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md),
+[`data_availability_statement()`](https://openwashdata.github.io/washr/reference/data_availability_statement.md),
 [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md),
 [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md),
 [`update_website()`](https://openwashdata.github.io/washr/reference/update_website.md)

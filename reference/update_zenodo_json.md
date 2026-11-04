@@ -19,13 +19,14 @@ The sources are:
 |  |  |
 |----|----|
 | Key | Source |
-| title, description, version | `Title`, `Description`, `Version` in DESCRIPTION |
+| title, version | `Title`, `Version` in DESCRIPTION |
+| description | `Description` in DESCRIPTION, followed by a link to the package website when the package has one |
 | upload_type | always `dataset` |
 | creators | `Authors@R` roles `aut` and `cre`; ORCID and affiliation from the `comment` field |
 | license | `License` in DESCRIPTION, as the identifier Zenodo uses (e.g., `cc-by-4.0`) |
 | keywords | `X-schema.org-keywords` in DESCRIPTION, comma separated |
 | communities | `Config/washr/zenodo-community` in DESCRIPTION: `openwashdata` for an openwashdata package, none for another organisation until it sets one |
-| related_identifiers | the source article DOIs in `X-schema.org-isBasedOn` in DESCRIPTION |
+| related_identifiers | the repository from `URL` in DESCRIPTION, the package website, and the source article DOIs in `X-schema.org-isBasedOn` in DESCRIPTION |
 
 ## Usage
 
@@ -48,10 +49,20 @@ Set `Config/washr/zenodo-community` in DESCRIPTION to file the record in
 another community, to several (comma separated), or to `none` for no
 community.
 
-A source article is written as a related identifier with the relation
-`isDerivedFrom`. Zenodo then drops its own link to the release tag on
-GitHub, so the repository from the `URL` field is added as a second
-related identifier.
+The package website is the `url` in `_pkgdown.yml`, or else the entry of
+the DESCRIPTION `URL` field on the pages domain (`github.io` unless
+`Config/washr/pages-domain` names another). When there is one, the
+description becomes HTML, which Zenodo renders: the `Description` field
+as the first paragraph and "Explore the data on a curated website" with
+the link as the second. The website is also written as a related
+identifier with the relation `isDocumentedBy`. Without a website the
+description is the `Description` field as it is.
+
+The repository from the `URL` field is always written as a related
+identifier with the relation `isSupplementTo`, because any related
+identifier replaces the link to the release tag on GitHub that Zenodo
+adds by default. A source article is written with the relation
+`isDerivedFrom`.
 
 When washr does not know the license, the file carries none. Zenodo then
 takes the license GitHub detects for the repository, and CC0 1.0 for a

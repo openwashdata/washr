@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">washr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -191,7 +191,11 @@ the dataset from <code>DESCRIPTION</code>, the dictionary, the citation
 file and the files in <code>inst/extdata</code>, and writes it as
 JSON-LD into <code>pkgdown/templates/in-header.html</code>. The website
 build embeds it in the head of every page, where dataset search engines
-read it.</p>
+read it. The same JSON-LD goes to
+<code>pkgdown/assets/metadata.jsonld</code>, which the build copies to
+the root of the site, so the metadata also has its own address,
+<code>&lt;site&gt;/metadata.jsonld</code>. The README links it in the
+Citation section once the package names its site.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/update_metadata.html">update_metadata</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>The function ends with the fields it could not fill and where to fill
@@ -203,7 +207,7 @@ This function is experimental; its output shape may still change.</p>
 </h2>
 <p><code><a href="../reference/setup_readme.html">setup_readme()</a></code> writes <code>README.Rmd</code> from the
 openwashdata template, with the installation instructions, the download
-table, and a section for the first data object. With
+table, and a section per data object. With
 <code>has_example = TRUE</code> it adds an Example section with a
 scaffold for a first plot.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
@@ -290,6 +294,66 @@ metadata carries the DOI as well.</p>
 GitHub release and takes the resource type (Dataset), the community, the
 creators and the license from it. Commit the file before you create the
 release. <code><a href="../reference/update_zenodo_json.html">update_zenodo_json()</a></code> writes it on its own.</p>
+<p>Once the DOI is on file, <code><a href="../reference/data_availability_statement.html">data_availability_statement()</a></code>
+drafts the text for the authors of an article that uses the data: the
+reference list entry in APA style, the data availability statement and
+the in-text citation. Name the data the article uses with
+<code>subject</code>; when some data was left out of the package, write
+one sentence that says what and why into
+<code>Config/washr/withheld</code> in <code>DESCRIPTION</code>, and the
+statement ends with it.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/data_availability_statement.html">data_availability_statement</a></span><span class="op">(</span>subject <span class="op">=</span> <span class="st">"The household survey data"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="versions-after-the-release">10. Versions after the release<a class="anchor" aria-label="anchor" href="#versions-after-the-release"></a>
+</h2>
+<p>The version and the DOI of a release identify the data someone cites.
+The version of a data package therefore changes only when the data, or
+the meaning of the data, change:</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Change</th>
+<th>Version</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Columns renamed or removed, the structure breaks</td>
+<td>major</td>
+</tr>
+<tr class="even">
+<td>New data, rows or variables</td>
+<td>minor</td>
+</tr>
+<tr class="odd">
+<td>Corrected values, or a documentation fix that changes how the data
+are read (unit, variable description, dictionary)</td>
+<td>patch</td>
+</tr>
+<tr class="even">
+<td>Website, articles, styling, CI, wording that does not change the
+meaning</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<p>Work on the website or the documentation stays on the release version
+and can reach the main branch without a new release. The first commit
+that changes the data or their meaning sets the development version:</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/use_version.html" class="external-link">use_dev_version</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/update_citation.html">update_citation</a></span><span class="op">(</span>build <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/update_metadata.html">update_metadata</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="../reference/check_publication_readiness.html">check_publication_readiness()</a></code> reports when
+<code>data/</code>, <code>inst/extdata/</code> or
+<code>data-raw/dictionary.csv</code> differ from the tag of the release
+while the version still names that release. A change of meaning outside
+these files, for example in the description of a dataset in
+<code>R/</code>, is not detected; the reviewer decides on it.</p>
 </div>
 <div class="section level2">
 <h2 id="running-steps-again">Running steps again<a class="anchor" aria-label="anchor" href="#running-steps-again"></a>
@@ -308,17 +372,23 @@ package changes no file.</p>
 <div class="section level2">
 <h2 id="more-than-one-dataset">More than one dataset<a class="anchor" aria-label="anchor" href="#more-than-one-dataset"></a>
 </h2>
-<p>The processing script and the README template are written for one
-dataset that carries the name of the package. A package can hold more.
-In <code>data-raw/data_processing.R</code>, repeat the export block for
-each data frame, so each one is saved with
-<code><a href="https://usethis.r-lib.org/reference/use_data.html" class="external-link">usethis::use_data()</a></code> and exported to
-<code>inst/extdata/</code>. <code><a href="../reference/setup_dictionary.html">setup_dictionary()</a></code>,
-<code><a href="../reference/setup_roxygen.html">setup_roxygen()</a></code>, <code><a href="../reference/setup_website.html">setup_website()</a></code> and
-<code><a href="../reference/update_metadata.html">update_metadata()</a></code> cover every data object in
-<code>data/</code> on their own. <code><a href="../reference/setup_readme.html">setup_readme()</a></code> documents
-the first one, so add a section per further data object to
-<code>README.Rmd</code> by hand.</p>
+<p>A package can hold more than one dataset. Name them when you write
+the processing script:</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/setup_rawdata.html">setup_rawdata</a></span><span class="op">(</span>datasets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"trips"</span>, <span class="st">"trucks"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>The export block of <code>data-raw/data_processing.R</code> then has
+one <code><a href="https://usethis.r-lib.org/reference/use_data.html" class="external-link">usethis::use_data()</a></code> line per dataset and exports each
+of them to <code>inst/extdata/</code> as CSV and XLSX in one loop over
+the names. Without <code>datasets</code>, the script exports one dataset
+named after the package, through the same loop.
+<code><a href="../reference/setup_dictionary.html">setup_dictionary()</a></code>, <code><a href="../reference/setup_roxygen.html">setup_roxygen()</a></code>,
+<code><a href="../reference/setup_website.html">setup_website()</a></code> and <code><a href="../reference/update_metadata.html">update_metadata()</a></code> cover
+every data object in <code>data/</code> on their own, and so does
+<code><a href="../reference/setup_readme.html">setup_readme()</a></code>: it writes one data section per object, in
+alphabetical order, or for the objects named in its own
+<code>datasets</code> argument, in that order. It warns about an object
+that has no rows in the dictionary yet, because the table of its
+variables would stay empty.</p>
 </div>
 <div class="section level2">
 <h2 id="publishing-outside-openwashdata">Publishing outside openwashdata<a class="anchor" aria-label="anchor" href="#publishing-outside-openwashdata"></a>
@@ -328,7 +398,7 @@ of them lives in <code>DESCRIPTION</code>, so another group publishes
 with its own values by editing that file. Nothing else has to
 change.</p>
 <p>Start by naming your GitHub organisation, once:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/update_description.html">update_description</a></span><span class="op">(</span>github_user <span class="op">=</span> <span class="st">"https://github.com/yourorg"</span><span class="op">)</span></span></code></pre></div>
 <p>From then on the organisation, the repository URL, the license and
 the people are read from the standard <code>DESCRIPTION</code> fields
@@ -407,6 +477,18 @@ README badges, the publisher url in the metadata</td>
 </td>
 </tr>
 <tr class="even">
+<td><code>Config/washr/parent-organizations</code></td>
+<td>the organisations above the publisher in the metadata
+(<code>parentOrganization</code>), nearest first; a
+<code>https://ror.org/</code> URL becomes the ROR identifier</td>
+<td>
+<code>Name &lt;url&gt;</code> entries separated by semicolons, such
+as
+<code>Your Institute &lt;https://ror.org/...&gt;; Your University &lt;https://ror.org/...&gt;</code>,
+or <code>none</code>
+</td>
+</tr>
+<tr class="odd">
 <td><code>Config/washr/pages-domain</code></td>
 <td>the domain of the site</td>
 <td>only when the site is not served from
@@ -417,12 +499,12 @@ README badges, the publisher url in the metadata</td>
 </table>
 <p>For a package under another organisation,
 <code><a href="../reference/update_description.html">update_description()</a></code> writes the funding, analytics, Zenodo
-community, brand, publisher, website, catalogue and community fields as
-<code>none</code> and lists them, because the openwashdata values would
-be wrong there. The footer then names washr and nothing else. Edit them,
-then run the steps as above. A field that is set is never overwritten.
-<code><a href="../reference/check_publication_readiness.html">check_publication_readiness()</a></code> holds the package to these
-values.</p>
+community, brand, publisher, website, catalogue, community and parent
+organisations fields as <code>none</code> and lists them, because the
+openwashdata values would be wrong there. The footer then names washr
+and nothing else. Edit them, then run the steps as above. A field that
+is set is never overwritten. <code><a href="../reference/check_publication_readiness.html">check_publication_readiness()</a></code>
+holds the package to these values.</p>
 <p>A license other than CC BY 4.0 is set in <code>License</code> before
 the first <code><a href="../reference/update_description.html">update_description()</a></code>, for example with
 <code><a href="https://usethis.r-lib.org/reference/licenses.html" class="external-link">usethis::use_cc0_license()</a></code> or another

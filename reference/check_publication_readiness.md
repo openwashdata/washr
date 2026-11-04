@@ -18,16 +18,18 @@ script or a review tool can pick the rows it needs.
 | metadata | `description_complete` | `Title`, `Description` and `Authors@R` no longer hold the placeholder text of a new package |
 | metadata | `citation_cff` | `CITATION.cff` is present |
 | metadata | `citation_version` | the `version` in `CITATION.cff` equals `Version` in DESCRIPTION |
+| metadata | `version_follows_data` | on a release version with a tag `v<version>`, `data/`, `inst/extdata/` and `data-raw/dictionary.csv` are unchanged since that tag |
 | metadata | `citation_authors` | `CITATION.cff` and `inst/CITATION` carry real authors, not "Firstname Lastname" |
 | metadata | `zenodo_json` | `.zenodo.json` is present and equals what DESCRIPTION gives now |
 | metadata | `keywords` | DESCRIPTION carries `X-schema.org-keywords`; the detail says whether `CITATION.cff` agrees |
 | metadata | `coverage` | DESCRIPTION carries `X-schema.org-spatialCoverage` and `X-schema.org-temporalCoverage` |
 | metadata | `title_length` | `Title` has at most 65 characters |
+| metadata | `publisher_ror` | the parent organisations of the publisher (`Config/washr/parent-organizations`) carry at least one ROR; not applicable when the profile names none |
 | data | `data_present` | `data/` holds at least one `.rda` file that loads |
 | data | `dictionary_present` | `data-raw/dictionary.csv` is present |
 | data | `dictionary_coverage` | the dictionary covers every variable of every data object |
 | data | `dictionary_descriptions` | no description is empty or a placeholder |
-| data | `dictionary_schema` | the five washr columns in order, UTF-8 without a byte order mark, one class name per `variable_type` |
+| data | `dictionary_schema` | the five washr columns first, in order, further named columns allowed, UTF-8 without a byte order mark, one class name per `variable_type` |
 | docs | `roxygen_docs` | every data object has a help page in `man/` |
 | docs | `readme` | `README.Rmd` and the rendered `README.md` are present |
 | docs | `rd_source` | at least one help page in `man/` carries a source |
@@ -42,6 +44,7 @@ script or a review tool can pick the rows it needs.
 | docs | `pkgdown_washr_version` | the footer in `_pkgdown.yml` names the washr version that `Config/washr/version` records |
 | docs | `pkgdown_brand` | the brand entry in `_pkgdown.yml` matches the organisation |
 | docs | `pkgdown_llm_docs` | `_pkgdown.yml` does not switch off the `llms.txt` of the site (`llm-docs: false`) |
+| docs | `site_jsonld` | `pkgdown/assets/metadata.jsonld` is present and equals the JSON-LD in the head of the pages (`pkgdown/templates/in-header.html`), both written by [`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md) |
 | docs | `docs_untracked` | git tracks no file under `docs/` while the pkgdown workflow deploys the site |
 | tests | `check_workflow` | `.github/workflows/R-CMD-check.yaml` is present |
 | tests | `check_workflow_dev` | every `branches:` list in that workflow includes `dev` |
@@ -51,6 +54,17 @@ An item that cannot be decided is reported as not applicable, with the
 reason: for example the version comparison when `CITATION.cff` is
 missing, or the `docs/` item when the package has no pkgdown workflow.
 Not applicable items never count against the package.
+
+The version of a data package changes only when the data, or their
+meaning, change. `version_follows_data` compares the working tree,
+uncommitted and untracked files included, with the tag `v<version>` of
+the release the version names. An `.rda` file counts as changed only
+when the objects it holds differ, and an `.xlsx` file in `inst/extdata/`
+only when the `.csv` file of the same name changed as well, since both
+formats change their bytes when they are written again. The item is not
+applicable on a development version, without git, without the tag (also
+in a shallow clone that lacks it) or when the package is not the root of
+its git repository.
 
 ## Usage
 
@@ -96,6 +110,11 @@ check_publication_readiness(path = ".", profile = NULL)
   - `brand`: `"none"` when the organisation has no brand, or the name of
     its brand. Without it, the brand item is not applicable.
 
+  - `parent_organizations`: the organisations above the publisher, in
+    the form of `Config/washr/parent-organizations` (`Name <url>`
+    entries separated by semicolons). Without it, or with `"none"`, the
+    ROR item is not applicable.
+
 ## Value
 
 A data frame of class `washr_readiness`, invisibly, with one row per
@@ -116,6 +135,7 @@ Next: fix the items that fail and run it again, then release the
 package.
 
 Other publishing functions:
+[`data_availability_statement()`](https://openwashdata.github.io/washr/reference/data_availability_statement.md),
 [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md),
 [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md),
 [`update_website()`](https://openwashdata.github.io/washr/reference/update_website.md),

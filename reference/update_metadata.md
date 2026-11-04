@@ -19,7 +19,7 @@ The sources are:
 | keywords | `X-schema.org-keywords` in DESCRIPTION, comma separated |
 | spatialCoverage, temporalCoverage | `X-schema.org-spatialCoverage` and `X-schema.org-temporalCoverage` in DESCRIPTION |
 | isBasedOn | the source article DOIs in `X-schema.org-isBasedOn` in DESCRIPTION, comma separated |
-| creator, maintainer, funder, publisher | `Authors@R` roles `aut`/`cre`, `cre`, `fnd`, `cph`; ORCID from the `comment` field. Without a `cph`, the publisher is the organisation with the website in `Config/washr/home` |
+| creator, maintainer, funder, publisher | `Authors@R` roles `aut`/`cre`, `cre`, `fnd`, `cph`; ORCID from the `comment` field, and the `ROR` comment key of an organisation as its `@id`. Without a `cph`, the publisher is the organisation with the website in `Config/washr/home`. The organisations in `Config/washr/parent-organizations` nest under the publisher as `parentOrganization`, a `https://ror.org/` URL as the `@id`; the entries up to and including the publisher itself (same name, or the publisher name followed by a comma) are skipped |
 | includedInDataCatalog | the data catalogue of the organisation in `Config/washr/catalog` |
 | identifier, sameAs | the DOI in `CITATION.cff`, written by [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md) |
 | variableMeasured | `data-raw/dictionary.csv` |
@@ -27,8 +27,12 @@ The sources are:
 
 The JSON-LD lands in `pkgdown/templates/in-header.html`, which pkgdown
 picks up on the next site build. The file also keeps the `in_header`
-includes from `_pkgdown.yml` working. It is not shipped in the package
-tarball.
+includes from `_pkgdown.yml` working. The same JSON-LD is also written
+to `pkgdown/assets/metadata.jsonld`, which pkgdown copies to the root of
+the site, so the metadata has its own address (`<site>/metadata.jsonld`)
+for tools that read files rather than page heads; the README links it.
+Each file is written only when its content changed. Neither is shipped
+in the package tarball.
 
 ## Usage
 

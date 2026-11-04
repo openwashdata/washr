@@ -13,7 +13,7 @@ urlthe pkgdown site (a github.io entry in URL), else the repository
 keywordsX-schema.org-keywords in DESCRIPTION, comma separated
 spatialCoverage, temporalCoverageX-schema.org-spatialCoverage and X-schema.org-temporalCoverage in DESCRIPTION
 isBasedOnthe source article DOIs in X-schema.org-isBasedOn in DESCRIPTION, comma separated
-creator, maintainer, funder, publisherAuthors@R roles aut/cre, cre, fnd, cph; ORCID from the comment field. Without a cph, the publisher is the organisation with the website in Config/washr/home
+creator, maintainer, funder, publisherAuthors@R roles aut/cre, cre, fnd, cph; ORCID from the comment field, and the ROR comment key of an organisation as its @id. Without a cph, the publisher is the organisation with the website in Config/washr/home. The organisations in Config/washr/parent-organizations nest under the publisher as parentOrganization, a https://ror.org/ URL as the @id; the entries up to and including the publisher itself (same name, or the publisher name followed by a comma) are skipped
 includedInDataCatalogthe data catalogue of the organisation in Config/washr/catalog
 identifier, sameAsthe DOI in CITATION.cff, written by update_citation()
 variableMeasureddata-raw/dictionary.csv
@@ -24,8 +24,12 @@ distributionevery file in inst/extdata that belongs to a dataset, one entry per 
 
 The JSON-LD lands in pkgdown/templates/in-header.html, which pkgdown
 picks up on the next site build. The file also keeps the in_header
-includes from _pkgdown.yml working. It is not shipped in the package
-tarball."><meta property="og:description" content="
+includes from _pkgdown.yml working. The same JSON-LD is also written to
+pkgdown/assets/metadata.jsonld, which pkgdown copies to the root of the
+site, so the metadata has its own address (&amp;lt;site&amp;gt;/metadata.jsonld) for
+tools that read files rather than page heads; the README links it. Each
+file is written only when its content changed. Neither is shipped in the
+package tarball."><meta property="og:description" content="
 update_metadata() derives a schema.org Dataset description from the
 canonical sources of the package and writes it as a JSON-LD block into the
 head of every pkgdown page, where dataset search engines read it. Nothing
@@ -39,7 +43,7 @@ urlthe pkgdown site (a github.io entry in URL), else the repository
 keywordsX-schema.org-keywords in DESCRIPTION, comma separated
 spatialCoverage, temporalCoverageX-schema.org-spatialCoverage and X-schema.org-temporalCoverage in DESCRIPTION
 isBasedOnthe source article DOIs in X-schema.org-isBasedOn in DESCRIPTION, comma separated
-creator, maintainer, funder, publisherAuthors@R roles aut/cre, cre, fnd, cph; ORCID from the comment field. Without a cph, the publisher is the organisation with the website in Config/washr/home
+creator, maintainer, funder, publisherAuthors@R roles aut/cre, cre, fnd, cph; ORCID from the comment field, and the ROR comment key of an organisation as its @id. Without a cph, the publisher is the organisation with the website in Config/washr/home. The organisations in Config/washr/parent-organizations nest under the publisher as parentOrganization, a https://ror.org/ URL as the @id; the entries up to and including the publisher itself (same name, or the publisher name followed by a comma) are skipped
 includedInDataCatalogthe data catalogue of the organisation in Config/washr/catalog
 identifier, sameAsthe DOI in CITATION.cff, written by update_citation()
 variableMeasureddata-raw/dictionary.csv
@@ -50,8 +54,12 @@ distributionevery file in inst/extdata that belongs to a dataset, one entry per 
 
 The JSON-LD lands in pkgdown/templates/in-header.html, which pkgdown
 picks up on the next site build. The file also keeps the in_header
-includes from _pkgdown.yml working. It is not shipped in the package
-tarball."></head><body>
+includes from _pkgdown.yml working. The same JSON-LD is also written to
+pkgdown/assets/metadata.jsonld, which pkgdown copies to the root of the
+site, so the metadata has its own address (&amp;lt;site&amp;gt;/metadata.jsonld) for
+tools that read files rather than page heads; the README links it. Each
+file is written only when its content changed. Neither is shipped in the
+package tarball."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -59,7 +67,7 @@ tarball."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">washr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,10 +102,14 @@ head of every pkgdown page, where dataset search engines read it. Nothing
 is hand edited: to change a value, change its source and run the function
 again. Running it twice produces no change. It ends by listing the fields
 it could not fill and where to fill them.</p>
-<p>The sources are:</p><table class="table table"><tr><td>Field</td><td>Source</td></tr><tr><td>name, description, version, datePublished, license</td><td><code>Title</code>, <code>Description</code>, <code>Version</code>, <code>Date</code>, <code>License</code> in DESCRIPTION</td></tr><tr><td>url</td><td>the pkgdown site (a <code>github.io</code> entry in <code>URL</code>), else the repository</td></tr><tr><td>keywords</td><td><code>X-schema.org-keywords</code> in DESCRIPTION, comma separated</td></tr><tr><td>spatialCoverage, temporalCoverage</td><td><code>X-schema.org-spatialCoverage</code> and <code>X-schema.org-temporalCoverage</code> in DESCRIPTION</td></tr><tr><td>isBasedOn</td><td>the source article DOIs in <code>X-schema.org-isBasedOn</code> in DESCRIPTION, comma separated</td></tr><tr><td>creator, maintainer, funder, publisher</td><td><code>Authors@R</code> roles <code>aut</code>/<code>cre</code>, <code>cre</code>, <code>fnd</code>, <code>cph</code>; ORCID from the <code>comment</code> field. Without a <code>cph</code>, the publisher is the organisation with the website in <code>Config/washr/home</code></td></tr><tr><td>includedInDataCatalog</td><td>the data catalogue of the organisation in <code>Config/washr/catalog</code></td></tr><tr><td>identifier, sameAs</td><td>the DOI in <code>CITATION.cff</code>, written by <code><a href="update_citation.html">update_citation()</a></code></td></tr><tr><td>variableMeasured</td><td><code>data-raw/dictionary.csv</code></td></tr><tr><td>distribution</td><td>every file in <code>inst/extdata</code> that belongs to a dataset, one entry per file</td></tr></table><p>The JSON-LD lands in <code>pkgdown/templates/in-header.html</code>, which pkgdown
+<p>The sources are:</p><table class="table table"><tr><td>Field</td><td>Source</td></tr><tr><td>name, description, version, datePublished, license</td><td><code>Title</code>, <code>Description</code>, <code>Version</code>, <code>Date</code>, <code>License</code> in DESCRIPTION</td></tr><tr><td>url</td><td>the pkgdown site (a <code>github.io</code> entry in <code>URL</code>), else the repository</td></tr><tr><td>keywords</td><td><code>X-schema.org-keywords</code> in DESCRIPTION, comma separated</td></tr><tr><td>spatialCoverage, temporalCoverage</td><td><code>X-schema.org-spatialCoverage</code> and <code>X-schema.org-temporalCoverage</code> in DESCRIPTION</td></tr><tr><td>isBasedOn</td><td>the source article DOIs in <code>X-schema.org-isBasedOn</code> in DESCRIPTION, comma separated</td></tr><tr><td>creator, maintainer, funder, publisher</td><td><code>Authors@R</code> roles <code>aut</code>/<code>cre</code>, <code>cre</code>, <code>fnd</code>, <code>cph</code>; ORCID from the <code>comment</code> field, and the <code>ROR</code> comment key of an organisation as its <code>@id</code>. Without a <code>cph</code>, the publisher is the organisation with the website in <code>Config/washr/home</code>. The organisations in <code>Config/washr/parent-organizations</code> nest under the publisher as <code>parentOrganization</code>, a <code>https://ror.org/</code> URL as the <code>@id</code>; the entries up to and including the publisher itself (same name, or the publisher name followed by a comma) are skipped</td></tr><tr><td>includedInDataCatalog</td><td>the data catalogue of the organisation in <code>Config/washr/catalog</code></td></tr><tr><td>identifier, sameAs</td><td>the DOI in <code>CITATION.cff</code>, written by <code><a href="update_citation.html">update_citation()</a></code></td></tr><tr><td>variableMeasured</td><td><code>data-raw/dictionary.csv</code></td></tr><tr><td>distribution</td><td>every file in <code>inst/extdata</code> that belongs to a dataset, one entry per file</td></tr></table><p>The JSON-LD lands in <code>pkgdown/templates/in-header.html</code>, which pkgdown
 picks up on the next site build. The file also keeps the <code>in_header</code>
-includes from <code>_pkgdown.yml</code> working. It is not shipped in the package
-tarball.</p>
+includes from <code>_pkgdown.yml</code> working. The same JSON-LD is also written to
+<code>pkgdown/assets/metadata.jsonld</code>, which pkgdown copies to the root of the
+site, so the metadata has its own address (<code>&lt;site&gt;/metadata.jsonld</code>) for
+tools that read files rather than page heads; the README links it. Each
+file is written only when its content changed. Neither is shipped in the
+package tarball.</p>
     </div>
 
     <div class="section level2">

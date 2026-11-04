@@ -62,6 +62,7 @@ updates an existing `_pkgdown.yml`.
 
 Other publishing functions:
 [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md),
+[`data_availability_statement()`](https://openwashdata.github.io/washr/reference/data_availability_statement.md),
 [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md),
 [`update_website()`](https://openwashdata.github.io/washr/reference/update_website.md),
 [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)

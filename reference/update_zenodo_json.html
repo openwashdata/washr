@@ -12,13 +12,14 @@ update_citation() calls it, so the citation files and .zenodo.json are
 written in one step and stay in line with each other.
 The sources are:
 KeySource
-title, description, versionTitle, Description, Version in DESCRIPTION
+title, versionTitle, Version in DESCRIPTION
+descriptionDescription in DESCRIPTION, followed by a link to the package website when the package has one
 upload_typealways dataset
 creatorsAuthors@R roles aut and cre; ORCID and affiliation from the comment field
 licenseLicense in DESCRIPTION, as the identifier Zenodo uses (e.g., cc-by-4.0)
 keywordsX-schema.org-keywords in DESCRIPTION, comma separated
 communitiesConfig/washr/zenodo-community in DESCRIPTION: openwashdata for an openwashdata package, none for another organisation until it sets one
-related_identifiersthe source article DOIs in X-schema.org-isBasedOn in DESCRIPTION
+related_identifiersthe repository from URL in DESCRIPTION, the package website, and the source article DOIs in X-schema.org-isBasedOn in DESCRIPTION
 
 
 "><meta property="og:description" content="update_zenodo_json() writes .zenodo.json at the package root. Zenodo
@@ -34,13 +35,14 @@ update_citation() calls it, so the citation files and .zenodo.json are
 written in one step and stay in line with each other.
 The sources are:
 KeySource
-title, description, versionTitle, Description, Version in DESCRIPTION
+title, versionTitle, Version in DESCRIPTION
+descriptionDescription in DESCRIPTION, followed by a link to the package website when the package has one
 upload_typealways dataset
 creatorsAuthors@R roles aut and cre; ORCID and affiliation from the comment field
 licenseLicense in DESCRIPTION, as the identifier Zenodo uses (e.g., cc-by-4.0)
 keywordsX-schema.org-keywords in DESCRIPTION, comma separated
 communitiesConfig/washr/zenodo-community in DESCRIPTION: openwashdata for an openwashdata package, none for another organisation until it sets one
-related_identifiersthe source article DOIs in X-schema.org-isBasedOn in DESCRIPTION
+related_identifiersthe repository from URL in DESCRIPTION, the package website, and the source article DOIs in X-schema.org-isBasedOn in DESCRIPTION
 
 
 "></head><body>
@@ -51,7 +53,7 @@ related_identifiersthe source article DOIs in X-schema.org-isBasedOn in DESCRIPT
 
     <a class="navbar-brand me-2" href="../index.html">washr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +92,7 @@ only a few fields of <code>CITATION.cff</code>.</p>
 and run the function again. Running it twice produces no change.
 <code><a href="update_citation.html">update_citation()</a></code> calls it, so the citation files and <code>.zenodo.json</code> are
 written in one step and stay in line with each other.</p>
-<p>The sources are:</p><table class="table table"><tr><td>Key</td><td>Source</td></tr><tr><td>title, description, version</td><td><code>Title</code>, <code>Description</code>, <code>Version</code> in DESCRIPTION</td></tr><tr><td>upload_type</td><td>always <code>dataset</code></td></tr><tr><td>creators</td><td><code>Authors@R</code> roles <code>aut</code> and <code>cre</code>; ORCID and affiliation from the <code>comment</code> field</td></tr><tr><td>license</td><td><code>License</code> in DESCRIPTION, as the identifier Zenodo uses (e.g., <code>cc-by-4.0</code>)</td></tr><tr><td>keywords</td><td><code>X-schema.org-keywords</code> in DESCRIPTION, comma separated</td></tr><tr><td>communities</td><td><code>Config/washr/zenodo-community</code> in DESCRIPTION: <code>openwashdata</code> for an openwashdata package, none for another organisation until it sets one</td></tr><tr><td>related_identifiers</td><td>the source article DOIs in <code>X-schema.org-isBasedOn</code> in DESCRIPTION</td></tr></table></div>
+<p>The sources are:</p><table class="table table"><tr><td>Key</td><td>Source</td></tr><tr><td>title, version</td><td><code>Title</code>, <code>Version</code> in DESCRIPTION</td></tr><tr><td>description</td><td><code>Description</code> in DESCRIPTION, followed by a link to the package website when the package has one</td></tr><tr><td>upload_type</td><td>always <code>dataset</code></td></tr><tr><td>creators</td><td><code>Authors@R</code> roles <code>aut</code> and <code>cre</code>; ORCID and affiliation from the <code>comment</code> field</td></tr><tr><td>license</td><td><code>License</code> in DESCRIPTION, as the identifier Zenodo uses (e.g., <code>cc-by-4.0</code>)</td></tr><tr><td>keywords</td><td><code>X-schema.org-keywords</code> in DESCRIPTION, comma separated</td></tr><tr><td>communities</td><td><code>Config/washr/zenodo-community</code> in DESCRIPTION: <code>openwashdata</code> for an openwashdata package, none for another organisation until it sets one</td></tr><tr><td>related_identifiers</td><td>the repository from <code>URL</code> in DESCRIPTION, the package website, and the source article DOIs in <code>X-schema.org-isBasedOn</code> in DESCRIPTION</td></tr></table></div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
@@ -109,10 +111,19 @@ the release, and run the function again whenever DESCRIPTION changes.</p>
 <p>Set <code>Config/washr/zenodo-community</code> in DESCRIPTION to file the record in
 another community, to several (comma separated), or to <code>none</code> for no
 community.</p>
-<p>A source article is written as a related identifier with the relation
-<code>isDerivedFrom</code>. Zenodo then drops its own link to the release tag on
-GitHub, so the repository from the <code>URL</code> field is added as a second
-related identifier.</p>
+<p>The package website is the <code>url</code> in <code>_pkgdown.yml</code>, or else the entry
+of the DESCRIPTION <code>URL</code> field on the pages domain (<code>github.io</code> unless
+<code>Config/washr/pages-domain</code> names another). When there is one, the
+description becomes HTML, which Zenodo renders: the <code>Description</code> field
+as the first paragraph and "Explore the data on a curated website" with
+the link as the second. The website is also written as a related
+identifier with the relation <code>isDocumentedBy</code>. Without a website the
+description is the <code>Description</code> field as it is.</p>
+<p>The repository from the <code>URL</code> field is always written as a related
+identifier with the relation <code>isSupplementTo</code>, because any related
+identifier replaces the link to the release tag on GitHub that Zenodo
+adds by default. A source article is written with the relation
+<code>isDerivedFrom</code>.</p>
 <p>When washr does not know the license, the file carries none. Zenodo then
 takes the license GitHub detects for the repository, and CC0 1.0 for a
 dataset when GitHub detects none.</p>

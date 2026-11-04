@@ -1,5 +1,155 @@
 # Changelog
 
+## washr 1.3.0
+
+### New
+
+- [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md)
+  has a new item, `version_follows_data`. On a release version with a
+  tag `v<version>`, it fails when `data/`, `inst/extdata/` or
+  `data-raw/dictionary.csv` differ from that tag, uncommitted and
+  untracked files included. An `.rda` file counts as changed only when
+  its objects differ, and an `.xlsx` file in `inst/extdata/` only when
+  the `.csv` file of the same name changed too. The fix names
+  [`usethis::use_dev_version()`](https://usethis.r-lib.org/reference/use_version.html),
+  then `update_citation(build = FALSE)` and
+  [`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md).
+  The item is not applicable on a development version, without git,
+  without the tag (also in a shallow clone that lacks it) or when the
+  package is not the root of its git repository. The vignette describes
+  the rule behind it: the version of a data package changes only when
+  the data, or their meaning, change
+  ([\#163](https://github.com/openwashdata/washr/issues/163)).
+- [`data_availability_statement()`](https://openwashdata.github.io/washr/reference/data_availability_statement.md)
+  drafts the text for the authors of an article that uses a data
+  package, once the DOI is on file: the reference list entry in APA
+  style (authors with roles `aut` and `cre` in <Authors@R> order, “&”
+  before the last author, the first 19, an ellipsis and the last with
+  more than 20, version, `[Data set]`, the DOI link and the repository),
+  the data availability statement (licence, package, version, DOI, the
+  website for the CSV and Excel downloads) and the in-text citation
+  (“Feni et al., 2026”). The opening words of the statement come from
+  the `subject` argument (“The data” by default). An optional last
+  sentence on data left out of the package comes from the new field
+  `Config/washr/withheld` in DESCRIPTION. `clipboard = TRUE` copies the
+  reference and the statement with clipr, a new Suggests. The function
+  stops when `CITATION.cff` carries no DOI yet and warns on a
+  development version
+  ([\#155](https://github.com/openwashdata/washr/issues/155)).
+- ROR identifiers in the schema.org metadata. The new field
+  `Config/washr/parent-organizations` in DESCRIPTION names the
+  organisations above the publisher, nearest first, as `Name <url>`
+  entries separated by semicolons.
+  [`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
+  writes it with the other defaults: for openwashdata the chain Global
+  Health Engineering (<https://ghe.ethz.ch/>), the Institute of Design,
+  Materials and Fabrication (ROR 03zqk4w67) and ETH Zurich (ROR
+  05a28rw58), and `none` for another organisation.
+  [`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md)
+  nests the chain under the publisher as `parentOrganization`, both for
+  a `cph` entity and for the organisation that stands in without one; a
+  `https://ror.org/` URL becomes the `@id` of its entry, any other URL
+  its `url`. An organisation entity in `Authors@R` (`cph`, `fnd`) can
+  carry its own ROR in the comment field,
+  `comment = c(ROR = "05a28rw58")`, which becomes its `@id`.
+  [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md)
+  has a new item, `publisher_ror`, which passes when the chain carries
+  at least one ROR and is not applicable when the profile names none.
+  `.zenodo.json` and `CITATION.cff` are unchanged
+  ([\#153](https://github.com/openwashdata/washr/issues/153)).
+- [`setup_rawdata()`](https://openwashdata.github.io/washr/reference/setup_rawdata.md)
+  and
+  [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md)
+  handle several datasets. `setup_rawdata(datasets = )` takes the names
+  of the tidy data objects, writes one
+  [`usethis::use_data()`](https://usethis.r-lib.org/reference/use_data.html)
+  line per dataset into `data-raw/data_processing.R` and exports each of
+  them to `inst/extdata/` in one loop over the names; without it the one
+  dataset is named after the package, as before, through the same loop.
+  A name that is not a valid R name stops the run.
+  [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md)
+  writes one data section per object in `data/`, alphabetically, or for
+  the objects named in its new `datasets` argument; with several objects
+  the introduction names their number, the Example section keeps the
+  first object, and an object without rows in the dictionary gets a
+  warning. The README of a single dataset is unchanged. The hand edits
+  the vignette described for a package with several datasets are no
+  longer needed
+  ([\#103](https://github.com/openwashdata/washr/issues/103)).
+- [`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md)
+  also writes the schema.org JSON-LD as a file,
+  `pkgdown/assets/metadata.jsonld`, which pkgdown copies to the root of
+  the site (`<site>/metadata.jsonld`). The file carries the same text as
+  the JSON-LD in the head of the pages and is written only when it
+  changed. The README template links it in one sentence of the Citation
+  section when the package names its site, so the link reaches the
+  `llms.txt` of the site.
+  [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md)
+  has a new item, `site_jsonld`, which passes when the file is present
+  and equals the JSON-LD in the page head, and is not applicable without
+  `_pkgdown.yml`
+  ([\#137](https://github.com/openwashdata/washr/issues/137)).
+
+### Changed
+
+- [`update_zenodo_json()`](https://openwashdata.github.io/washr/reference/update_zenodo_json.md),
+  and with it
+  [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md),
+  links the package website on the Zenodo record. The description gets a
+  second paragraph, “Explore the data on a curated website”, with the
+  link, written as HTML, which Zenodo renders. The website is also a
+  related identifier with the relation `isDocumentedBy`. The website is
+  the `url` in `_pkgdown.yml`, or else the `github.io` entry of the
+  DESCRIPTION `URL` field; without one, the description stays as it was.
+  The repository link (`isSupplementTo`) is now written always, not only
+  when the package names source articles. Existing packages get a new
+  `.zenodo.json`:
+  [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md)
+  reports the `zenodo_json` item as differing until
+  [`update_citation()`](https://openwashdata.github.io/washr/reference/update_citation.md)
+  runs again, which belongs to the next release of each package
+  ([\#154](https://github.com/openwashdata/washr/issues/154)).
+- [`update_dictionary()`](https://openwashdata.github.io/washr/reference/update_dictionary.md)
+  brings a dictionary in an older layout to the washr layout before it
+  matches the rows to the data: an unnamed index column and unnamed
+  empty columns are dropped, `directory` and `file_name` are derived
+  from the data objects when the file lacks them or holds placeholders
+  (a variable that several data objects carry gets one row per object),
+  the five washr columns come first and every other column keeps its
+  place after them.
+  [`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md)
+  then runs on those packages. A row whose variable no data object
+  carries stops the run with the variable named.
+  [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md)
+  accepts named columns after the five in `dictionary_schema`, as
+  [`update_dictionary()`](https://openwashdata.github.io/washr/reference/update_dictionary.md)
+  keeps them
+  ([\#151](https://github.com/openwashdata/washr/issues/151)).
+- [`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
+  writes `Date` once and then keeps it; a release sets the date on
+  purpose with the new `date` argument (`"today"` or a `Date`). The site
+  branding passes had to restore the field on 59 packages whose data had
+  not changed
+  ([\#150](https://github.com/openwashdata/washr/issues/150)).
+
+### Fixed
+
+- [`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md)
+  pins the download URLs of the JSON-LD (`contentUrl`) to the release
+  tag `v<version>`, so a citation of a release gets the same files
+  later. A development version still points at the main branch. It is
+  the rule the README template uses for its download links
+  ([\#137](https://github.com/openwashdata/washr/issues/137)).
+- [`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md)
+  no longer stops on its first call in a package without an `R/` folder;
+  it creates the folder itself
+  ([\#144](https://github.com/openwashdata/washr/issues/144)).
+- `update_description(date = )` with a value that is not `"today"`, a
+  `Date` or a `"YYYY-MM-DD"` string now stops with those accepted forms
+  named, before the file is touched, in place of the error from
+  [`as.Date()`](https://rdrr.io/r/base/as.Date.html)
+  ([\#150](https://github.com/openwashdata/washr/issues/150)).
+
 ## washr 1.2.2
 
 The release that puts the openwashdata logo on every package site and

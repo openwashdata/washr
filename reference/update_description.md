@@ -2,7 +2,8 @@
 
 This function updates the DESCRIPTION file of an R package to comply
 with openwashdata standards. It ensures that fields such as `License`,
-`Language`, `Date`, `URL`, and others are correctly specified. Existing
+`Language`, `Date`, `URL`, and others are correctly specified. `Date` is
+written once and then kept; a release sets it through `date`. Existing
 `URL` and `Config/Needs/website` entries are preserved and merged with
 the openwashdata defaults. A CC BY 4.0 license is only set when the
 package does not have a license yet; an existing license is left
@@ -11,7 +12,7 @@ untouched.
 ## Usage
 
 ``` r
-update_description(file = ".", github_user = NULL)
+update_description(file = ".", github_user = NULL, date = NULL)
 ```
 
 ## Arguments
@@ -27,6 +28,14 @@ update_description(file = ".", github_user = NULL)
   package, e.g., `"https://github.com/yourorg"`. Defaults to the
   organisation of the repository already listed in `URL`, and to
   `"https://github.com/openwashdata"` when `URL` lists none.
+
+- date:
+
+  The `Date` field for a release: `"today"`, a `Date`, or a
+  `"YYYY-MM-DD"` string; any other value stops the run. The default
+  `NULL` keeps an existing date and writes today only when the field is
+  absent, so a run that changes nothing about the data does not move the
+  date of the package (#150).
 
 ## Value
 
@@ -53,6 +62,7 @@ other function reads them from there:
 | `Config/washr/home` | the website of the organisation: the navbar link, the line under the README badges, the publisher url in the metadata | `https://openwashdata.org` |
 | `Config/washr/catalog` | the data catalogue named in the metadata (`includedInDataCatalog`) | the Data page of openwashdata.org |
 | `Config/washr/community` | the text of the community block in the sidebar of the site | the openwashdata block with the catalogue and the newsletter |
+| `Config/washr/parent-organizations` | the organisations above the publisher in the metadata (`parentOrganization`), nearest first, as `Name <url>` entries separated by semicolons; a `https://ror.org/` URL becomes the ROR identifier | Global Health Engineering, the Institute of Design, Materials and Fabrication and ETH Zurich, the last two with their ROR |
 | `Config/washr/version` | the washr version that last ran this function; also named in the footer of the site |  |
 
 A field that you edited is never overwritten, so a group other than
@@ -62,10 +72,10 @@ package moves to another organisation, whether `github_user` names it or
 old organisation follow; with `github_user`, the repository in `URL` is
 replaced as well. Set a field to `none` to switch its feature off. For a
 package under another GitHub organisation the funding, analytics, Zenodo
-community, brand, publisher, website, catalogue and community fields are
-written as `none`, because the openwashdata values would be wrong there.
-One more field is only ever written by hand:
-`Config/washr/pages-domain`, for a site that is not served from
+community, brand, publisher, website, catalogue, community and parent
+organisations fields are written as `none`, because the openwashdata
+values would be wrong there. One more field is only ever written by
+hand: `Config/washr/pages-domain`, for a site that is not served from
 `<organisation>.github.io`.
 
 ## See also

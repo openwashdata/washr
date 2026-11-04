@@ -15,10 +15,18 @@ function names it. A renamed variable or data object cannot be told from
 one removed and one added, so what you wrote in the removed rows is
 printed for you to copy into the new rows.
 
-The columns keep the order they have in the file. The rows follow the
-data: data objects in alphabetical order, variables in the order of the
-data object. When nothing differs, the file is left untouched, so the
-function is safe to run again.
+A dictionary in an older layout is brought to the washr layout first: an
+unnamed index column and unnamed empty columns from a spreadsheet are
+dropped, `directory` and `file_name` are derived from the data objects
+when the file lacks them or holds placeholders (a variable that several
+data objects carry gets one row per object), and a row whose variable no
+data object carries stops the run with the variable named.
+
+The five washr columns come first, in order; every other column keeps
+its place after them. The rows follow the data: data objects in
+alphabetical order, variables in the order of the data object. When
+nothing differs, the file is left untouched, so the function is safe to
+run again.
 
 ## Usage
 

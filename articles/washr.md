@@ -171,7 +171,11 @@ derives a schema.org description of the dataset from `DESCRIPTION`, the
 dictionary, the citation file and the files in `inst/extdata`, and
 writes it as JSON-LD into `pkgdown/templates/in-header.html`. The
 website build embeds it in the head of every page, where dataset search
-engines read it.
+engines read it. The same JSON-LD goes to
+`pkgdown/assets/metadata.jsonld`, which the build copies to the root of
+the site, so the metadata also has its own address,
+`<site>/metadata.jsonld`. The README links it in the Citation section
+once the package names its site.
 
 ``` r
 
@@ -186,9 +190,9 @@ This function is experimental; its output shape may still change.
 
 [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md)
 writes `README.Rmd` from the openwashdata template, with the
-installation instructions, the download table, and a section for the
-first data object. With `has_example = TRUE` it adds an Example section
-with a scaffold for a first plot.
+installation instructions, the download table, and a section per data
+object. With `has_example = TRUE` it adds an Example section with a
+scaffold for a first plot.
 
 ``` r
 
@@ -311,6 +315,51 @@ the file before you create the release.
 [`update_zenodo_json()`](https://openwashdata.github.io/washr/reference/update_zenodo_json.md)
 writes it on its own.
 
+Once the DOI is on file,
+[`data_availability_statement()`](https://openwashdata.github.io/washr/reference/data_availability_statement.md)
+drafts the text for the authors of an article that uses the data: the
+reference list entry in APA style, the data availability statement and
+the in-text citation. Name the data the article uses with `subject`;
+when some data was left out of the package, write one sentence that says
+what and why into `Config/washr/withheld` in `DESCRIPTION`, and the
+statement ends with it.
+
+``` r
+
+data_availability_statement(subject = "The household survey data")
+```
+
+## 10. Versions after the release
+
+The version and the DOI of a release identify the data someone cites.
+The version of a data package therefore changes only when the data, or
+the meaning of the data, change:
+
+| Change | Version |
+|----|----|
+| Columns renamed or removed, the structure breaks | major |
+| New data, rows or variables | minor |
+| Corrected values, or a documentation fix that changes how the data are read (unit, variable description, dictionary) | patch |
+| Website, articles, styling, CI, wording that does not change the meaning | none |
+
+Work on the website or the documentation stays on the release version
+and can reach the main branch without a new release. The first commit
+that changes the data or their meaning sets the development version:
+
+``` r
+
+usethis::use_dev_version()
+update_citation(build = FALSE)
+update_metadata()
+```
+
+[`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md)
+reports when `data/`, `inst/extdata/` or `data-raw/dictionary.csv`
+differ from the tag of the release while the version still names that
+release. A change of meaning outside these files, for example in the
+description of a dataset in `R/`, is not detected; the reviewer decides
+on it.
+
 ## Running steps again
 
 Every function above reads what is there, merges its changes, and writes
@@ -329,21 +378,30 @@ an unchanged package changes no file.
 
 ## More than one dataset
 
-The processing script and the README template are written for one
-dataset that carries the name of the package. A package can hold more.
-In `data-raw/data_processing.R`, repeat the export block for each data
-frame, so each one is saved with
+A package can hold more than one dataset. Name them when you write the
+processing script:
+
+``` r
+
+setup_rawdata(datasets = c("trips", "trucks"))
+```
+
+The export block of `data-raw/data_processing.R` then has one
 [`usethis::use_data()`](https://usethis.r-lib.org/reference/use_data.html)
-and exported to `inst/extdata/`.
+line per dataset and exports each of them to `inst/extdata/` as CSV and
+XLSX in one loop over the names. Without `datasets`, the script exports
+one dataset named after the package, through the same loop.
 [`setup_dictionary()`](https://openwashdata.github.io/washr/reference/setup_dictionary.md),
 [`setup_roxygen()`](https://openwashdata.github.io/washr/reference/setup_roxygen.md),
 [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md)
 and
 [`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md)
-cover every data object in `data/` on their own.
-[`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md)
-documents the first one, so add a section per further data object to
-`README.Rmd` by hand.
+cover every data object in `data/` on their own, and so does
+[`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md):
+it writes one data section per object, in alphabetical order, or for the
+objects named in its own `datasets` argument, in that order. It warns
+about an object that has no rows in the dictionary yet, because the
+table of its variables would stay empty.
 
 ## Publishing outside openwashdata
 
@@ -375,15 +433,16 @@ the `Config/washr/` fields:
 | `Config/washr/home` | the website of your group: the navbar link, the line under the README badges, the publisher url in the metadata | the URL, or `none` |
 | `Config/washr/catalog` | the data catalogue named in the metadata | the URL of your catalogue, or `none` |
 | `Config/washr/community` | the text of the community block in the sidebar of the site | your text, Markdown allowed, or `none` |
+| `Config/washr/parent-organizations` | the organisations above the publisher in the metadata (`parentOrganization`), nearest first; a `https://ror.org/` URL becomes the ROR identifier | `Name <url>` entries separated by semicolons, such as `Your Institute <https://ror.org/...>; Your University <https://ror.org/...>`, or `none` |
 | `Config/washr/pages-domain` | the domain of the site | only when the site is not served from `yourorg.github.io` |
 
 For a package under another organisation,
 [`update_description()`](https://openwashdata.github.io/washr/reference/update_description.md)
 writes the funding, analytics, Zenodo community, brand, publisher,
-website, catalogue and community fields as `none` and lists them,
-because the openwashdata values would be wrong there. The footer then
-names washr and nothing else. Edit them, then run the steps as above. A
-field that is set is never overwritten.
+website, catalogue, community and parent organisations fields as `none`
+and lists them, because the openwashdata values would be wrong there.
+The footer then names washr and nothing else. Edit them, then run the
+steps as above. A field that is set is never overwritten.
 [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md)
 holds the package to these values.
 

@@ -55,6 +55,7 @@ which installs the brand this reads for the Open Graph image. Next:
 
 Other publishing functions:
 [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md),
+[`data_availability_statement()`](https://openwashdata.github.io/washr/reference/data_availability_statement.md),
 [`setup_readme()`](https://openwashdata.github.io/washr/reference/setup_readme.md),
 [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md),
 [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)

@@ -50,3 +50,5 @@ README, website, brand, and the citation with its DOI
   : Write the Zenodo metadata file of the data package
 - [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md)
   : Check whether the data package is ready for publication
+- [`data_availability_statement()`](https://openwashdata.github.io/washr/reference/data_availability_statement.md)
+  : Draft the citation and data availability text for an article

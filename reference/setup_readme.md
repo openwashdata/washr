@@ -11,7 +11,12 @@ first.
 The Citation section names the publisher with its website, states in
 plain text which version to cite with which DOI, links the authors page
 of the site and `CITATION.cff`, and names the source article of
-republished data from `X-schema.org-isBasedOn`. When
+republished data from `X-schema.org-isBasedOn`. When the package names
+its site (the `url` of `_pkgdown.yml` or a site entry in the DESCRIPTION
+`URL` field), the section also links `metadata.jsonld` on the site, the
+schema.org metadata that
+[`update_metadata()`](https://openwashdata.github.io/washr/reference/update_metadata.md)
+writes, so the link reaches the `llms.txt` of the site. When
 [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
 has installed the logo (`man/figures/logo.png`), the title line shows
 it, linked to the website of the organisation. The download links point
@@ -19,14 +24,20 @@ at the release tag of the version in DESCRIPTION, and at the main branch
 for a development version. pkgdown builds the `llms.txt` of the site
 from the README, so this is also what AI tools read about the package.
 
-The template documents the first data object in `data/`
-(alphabetically); add a section per further object by hand. It stops
-when `data/` holds no data object, because every data section needs one.
+The Data section has one section per data object: a preview of the first
+rows and the table of its variables from `data-raw/dictionary.csv`.
+Without `datasets`, every data object in `data/` gets a section, in
+alphabetical order. With several objects the introduction of the Data
+section names their number. The Example section, with
+`has_example = TRUE`, starts from the first object. An object without
+rows in the dictionary gets a warning, because its table of variables
+would be empty. The function stops when `data/` holds no data object,
+because every data section needs one.
 
 ## Usage
 
 ``` r
-setup_readme(force = FALSE, has_example = FALSE)
+setup_readme(force = FALSE, has_example = FALSE, datasets = NULL)
 ```
 
 ## Arguments
@@ -44,6 +55,13 @@ setup_readme(force = FALSE, has_example = FALSE)
   [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md),
   which adds the matching article to the site.
 
+- datasets:
+
+  Character vector. The data objects in `data/` that get a section, in
+  this order, such as `c("trips", "trucks")`. The default `NULL` takes
+  every data object in `data/`, alphabetically. A name that is not a
+  data object in `data/` stops the run.
+
 ## Value
 
 The path of README.Rmd, invisibly.
@@ -58,6 +76,7 @@ which builds the site from README.md.
 
 Other publishing functions:
 [`check_publication_readiness()`](https://openwashdata.github.io/washr/reference/check_publication_readiness.md),
+[`data_availability_statement()`](https://openwashdata.github.io/washr/reference/data_availability_statement.md),
 [`setup_website()`](https://openwashdata.github.io/washr/reference/setup_website.md),
 [`update_website()`](https://openwashdata.github.io/washr/reference/update_website.md),
 [`use_brand()`](https://openwashdata.github.io/washr/reference/use_brand.md)
@@ -72,5 +91,7 @@ setup_dictionary()
 setup_readme()
 # With an Example section to fill with a first plot
 setup_readme(has_example = TRUE)
+# Sections for two of the data objects only
+setup_readme(datasets = c("trips", "trucks"))
 } # }
 ```
