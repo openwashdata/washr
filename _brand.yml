@@ -1,0 +1,125 @@
+meta:
+  name: openwashdata
+  link:
+    home: https://openwashdata.org
+    github: https://github.com/openwashdata
+    guide: https://openwashdata.github.io/brand/
+
+color:
+  palette:
+    # Purple family: the identity colour and its shades.
+    owd-purple: "#5b195b"
+    owd-purple-light: "#c8a3c8"
+    owd-purple-dark: "#2d0e2d"
+    # Wells and hover states on dark backgrounds.
+    owd-purple-dim: "#3f1a3f"
+    # Very light tint of owd-purple: page and slide backgrounds, code.
+    owd-purple-bg: "#f5eef5"
+    # Accents. Each reaches 4.5:1 as text on paper and carries white text.
+    owd-orange: "#b04208"
+    owd-green: "#257a5a"
+    owd-red: "#a4262c"
+    owd-blue: "#272bd1"
+    # Link and info colour on dark backgrounds.
+    owd-blue-light: "#9fb6ff"
+    # Muted text and disabled states.
+    owd-grey: "#5c5c5c"
+    owd-grey-light: "#b5b5b5"
+    # Core text and surface tokens.
+    ink: "#1e1e1e"
+    paper: "#f4f4f4"
+    # Highlights: backgrounds only, with ink text on top. Not for text.
+    mint: "#3EB489"
+    peach: "#FEBC94"
+    sand: "#FAE3B4"
+    rose: "#FFC0CB"
+    # Chart series, in this order, never cycled. Lightness alternates from
+    # the second colour on (dark, dark, light, dark, light, dark), so every
+    # neighbour differs in lightness as well as hue, and the red and green
+    # hues never share a lightness level (issues #17 and #20).
+    chart-1: "#8a3a8a"
+    chart-2: "#b04208"
+    chart-3: "#CF9E40"
+    chart-4: "#006840"
+    chart-5: "#FD7AAD"
+    chart-6: "#304FC2"
+    # Counterparts of the six at the other lightness level, for charts with
+    # seven to twelve series. Series 7 to 12 take them in this order.
+    chart-1-light: "#DE87DD"
+    chart-2-light: "#F28A5B"
+    chart-3-dark: "#785300"
+    chart-4-light: "#24BC82"
+    chart-5-dark: "#B60062"
+    chart-6-light: "#9A9CFF"
+    # Bootstrap-name aliases so brand-aware tools pick these up.
+    purple: owd-purple
+    blue: owd-blue
+    green: owd-green
+    orange: owd-orange
+    red: owd-red
+    yellow: sand
+    pink: rose
+  foreground: ink
+  background: paper
+  primary: owd-purple
+  secondary: owd-grey
+  tertiary: owd-purple-bg
+  success: owd-green
+  info: owd-blue
+  warning: owd-orange
+  danger: owd-red
+  light: paper
+  dark: owd-purple-dark
+
+typography:
+  fonts:
+    - family: Atkinson Hyperlegible Next
+      source: google
+      weight: [400, 600, 700]
+      style: [normal, italic]
+    - family: Source Code Pro
+      source: google
+      weight: [400, 500]
+  base:
+    family: Atkinson Hyperlegible Next
+    line-height: 1.5
+  headings:
+    family: Atkinson Hyperlegible Next
+    weight: 700
+    color: primary
+  monospace:
+    family: Source Code Pro
+  monospace-inline:
+    background-color: owd-purple-bg
+  monospace-block:
+    background-color: owd-purple-bg
+  link:
+    color: owd-blue
+    decoration: underline
+
+logo:
+  images:
+    icon:
+      path: logos/OWD-logo-18.png
+      alt: openwashdata, stacked wordmark
+    icon-dark:
+      path: logos/OWD-logo-16.png
+      alt: openwashdata, stacked wordmark in white
+    full-png:
+      path: logos/OWD-logo-01.png
+      alt: openwashdata wordmark
+    full-png-dark:
+      path: logos/OWD-logo-05.png
+      alt: openwashdata wordmark in white
+    full-svg:
+      path: logos/OWD-logo-01.svg
+      alt: openwashdata wordmark
+    full-svg-dark:
+      path: logos/OWD-logo-05.svg
+      alt: openwashdata wordmark in white
+    badge:
+      path: logos/OWD-logo-40.png
+      alt: openwashdata badge, white wordmark on a purple hexagon
+  small: icon
+  medium: full-png
+  large: full-svg

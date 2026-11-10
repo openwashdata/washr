@@ -1,0 +1,2 @@
+/* washr: the brand logo on the dark theme */
+[data-bs-theme="dark"] img.logo { content: url("logo-dark.png"); }
