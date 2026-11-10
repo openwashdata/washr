@@ -12,3 +12,5 @@
 ^dev$
 
 ^PKGREVIEW_FLOOR$
+^_brand\.yml$
+^logos$
