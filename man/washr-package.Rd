@@ -6,6 +6,8 @@
 \alias{washr-package}
 \title{washr: Publication Toolkit for Water, Sanitation and Hygiene (WASH) Data}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 A toolkit to set up an R data package in a consistent structure. Automates tasks like tidy data export, data dictionary documentation, README and website creation, and citation management.
 }
 \section{Messages and return values}{
