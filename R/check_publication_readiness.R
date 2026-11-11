@@ -36,6 +36,7 @@
 #' | docs | `readme_extdata_links` | `README.md` links a `.csv` or `.xlsx` file under `inst/extdata/` |
 #' | docs | `readme_citation` | `README.md` names the DOI that `CITATION.cff` carries |
 #' | docs | `vignettes_location` | no `.Rmd` or `.qmd` file sits directly in `vignettes/` |
+#' | docs | `article_packages` | every package an article under `vignettes/` loads is declared in DESCRIPTION (`Config/Needs/website`, `Suggests`, `Imports` or `Depends`) |
 #' | docs | `pkgdown_config` | `_pkgdown.yml` is present |
 #' | docs | `pkgdown_analytics` | `_pkgdown.yml` carries the analytics header |
 #' | docs | `pkgdown_url` | `url` in `_pkgdown.yml` is the Pages URL, not the repository URL |
@@ -65,6 +66,18 @@
 #' applicable on a development version, without git, without the tag (also
 #' in a shallow clone that lacks it) or when the package is not the root of
 #' its git repository.
+#'
+#' The pkgdown workflow installs what DESCRIPTION declares and nothing else,
+#' so an article that loads an undeclared package builds on the computer of
+#' its author and stops the site build on GitHub. `article_packages` reads
+#' the R chunks and the inline R code of every `.Rmd` and `.qmd` file under
+#' `vignettes/` and collects the packages they load with `library()`,
+#' `require()`, `requireNamespace()`, `loadNamespace()` or `pkg::`. Chunks
+#' with `eval = FALSE` are left out. A package counts as declared when
+#' `Config/Needs/website`, `Suggests`, `Imports` or `Depends` names it, when
+#' it is the package itself or part of base R, or when a declared package
+#' that is installed on this computer depends on it (dplyr under tidyverse).
+#' The item is not applicable without an article.
 #'
 #' @param path Path to the root of the data package. Defaults to the working
 #'   directory.
@@ -404,6 +417,10 @@ readiness_checks <- function() {
           "No vignettes directly in vignettes/ (they belong in vignettes/articles/)",
           "Move the files to vignettes/articles/, where usethis::use_article() puts them.",
           readiness_vignettes_location),
+    check("article_packages", "docs",
+          "Every package an article loads is declared in DESCRIPTION",
+          "Add the packages to Config/Needs/website in DESCRIPTION, where the pkgdown workflow reads what the site build needs.",
+          readiness_article_packages),
     check("pkgdown_config", "docs", "_pkgdown.yml present",
           "Run setup_website().",
           readiness_pkgdown_config),
@@ -835,6 +852,110 @@ readiness_vignettes_location <- function(ctx) {
     character()
   }
   readiness_result(length(vignettes) == 0, paste(vignettes, collapse = ", "))
+}
+
+# The pkgdown workflow installs the packages DESCRIPTION declares, so an
+# article that loads another package stops the site build on GitHub (#143).
+readiness_article_packages <- function(ctx) {
+  articles <- if (dir.exists(ctx$file("vignettes"))) {
+    list.files(ctx$file("vignettes"), "\\.(Rmd|qmd)$", recursive = TRUE, ignore.case = TRUE)
+  } else {
+    character()
+  }
+  if (!length(articles)) return(readiness_na("no article under vignettes/"))
+  loaded <- lapply(articles, function(f) article_packages(ctx$lines("vignettes", f)))
+  names(loaded) <- file.path("vignettes", articles)
+  declared <- declared_packages(ctx)
+  open <- setdiff(unique(unlist(loaded, use.names = FALSE)), declared)
+  if (length(open)) open <- setdiff(open, installed_dependencies(declared))
+  if (!length(open)) {
+    return(readiness_result(TRUE, sprintf("%d article(s) read", length(articles))))
+  }
+  where <- vapply(names(loaded), function(f) {
+    hit <- intersect(loaded[[f]], open)
+    if (length(hit)) sprintf("%s (%s)", paste(hit, collapse = ", "), f) else ""
+  }, character(1))
+  readiness_result(FALSE, paste("not declared:", paste(where[nzchar(where)], collapse = "; ")))
+}
+
+# The packages the R code of an article loads: library(), require(),
+# requireNamespace(), loadNamespace() and pkg:: in the R chunks and in the
+# inline R code. Chunks that are not run (eval = FALSE in the chunk header,
+# or `#| eval: false` as a chunk option) and comments are left out.
+article_packages <- function(lines) {
+  code <- character()
+  in_chunk <- FALSE
+  run <- TRUE
+  chunk_start <- 0L
+  for (line in lines) {
+    if (!in_chunk) {
+      if (grepl("^\\s*```+\\s*\\{[rR]([ ,}]|$)", line)) {
+        in_chunk <- TRUE
+        chunk_start <- length(code)
+        run <- !grepl("eval\\s*=\\s*(FALSE|F)\\b", line)
+      } else {
+        inline <- regmatches(line, gregexpr("`r [^`]+`", line))[[1]]
+        code <- c(code, gsub("^`r |`$", "", inline))
+      }
+    } else if (grepl("^\\s*```+\\s*$", line)) {
+      in_chunk <- FALSE
+    } else if (grepl("^\\s*#\\|\\s*eval:\\s*false\\s*$", line, ignore.case = TRUE)) {
+      run <- FALSE
+      code <- code[seq_len(chunk_start)]
+    } else if (run && !grepl("^\\s*#", line)) {
+      code <- c(code, sub("\\s#[^\"']*$", "", line))
+    }
+  }
+  name <- "[A-Za-z][A-Za-z0-9.]*"
+  calls <- paste0("\\b(?:library|require|requireNamespace|loadNamespace)\\s*\\(\\s*[\"']?(", name, ")[\"']?\\s*[,)]")
+  colons <- paste0("(?<![A-Za-z0-9._:])(", name, "):::?(?=[A-Za-z._`])")
+  found <- c(regex_groups(code, calls), regex_groups(code, colons))
+  sort(unique(found))
+}
+
+# The first capture group of every match of a Perl pattern in the lines.
+regex_groups <- function(lines, pattern) {
+  unlist(lapply(lines, function(line) {
+    m <- gregexpr(pattern, line, perl = TRUE)[[1]]
+    if (m[1] == -1L) return(character())
+    start <- attr(m, "capture.start")[, 1]
+    substring(line, start, start + attr(m, "capture.length")[, 1] - 1L)
+  }))
+}
+
+# The packages a site build finds installed: the package itself, base R and
+# what DESCRIPTION declares in Depends, Imports, Suggests and
+# Config/Needs/website. An entry of Config/Needs/website can be a pak
+# reference (any::sf, owner/repo@ref, pkg=owner/repo); its package name is
+# the name before `=`, or else the last part of the path.
+declared_packages <- function(ctx) {
+  base <- c("base", "compiler", "datasets", "graphics", "grDevices", "grid", "methods",
+            "parallel", "splines", "stats", "stats4", "tcltk", "tools", "utils")
+  entries <- unlist(lapply(c("Depends", "Imports", "Suggests", "Config/Needs/website"), function(f) {
+    value <- ctx$field(f)
+    if (is.na(value)) character() else strsplit(value, ",")[[1]]
+  }))
+  entries <- trimws(sub("\\(.*$", "", entries))
+  entries <- entries[nzchar(entries)]
+  named <- grepl("=", entries, fixed = TRUE)
+  entries[named] <- sub("=.*$", "", entries[named])
+  entries[!named] <- sub("[@#].*$", "", sub("^.*/", "", sub("^[a-z]+::", "", entries[!named])))
+  package <- ctx$field("Package")
+  unique(c(if (!is.na(package)) package, base, trimws(entries)))
+}
+
+# The packages that come along with the declared ones: their Depends,
+# Imports and LinkingTo, all levels down, read from the packages installed
+# on this computer. A declared package that is not installed adds nothing.
+installed_dependencies <- function(packages) {
+  db <- tryCatch(utils::installed.packages(fields = c("Depends", "Imports", "LinkingTo")),
+                 error = function(e) NULL)
+  if (is.null(db)) return(character())
+  packages <- intersect(packages, rownames(db))
+  if (!length(packages)) return(character())
+  deps <- tools::package_dependencies(packages, db = db, recursive = TRUE,
+                                      which = c("Depends", "Imports", "LinkingTo"))
+  unique(unlist(deps, use.names = FALSE))
 }
 
 readiness_pkgdown_config <- function(ctx) {

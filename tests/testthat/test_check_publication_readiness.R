@@ -78,9 +78,9 @@ test_that("a package taken through the workflow passes every applicable item (#8
   expect_true(all(result$status %in% c("pass", "fail", "na")))
   expect_identical(result$id[result$status == "fail"], character())
   # the package is held to its own Config/washr values; no pkgdown workflow
-  # no DOI yet; a development version outside git
+  # no DOI yet; a development version outside git; no article
   expect_identical(result$id[result$status == "na"],
-                   c("version_follows_data", "readme_citation", "docs_untracked"))
+                   c("version_follows_data", "readme_citation", "article_packages", "docs_untracked"))
 
   expect_true(attr(result, "ready"))
   expect_identical(attr(result, "washr_version"), as.character(utils::packageVersion("washr")))
@@ -93,7 +93,7 @@ test_that("the report goes through cli, can be silenced and prints again (#82)",
   expect_no_message(quiet_check())
   expect_invisible(quiet_check())
   expect_output(print(result), "Publication readiness")
-  expect_output(print(result), "32 pass, 0 fail, 3 not applicable", fixed = TRUE)
+  expect_output(print(result), "32 pass, 0 fail, 4 not applicable", fixed = TRUE)
   expect_identical(length(format(result)) > nrow(result), TRUE)
 })
 
@@ -535,4 +535,78 @@ test_that("version_follows_data is not applicable when it cannot be decided (#16
   result <- quiet_check(shallow)
   expect_identical(status_of(result, "version_follows_data"), "na")
   expect_match(detail(result), "no tag v1.0.0 in this shallow clone", fixed = TRUE)
+})
+
+test_that("an article that loads an undeclared package fails article_packages (#143)", {
+  readiness_fixture()
+  expect_identical(status_of(quiet_check(), "article_packages"), "na")
+  pkg <- desc::desc_get("Package")[[1]]
+  dir.create(file.path("vignettes", "articles"), recursive = TRUE)
+  writeLines(c(
+    "---", "title: Examples", "---", "",
+    "Prose that names dplyr::filter() loads nothing, `r nrow(datasets::cars)` rows.",
+    "",
+    "```{r setup}",
+    paste0("library(", pkg, ")"),
+    "library(notapkgone)",
+    "suppressPackageStartupMessages(library(\"notapkgtwo\", quietly = TRUE))",
+    "# library(commentedout)",
+    "x <- notapkgthree::read(1) # and skippedpkg::too",
+    "stats::median(1:3)",
+    "```",
+    "",
+    "```{r, eval = FALSE}",
+    "library(notrunone)",
+    "```",
+    "",
+    "```{python}",
+    "import numpy",
+    "```"
+  ), file.path("vignettes", "articles", "examples.Rmd"))
+  writeLines(c(
+    "```{r}",
+    "#| eval: false",
+    "library(notruntwo)",
+    "```",
+    "",
+    "```{r}",
+    "requireNamespace(\"notapkgfour\", quietly = TRUE)",
+    "```"
+  ), file.path("vignettes", "articles", "map.qmd"))
+
+  result <- quiet_check()
+  expect_identical(status_of(result, "article_packages"), "fail")
+  expect_false(attr(result, "ready"))
+  expect_identical(
+    result$detail[result$id == "article_packages"],
+    "not declared: notapkgone, notapkgthree, notapkgtwo (vignettes/articles/examples.Rmd); notapkgfour (vignettes/articles/map.qmd)"
+  )
+  expect_match(result$fix[result$id == "article_packages"], "Config/Needs/website", fixed = TRUE)
+
+  # declared in Config/Needs/website, as a name or as a pak reference, or in Suggests
+  desc::desc_set("Config/Needs/website",
+                 "rmarkdown, notapkgone, any::notapkgtwo, someone/notapkgthree@v1.0.0")
+  desc::desc_set("Suggests", "notapkgfour (>= 1.0.0)")
+  result <- quiet_check()
+  expect_identical(status_of(result, "article_packages"), "pass")
+  expect_identical(result$detail[result$id == "article_packages"], "2 article(s) read")
+})
+
+test_that("article_packages counts what a declared, installed package brings along (#143)", {
+  readiness_fixture()
+  dir.create(file.path("vignettes", "articles"), recursive = TRUE)
+  # waldo is a hard dependency of testthat, which runs this test
+  writeLines(c("```{r}", "library(waldo)", "```"), file.path("vignettes", "articles", "examples.Rmd"))
+  expect_identical(status_of(quiet_check(), "article_packages"), "fail")
+  desc::desc_set("Config/Needs/website", "rmarkdown, testthat")
+  expect_identical(status_of(quiet_check(), "article_packages"), "pass")
+})
+
+test_that("declared_packages() reads names from pak references", {
+  readiness_fixture()
+  desc::desc_set("Config/Needs/website",
+                 "rmarkdown, any::sf, github::r-lib/pak@main, mypkg=someone/repo, owner/repo#12")
+  ctx <- readiness_context(".", readiness_profile(NULL, "."))
+  expect_true(all(c("rmarkdown", "sf", "pak", "mypkg", "repo", "stats") %in% declared_packages(ctx)))
+  expect_false("someone" %in% declared_packages(ctx))
 })

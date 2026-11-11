@@ -80,6 +80,7 @@ a review tool can pick the rows it needs.\tabular{lll}{
    docs \tab \code{readme_extdata_links} \tab \code{README.md} links a \code{.csv} or \code{.xlsx} file under \verb{inst/extdata/} \cr
    docs \tab \code{readme_citation} \tab \code{README.md} names the DOI that \code{CITATION.cff} carries \cr
    docs \tab \code{vignettes_location} \tab no \code{.Rmd} or \code{.qmd} file sits directly in \verb{vignettes/} \cr
+   docs \tab \code{article_packages} \tab every package an article under \verb{vignettes/} loads is declared in DESCRIPTION (\code{Config/Needs/website}, \code{Suggests}, \code{Imports} or \code{Depends}) \cr
    docs \tab \code{pkgdown_config} \tab \verb{_pkgdown.yml} is present \cr
    docs \tab \code{pkgdown_analytics} \tab \verb{_pkgdown.yml} carries the analytics header \cr
    docs \tab \code{pkgdown_url} \tab \code{url} in \verb{_pkgdown.yml} is the Pages URL, not the repository URL \cr
@@ -111,6 +112,18 @@ change their bytes when they are written again. The item is not
 applicable on a development version, without git, without the tag (also
 in a shallow clone that lacks it) or when the package is not the root of
 its git repository.
+
+The pkgdown workflow installs what DESCRIPTION declares and nothing else,
+so an article that loads an undeclared package builds on the computer of
+its author and stops the site build on GitHub. \code{article_packages} reads
+the R chunks and the inline R code of every \code{.Rmd} and \code{.qmd} file under
+\verb{vignettes/} and collects the packages they load with \code{library()},
+\code{require()}, \code{requireNamespace()}, \code{loadNamespace()} or \verb{pkg::}. Chunks
+with \code{eval = FALSE} are left out. A package counts as declared when
+\code{Config/Needs/website}, \code{Suggests}, \code{Imports} or \code{Depends} names it, when
+it is the package itself or part of base R, or when a declared package
+that is installed on this computer depends on it (dplyr under tidyverse).
+The item is not applicable without an article.
 }
 \examples{
 \dontrun{

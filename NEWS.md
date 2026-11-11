@@ -1,5 +1,9 @@
 # washr (development version)
 
+## New
+
+- `check_publication_readiness()` has a new item, `article_packages`. It reads the R chunks and the inline R code of every `.Rmd` and `.qmd` file under `vignettes/` and fails when an article loads a package (`library()`, `require()`, `requireNamespace()`, `loadNamespace()` or `pkg::`) that DESCRIPTION does not declare in `Config/Needs/website`, `Suggests`, `Imports` or `Depends`. The pkgdown workflow installs only what DESCRIPTION declares, and four of the five site build failures of the move to the workflow came from such a package. Chunks with `eval = FALSE` are left out. The package itself, base R and the dependencies of a declared package that is installed (dplyr under tidyverse) count as declared. The fix names `Config/Needs/website`. The item is not applicable without an article (#143).
+
 # washr 1.3.0
 
 ## New
