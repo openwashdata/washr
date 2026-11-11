@@ -5,9 +5,12 @@
 # texts and the footer come from the Config/washr fields in DESCRIPTION.
 # washr keeps this file as it is on every later run; update_website() brings
 # the washr owned blocks up to date and leaves the rest alone.
+# `light-switch: true` shows the switch between the light and the dark theme
+# that the navbar lists; without it pkgdown leaves the switch out.
 url: {{{pages_url}}}
 template:
   bootstrap: 5
+  light-switch: true
 {{#has_analytics}}
   includes:
     in_header: |

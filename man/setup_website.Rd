@@ -24,7 +24,8 @@ the site from the package documentation and README.md. The configuration
 comes from the washr template, filled from DESCRIPTION: the Pages URL as
 the site URL, the repository link, the analytics header, the link to the
 website of the organisation in the navbar, the funding and the community
-blocks of the sidebar, the authors footer, the footer that names the
+blocks of the sidebar, the switch between the light and the dark theme,
+the authors footer, the footer that names the
 washr version and the publisher, and a reference index with one entry
 per data object in \verb{data/}. The texts and links are the \verb{Config/washr/}
 fields that \code{\link[=update_description]{update_description()}} writes (\code{analytics-domain}, \code{funding},

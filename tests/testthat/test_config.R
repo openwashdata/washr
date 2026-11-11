@@ -122,6 +122,8 @@ test_that("the pkgdown template writes the footer, the navbar link and the sideb
   expect_identical(owd$footer$components$washr, washr_footer_line())
   expect_match(owd$footer$components$washr, as.character(utils::packageVersion("washr")), fixed = TRUE)
   expect_identical(owd$navbar$structure$right, c("search", "home", "github", "lightswitch"))
+  # the switch the navbar lists is switched on, so the dark theme is reached
+  expect_true(owd$template$`light-switch`)
   expect_identical(owd$navbar$components$home$href, "https://openwashdata.org")
   expect_identical(owd$navbar$components$home$text, "openwashdata.org")
   expect_identical(owd$home$sidebar$structure, c("links", "citation", "authors", "dev", "custom", "community"))

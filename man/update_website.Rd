@@ -12,7 +12,7 @@ the file changed? Defaults to \code{FALSE}.}
 }
 \value{
 Invisibly, the names of the blocks that changed (\code{"footer"},
-\code{"navbar"}, \code{"sidebar"}, \code{"opengraph"}), or an empty vector when the
+\code{"navbar"}, \code{"sidebar"}, \code{"lightswitch"}, \code{"opengraph"}), or an empty vector when the
 file was current.
 }
 \description{
@@ -20,8 +20,8 @@ file was current.
 template has gained since the file was written, and refreshes what washr
 owns: the footer with the washr version and the publisher sentence, the
 link to the website of the organisation in the navbar, the funding and
-the community blocks of the sidebar, and the Open Graph image when the
-brand is installed. Everything else is kept as it is: the reference
+the community blocks of the sidebar, the light switch of the site, and
+the Open Graph image when the brand is installed. Everything else is kept as it is: the reference
 index, hand edits, comments and the brand wiring of \code{\link[=use_brand]{use_brand()}}. A
 file that is current is left untouched (#145).
 
@@ -35,6 +35,12 @@ Blocks written by hand are respected. A footer, a navbar or a sidebar
 that already carries a component of the same name keeps it, and the
 function adds only what is missing. The file is written only when the
 result parses as YAML.
+
+The navbar of a washr site lists the light switch, and pkgdown shows it
+only when the template says \code{light-switch: true}. \code{update_website()} adds
+that line to a Bootstrap 5 site that lacks it, so readers can change to
+the dark theme, where the dark logo of the brand is shown. A file that
+already sets \code{light-switch}, also to \code{false}, keeps its value.
 }
 \examples{
 \dontrun{

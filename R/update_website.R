@@ -5,8 +5,8 @@
 #' template has gained since the file was written, and refreshes what washr
 #' owns: the footer with the washr version and the publisher sentence, the
 #' link to the website of the organisation in the navbar, the funding and
-#' the community blocks of the sidebar, and the Open Graph image when the
-#' brand is installed. Everything else is kept as it is: the reference
+#' the community blocks of the sidebar, the light switch of the site, and
+#' the Open Graph image when the brand is installed. Everything else is kept as it is: the reference
 #' index, hand edits, comments and the brand wiring of [use_brand()]. A
 #' file that is current is left untouched (#145).
 #'
@@ -21,11 +21,17 @@
 #' function adds only what is missing. The file is written only when the
 #' result parses as YAML.
 #'
+#' The navbar of a washr site lists the light switch, and pkgdown shows it
+#' only when the template says `light-switch: true`. `update_website()` adds
+#' that line to a Bootstrap 5 site that lacks it, so readers can change to
+#' the dark theme, where the dark logo of the brand is shown. A file that
+#' already sets `light-switch`, also to `false`, keeps its value.
+#'
 #' @param build Logical. Rebuild the site with [pkgdown::build_site()] when
 #'   the file changed? Defaults to `FALSE`.
 #'
 #' @returns Invisibly, the names of the blocks that changed (`"footer"`,
-#'   `"navbar"`, `"sidebar"`, `"opengraph"`), or an empty vector when the
+#'   `"navbar"`, `"sidebar"`, `"lightswitch"`, `"opengraph"`), or an empty vector when the
 #'   file was current.
 #'
 #' @seealso Before: [setup_website()], which writes a new `_pkgdown.yml` from
@@ -67,6 +73,7 @@ update_website <- function(build = FALSE) {
   step("footer", pkgdown_update_footer(lines, data, unit))
   step("navbar", pkgdown_update_navbar(lines, data, unit))
   step("sidebar", pkgdown_update_sidebar(lines, data, unit))
+  step("lightswitch", pkgdown_update_lightswitch(lines, unit))
   step("opengraph", pkgdown_update_opengraph(lines, brand_opengraph_image(), unit))
 
   if (identical(lines, original)) {
@@ -517,6 +524,24 @@ pkgdown_update_sidebar <- function(lines, data, unit = 2L) {
     changed <- changed || res$changed
   }
   list(lines = lines, changed = changed)
+}
+
+# The light switch under template: pkgdown lists `lightswitch` in the navbar
+# by default and shows it only with `light-switch: true`, so without the
+# line the dark theme, and the dark logo of the brand, are never reached.
+# Added after the bootstrap line of a Bootstrap 5 site; a file that sets
+# the key, also to false, keeps its value.
+pkgdown_update_lightswitch <- function(lines, unit = 2L) {
+  unchanged <- list(lines = lines, changed = FALSE)
+  range <- yaml_block(lines, "template")
+  if (is.null(range) || nzchar(yaml_inline_value(lines[range[1]]))) return(unchanged)
+  if (!is.na(yaml_child(lines, range, "light-switch", unit))) return(unchanged)
+  bootstrap <- yaml_child(lines, range, "bootstrap", unit)
+  if (is.na(bootstrap) || !identical(yaml_inline_value(lines[bootstrap]), "5")) {
+    return(c(unchanged, notes = "The site does not use Bootstrap 5, so it gets no light switch."))
+  }
+  lines <- yaml_insert_after(lines, paste0(strrep(" ", unit), "light-switch: true"), bootstrap)
+  list(lines = lines, changed = TRUE)
 }
 
 # The Open Graph image under template: added when missing; an image that

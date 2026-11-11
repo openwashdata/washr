@@ -4,6 +4,10 @@
 
 - `check_publication_readiness()` has a new item, `article_packages`. It reads the R chunks and the inline R code of every `.Rmd` and `.qmd` file under `vignettes/` and fails when an article loads a package (`library()`, `require()`, `requireNamespace()`, `loadNamespace()` or `pkg::`) that DESCRIPTION does not declare in `Config/Needs/website`, `Suggests`, `Imports` or `Depends`. The pkgdown workflow installs only what DESCRIPTION declares, and four of the five site build failures of the move to the workflow came from such a package. Chunks with `eval = FALSE` are left out. The package itself, base R and the dependencies of a declared package that is installed (dplyr under tidyverse) count as declared. The fix names `Config/Needs/website`. The item is not applicable without an article (#143).
 
+## Fixed
+
+- The switch between the light and the dark theme shows on the package sites. The navbar of the `setup_website()` template lists `lightswitch`, but pkgdown shows the switch only when the template says `light-switch: true`, and the line was missing. The dark theme, and with it the dark logo that `use_brand()` installs, was never reached. The template now carries the line, and `update_website()` adds it to an existing Bootstrap 5 `_pkgdown.yml` (reported as `"lightswitch"`); a file that already sets `light-switch`, also to `false`, keeps its value. The washr site gets the line too. An existing site shows the switch after `update_website()` and the next site build.
+
 # washr 1.3.0
 
 ## New

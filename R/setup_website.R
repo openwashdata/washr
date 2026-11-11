@@ -6,7 +6,8 @@
 #' comes from the washr template, filled from DESCRIPTION: the Pages URL as
 #' the site URL, the repository link, the analytics header, the link to the
 #' website of the organisation in the navbar, the funding and the community
-#' blocks of the sidebar, the authors footer, the footer that names the
+#' blocks of the sidebar, the switch between the light and the dark theme,
+#' the authors footer, the footer that names the
 #' washr version and the publisher, and a reference index with one entry
 #' per data object in `data/`. The texts and links are the `Config/washr/`
 #' fields that [update_description()] writes (`analytics-domain`, `funding`,

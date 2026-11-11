@@ -3,6 +3,7 @@ template:
   bslib:
     brand: _brand.yml
   bootstrap: 5
+  light-switch: true
   opengraph:
     image:
       src: https://raw.githubusercontent.com/openwashdata/brand/v1.1.0/assets/social-preview.png

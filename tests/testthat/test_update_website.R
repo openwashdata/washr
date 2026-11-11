@@ -75,7 +75,7 @@ test_that("update_website() adds the footer, the navbar link and the community b
   pkg <- website_update_fixture()
   before <- readLines("_pkgdown.yml")
   changed <- quiet_update()
-  expect_setequal(changed, c("footer", "navbar", "sidebar"))
+  expect_setequal(changed, c("footer", "navbar", "sidebar", "lightswitch"))
   lines <- readLines("_pkgdown.yml")
   parsed <- yaml::read_yaml("_pkgdown.yml")
 
@@ -150,17 +150,17 @@ test_that("update_website() keeps a hand written navbar component and a sidebar 
   withr::with_options(list(usethis.quiet = FALSE), {
     expect_message(expect_message(changed <- update_website(), "home component"), "sidebar")
   })
-  expect_identical(changed, "footer")
+  expect_identical(changed, c("footer", "lightswitch"))
   parsed <- yaml::read_yaml("_pkgdown.yml")
   expect_identical(parsed$navbar$components$home$href, "https://example.org")
   expect_null(parsed$navbar$structure)
   expect_false(parsed$home$sidebar)
 })
 
-test_that("update_website() adds only the washr line for a package of another organisation (#145)", {
+test_that("update_website() adds only the washr line and the light switch for a package of another organisation (#145)", {
   pkg <- website_update_fixture(github_user = "https://github.com/exampleorg")
   changed <- quiet_update()
-  expect_identical(changed, "footer")
+  expect_identical(changed, c("footer", "lightswitch"))
   parsed <- yaml::read_yaml("_pkgdown.yml")
   expect_identical(parsed$footer$structure$left, "developed_by")
   expect_null(parsed$footer$components$publisher)
@@ -240,7 +240,7 @@ test_that("update_website() edits lists written at the indent of their key, as u
   navbar <- c("navbar:", "  structure:", "    left:", "    - intro", "    - reference", "    right:", "    - search", "    - github", "")
   lines <- append(lines, navbar, after = grep("^home:", lines) - 1L)
   writeLines(lines, "_pkgdown.yml")
-  expect_setequal(quiet_update(), c("footer", "navbar", "sidebar"))
+  expect_setequal(quiet_update(), c("footer", "navbar", "sidebar", "lightswitch"))
   parsed <- yaml::read_yaml("_pkgdown.yml")
   expect_identical(parsed$navbar$structure$left, c("intro", "reference"))
   expect_identical(parsed$navbar$structure$right, c("search", "home", "github"))
@@ -250,4 +250,45 @@ test_that("update_website() edits lists written at the indent of their key, as u
   expect_true("    - home" %in% out)
   expect_true("    - community" %in% out)
   expect_length(quiet_update(), 0)
+})
+
+test_that("update_website() switches on the light switch of a Bootstrap 5 site", {
+  website_update_fixture()
+  expect_true("lightswitch" %in% quiet_update())
+  lines <- readLines("_pkgdown.yml")
+  parsed <- yaml::read_yaml("_pkgdown.yml")
+  expect_true(parsed$template$`light-switch`)
+  expect_identical(parsed$template$bslib$brand, "_brand.yml")
+  expect_identical(parsed$template$bootstrap, 5L)
+  # the line follows the bootstrap line, at the indent of the file
+  expect_identical(lines[grep("^  bootstrap: 5$", lines) + 1L], "  light-switch: true")
+  expect_true("lightswitch" %in% parsed$navbar$structure$right)
+  # a second run adds nothing
+  expect_length(quiet_update(), 0)
+  expect_identical(sum(grepl("light-switch", readLines("_pkgdown.yml"))), 1L)
+})
+
+test_that("update_website() keeps a light switch that is set, also when switched off", {
+  website_update_fixture()
+  lines <- readLines("_pkgdown.yml")
+  lines <- append(lines, "  light-switch: false", after = grep("^template:", lines))
+  writeLines(lines, "_pkgdown.yml")
+  expect_false("lightswitch" %in% quiet_update())
+  expect_false(yaml::read_yaml("_pkgdown.yml")$template$`light-switch`)
+})
+
+test_that("pkgdown_update_lightswitch() leaves a site without Bootstrap 5 alone", {
+  four <- c("template:", "    bootstrap: 5", "    includes:", "        in_header: x")
+  wide <- pkgdown_update_lightswitch(four, unit = 4L)
+  expect_true(wide$changed)
+  expect_identical(wide$lines[3], "    light-switch: true")
+  expect_false(pkgdown_update_lightswitch(wide$lines, unit = 4L)$changed)
+
+  expect_false(pkgdown_update_lightswitch(c("url: https://example.org/", "home:", "  links: x"))$changed)
+  expect_false(pkgdown_update_lightswitch("template: {bootstrap: 5}")$changed)
+  three <- pkgdown_update_lightswitch(c("template:", "  bootstrap: 3"))
+  expect_false(three$changed)
+  expect_match(three$notes, "Bootstrap 5", fixed = TRUE)
+  none <- pkgdown_update_lightswitch(c("template:", "  includes:", "    in_header: x"))
+  expect_false(none$changed)
 })
